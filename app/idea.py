@@ -214,7 +214,8 @@ DESCRIBE_MODEL = "gpt-4o-mini"
 DESCRIBE_TEMPERATURE = 0
 DESCRIBE_MAX_TOKENS = 300
 
-DESCRIBE_SYSTEM = """You produce a short capability description and input/output schema summary for API search.
+DESCRIBE_SYSTEM = """You produce a short capability description and input/output schema summary for semantic API search.
+The description will be matched against an API catalog (names, descriptions, domains, use cases). Use concrete, search-friendly wording: specific verbs and nouns (e.g. "get store locations by geography", "verify bank account and check balance", "look up product inventory"). Avoid vague phrases like "API capability" or "handle the step".
 Output valid JSON only. Keys: description (1-2 sentences), input_schema (brief), output_schema (brief)."""
 
 DESCRIBE_USER = """Api key (capability): {api_key}
@@ -223,7 +224,7 @@ Step: {step_label}
 Persona: {persona_label}
 Journey: {journey_title}
 
-Write a 1-2 sentence capability description suitable for semantic API search, and brief input_schema and output_schema text.
+Write a 1-2 sentence capability description that clearly states what API or backend capability this step needs (e.g. look up X, create Y, verify Z). Use wording that would match typical API catalog entries: specific actions and data (locations, balances, orders, users, etc.). Then add brief input_schema and output_schema text.
 JSON only. Keys: description, input_schema, output_schema."""
 
 

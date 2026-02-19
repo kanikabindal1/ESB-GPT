@@ -102,6 +102,24 @@ class RAGLookupResponse(BaseModel):
     build_required: bool = True
 
 
+class RAGDebugResultItem(BaseModel):
+    """One raw retriever result for debug endpoint (no 0.95 rule applied)."""
+
+    id: str = Field(..., description="ChromaDB document id.")
+    similarity: float = Field(..., ge=0, le=1)
+    match_type: str = Field(..., description="direct, closest, or no_match.")
+    name: str = Field(default="", description="API name from record.")
+    path: str = Field(default="", description="API path/endpoint from record.")
+
+
+class RAGDebugResponse(BaseModel):
+    """Response for POST /api/rag/debug: built query and raw results only."""
+
+    built_query: str = Field(..., description="Query string sent to retriever.")
+    result_count: int = Field(..., description="Number of results returned.")
+    results: list[RAGDebugResultItem] = Field(default_factory=list, description="Raw results (id, similarity, match_type, name, path).")
+
+
 class RAGRerankRequest(BaseModel):
     """Request body for POST /api/rag/rerank."""
 

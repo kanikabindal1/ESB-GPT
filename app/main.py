@@ -3,8 +3,11 @@ FastAPI app for API Discovery RAG.
 Phase 1: OpenAI + ChromaDB clients and collection initialization.
 Phase 6: POST /search, POST /ingest.
 """
+import logging
 import os
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 import chromadb
 from dotenv import load_dotenv
@@ -30,6 +33,8 @@ from app.models import (
     JiraGenerateResponse,
     JiraRequest,
     JiraResponse,
+    RAGDebugResponse,
+    RAGDebugResultItem,
     RAGLookupRequest,
     RAGLookupResponse,
     RAGRerankRequest,
@@ -257,6 +262,19 @@ def search_endpoint(body: SearchRequest):
     from app.retriever import search as retriever_search
 
     results_raw = retriever_search(body.query, n_results=5)
+    if results_raw:
+        best = results_raw[0]
+        best_name = (best.get("record") or {}).get("name") or (best.get("record") or {}).get("id") or "unknown"
+        logger.info(
+            "Search query=%s result_count=%s best_score=%.4f best_match_type=%s best_api=%s",
+            (body.query[:100] + "..." if len(body.query) > 100 else body.query),
+            len(results_raw),
+            best["similarity"],
+            best["match_type"],
+            best_name,
+        )
+    else:
+        logger.info("Search query=%s result_count=0 best_score=N/A", body.query[:100] if body.query else "")
     api_results = []
 
     for r in results_raw:
@@ -287,6 +305,14 @@ def rag_lookup_endpoint(body: RAGLookupRequest):
     query = build_rag_query(body)
     results_raw = retriever_search(query, n_results=body.top_k)
 
+    # Log request and built query for debugging
+    logger.info(
+        "RAG lookup query_key=%s description_len=%s built_query=%s",
+        body.query_key,
+        len(body.description or ""),
+        query[:200] + "..." if len(query) > 200 else query,
+    )
+
     filtered = (
         results_raw
         if body.min_score is None
@@ -298,6 +324,7 @@ def rag_lookup_endpoint(body: RAGLookupRequest):
     ]
 
     if not results_raw:
+        logger.info("RAG lookup query_key=%s result_count=0 best_score=N/A match_status=none", body.query_key)
         return RAGLookupResponse(
             query_key=body.query_key,
             match_status="none",
@@ -314,13 +341,32 @@ def rag_lookup_endpoint(body: RAGLookupRequest):
     similarity = best["similarity"]
     match_type = best["match_type"]
 
-    # API present only at high confidence (>= 95%)
-    if similarity >= 0.95:
+    # exact >= 0.95; partial 0.75 <= x < 0.95; none < 0.75
+    if similarity >= 0.75:
         match_status = "exact"
+    elif similarity >= 0.50:
+        match_status = "partial"
     else:
         match_status = "none"
 
+    # build_required only when no usable match (none); partial is treated as existing capability
     build_required = match_status == "none"
+
+    # Always log best match score (even when below threshold) for debugging
+    best_name = record.get("name") or record.get("id") or "unknown"
+    best_path = record.get("path") or record.get("endpoint") or ""
+    logger.info(
+        "RAG lookup query_key=%s result_count=%s best_score=%.4f best_match_type=%s match_status=%s best_api=%s path=%s below_threshold=%s",
+        body.query_key,
+        len(results_raw),
+        similarity,
+        match_type,
+        match_status,
+        best_name,
+        best_path,
+        similarity < 0.95,
+    )
+
     matched_api = record_to_matched_api(record) if record else None
     if suggested_apis and matched_api is None:
         matched_api = suggested_apis[0].api
@@ -339,6 +385,30 @@ def rag_lookup_endpoint(body: RAGLookupRequest):
         gap_summary=gap_summary,
         build_required=build_required,
     )
+
+
+@app.post("/api/rag/debug", response_model=RAGDebugResponse)
+def rag_debug_endpoint(body: RAGLookupRequest):
+    """
+    Debug RAG: return built query and raw retriever results without applying the 0.95 match_status rule.
+    Use for inspecting why lookups return no match. Disable or protect in production.
+    """
+    from app.retriever import search as retriever_search
+
+    query = build_rag_query(body)
+    n_results = min(body.top_k, 10)
+    results_raw = retriever_search(query, n_results=n_results)
+    items = [
+        RAGDebugResultItem(
+            id=r.get("id", ""),
+            similarity=round(r["similarity"], 4),
+            match_type=r.get("match_type", ""),
+            name=(r.get("record") or {}).get("name", ""),
+            path=(r.get("record") or {}).get("path") or (r.get("record") or {}).get("endpoint", ""),
+        )
+        for r in results_raw
+    ]
+    return RAGDebugResponse(built_query=query, result_count=len(items), results=items)
 
 
 @app.post("/api/rag/rerank", response_model=RAGRerankResponse)

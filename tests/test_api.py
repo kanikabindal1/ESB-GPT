@@ -270,12 +270,40 @@ class TestRAGLookup:
         assert resp2.status_code == 422
 
     @patch("app.retriever.search")
+    def test_rag_lookup_partial_band_returns_partial_and_build_not_required(self, mock_search, client):
+        """Similarity in [0.75, 0.95) returns match_status partial and build_required False."""
+        mock_search.return_value = [
+            {
+                "id": "api-orders",
+                "record": {"id": "api-orders", "name": "Orders API", "path": "/v1/orders", "input": {}, "output": {}},
+                "similarity": 0.82,
+                "match_type": "closest",
+            },
+        ]
+        resp = client.post(
+            "/api/rag/lookup",
+            json={
+                "query_key": "orders_step",
+                "description": "get customer orders",
+                "context": {"product_idea": "Shop", "persona": "Buyer", "journey": "Checkout", "step_label": "View orders"},
+                "expected_io": {"input_schema": "user id", "output_schema": "order list"},
+                "top_k": 5,
+            },
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["match_status"] == "partial"
+        assert data["build_required"] is False
+        assert data["matched_api"]["name"] == "Orders API"
+        assert data["confidence_score"] == 0.82
+
+    @patch("app.retriever.search")
     def test_rag_lookup_with_context_and_expected_io(self, mock_search, client):
         mock_search.return_value = [
             {
                 "id": "api-orders",
                 "record": {"id": "api-orders", "name": "Orders API", "path": "/v1/orders", "input": {}, "output": {}},
-                "similarity": 0.91,
+                "similarity": 0.96,
                 "match_type": "direct",
             },
         ]
@@ -301,6 +329,30 @@ class TestRAGLookup:
         assert "Product: Shop" in query or "Shop" in query
         assert "Persona: Buyer" in query or "Buyer" in query
         assert "Expected input" in query or "customer_id" in query
+
+    @patch("app.retriever.search")
+    def test_rag_debug_returns_built_query_and_raw_results(self, mock_search, client):
+        mock_search.return_value = [
+            {
+                "id": "api-foo",
+                "record": {"id": "api-foo", "name": "Foo API", "path": "/v1/foo", "input": {}, "output": {}},
+                "similarity": 0.88,
+                "match_type": "closest",
+            },
+        ]
+        resp = client.post(
+            "/api/rag/debug",
+            json={"query_key": "k", "description": "find foo", "top_k": 5},
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["built_query"] == "find foo"
+        assert data["result_count"] == 1
+        assert len(data["results"]) == 1
+        assert data["results"][0]["similarity"] == 0.88
+        assert data["results"][0]["match_type"] == "closest"
+        assert data["results"][0]["name"] == "Foo API"
+        assert data["results"][0]["path"] == "/v1/foo"
 
 
 class TestIdeaFeatures:

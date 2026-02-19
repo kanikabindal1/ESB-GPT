@@ -118,6 +118,6 @@ class TestIngestThenSearch:
         assert resp.status_code == 200
         data = resp.json()
         assert data["query_key"] == "store_lookup"
-        assert data["match_status"] in ("exact", "none")
+        assert data["match_status"] in ("exact", "partial", "none")
         assert data["matched_api"] is not None
         assert data["matched_api"]["name"] == "Store Location API"
