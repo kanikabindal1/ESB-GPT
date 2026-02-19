@@ -133,6 +133,95 @@ class FeaturesResponse(BaseModel):
     model_used: str = Field(..., description="Model echoed back, e.g. 'gpt-4o'.")
 
 
+# --- POST /llm/chat (product discovery coach) ---
+class ChatMessage(BaseModel):
+    """One message in a conversation (user or assistant)."""
+
+    role: Literal["user", "assistant"] = Field(..., description="Sender of the message.")
+    content: str = Field(..., description="Message text.")
+
+
+class ChatRequest(BaseModel):
+    """Request body for POST /llm/chat."""
+
+    messages: list[ChatMessage] = Field(..., description="Full conversation history, including latest user message.")
+    idea_context: str = Field(default="", description="Optional pre-fill if user typed something before entering chat.")
+
+
+class ChatResponse(BaseModel):
+    """Response for POST /llm/chat."""
+
+    reply: str = Field(..., description="Assistant's next message.")
+    is_ready_to_summarise: bool = Field(
+        ...,
+        description="True when assistant judges enough context has been gathered.",
+    )
+    turn_count: int = Field(..., description="Echoed back: len(messages) after this reply.")
+    model_used: str = Field(..., description="Model echoed back, e.g. 'gpt-4o'.")
+
+
+# --- POST /llm/summarise (conversation → structured brief) ---
+class FeatureDescription(BaseModel):
+    """One inferred feature from summarise (title + description only)."""
+
+    title: str = Field(..., description="4-6 word feature name.")
+    description: str = Field(
+        ...,
+        description="2-4 sentence detailed description of the feature, what it does, why it matters, who uses it.",
+    )
+
+
+class UseCaseDescription(BaseModel):
+    """One use case distilled from the discovery conversation."""
+
+    persona: str = Field(..., description="Who this use case is for.")
+    goal: str = Field(..., description="What they are trying to achieve.")
+    workflow: str = Field(
+        ...,
+        description="2-3 sentence description of how they do it.",
+    )
+
+
+class SummariseRequest(BaseModel):
+    """Request body for POST /llm/summarise."""
+
+    messages: list[ChatMessage] = Field(..., description="Full conversation history.")
+
+
+class SummariseResponse(BaseModel):
+    """Response for POST /llm/summarise; feeds /llm/features, /llm/suggest-personas, and feature scoping."""
+
+    idea: str = Field(
+        ...,
+        description="1-2 sentence product idea string; passed as-is to /llm/features.",
+    )
+    idea_summary: str = Field(
+        ...,
+        description="One sentence summary; passed to /llm/suggest-personas.",
+    )
+    detailed_description: str = Field(
+        ...,
+        description="3-5 sentence full description of the product, its purpose, and context.",
+    )
+    inferred_features: list[FeatureDescription] = Field(
+        ...,
+        description="5-10 features with rich descriptions; pre-populate feature toggle screen.",
+    )
+    use_cases: list[UseCaseDescription] = Field(
+        ...,
+        description="2-4 use cases distilled from the conversation.",
+    )
+    constraints: list[str] = Field(
+        default_factory=list,
+        description="Any compliance, integration, or technical constraints mentioned.",
+    )
+    open_questions: list[str] = Field(
+        default_factory=list,
+        description="Things that were unclear or worth clarifying later.",
+    )
+    model_used: str = Field(..., description="Model echoed back, e.g. 'gpt-4o'.")
+
+
 # --- IdeaGPT: Features → Personas & Journeys ---
 class IdeaPersonasRequest(BaseModel):
     idea: str = Field(..., min_length=1)

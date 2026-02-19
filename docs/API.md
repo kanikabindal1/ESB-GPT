@@ -184,6 +184,76 @@ Extract 8–12 product features from a raw idea using gpt-4o with deterministic 
 
 ---
 
+### `POST /llm/chat`
+
+Stateless product discovery coach. The frontend maintains the full message history and sends it on every turn. The assistant asks clarifying questions (one at a time) to understand the product, users, and key workflows. When enough context is gathered, the assistant sets `is_ready_to_summarise: true`; the frontend can then show a "Summarise & Continue →" button.
+
+**Config:** `gpt-4o`, temperature `0.7`, max_tokens `600` per reply, no `response_format` (free text; backend parses JSON from reply).
+
+**Request:** `application/json`
+
+```ts
+{
+  messages: Array<{ role: "user" | "assistant"; content: string }>;  // full conversation history
+  idea_context?: string;   // optional pre-fill if user typed something before entering chat
+}
+```
+
+**Response:** `200 OK`
+
+```ts
+{
+  reply: string;               // assistant's next message
+  is_ready_to_summarise: boolean;  // true when enough context gathered
+  turn_count: number;         // len(messages) after this reply
+  model_used: string;         // "gpt-4o"
+}
+```
+
+**Errors:** `400` (validation / LLM error), `500` (server/OpenAI).
+
+---
+
+### `POST /llm/summarise`
+
+Takes the full discovery conversation and distills it into a structured product brief. The output feeds into the rest of the flow: `idea` → `/llm/features`, `idea_summary` → `/llm/suggest-personas`, `inferred_features` → pre-populate the feature toggle screen (user can still toggle on/off before confirming; frontend may skip or supplement `/llm/features`).
+
+**Config:** `gpt-4o`, temperature `0`, max_tokens `3000`, `response_format: { type: "json_object" }`.
+
+**Request:** `application/json`
+
+```ts
+{
+  messages: Array<{ role: "user" | "assistant"; content: string }>;  // full conversation history
+}
+```
+
+**Response:** `200 OK`
+
+```ts
+{
+  idea: string;                    // 1-2 sentence product idea; passed to /llm/features
+  idea_summary: string;             // one sentence; passed to /llm/suggest-personas
+  detailed_description: string;    // 3-5 sentence full description
+  inferred_features: Array<{
+    title: string;       // 4-6 word feature name
+    description: string; // 2-4 sentence description
+  }>;
+  use_cases: Array<{
+    persona: string;
+    goal: string;
+    workflow: string;
+  }>;
+  constraints: string[];
+  open_questions: string[];
+  model_used: string;
+}
+```
+
+**Errors:** `400` (validation / parse error), `500` (server/OpenAI).
+
+---
+
 ### `POST /llm/suggest-personas`
 
 Suggest distinct user personas for a product idea and its selected features. Called when the user clicks "Map User Journeys →". Frontend shows persona cards; user can rename, edit desc, change icon, select/deselect. Only confirmed (selected) personas are sent to `/llm/generate-journeys`.
@@ -385,6 +455,8 @@ RAG pipeline: semantic lookup against the embedded API catalog. Returns a single
 | GET    | `/catalog`         | —                                | `{ "apis": [...], "_meta"?: {...} }` |
 | POST   | `/search`          | `{ "query": "..." }`             | `{ "results": [ APIResult, ... ] }` |
 | POST   | `/llm/features`    | FeaturesRequest (idea, min/max_features) | FeaturesResponse (features, idea_summary, model_used) |
+| POST   | `/llm/chat`        | ChatRequest (messages, idea_context)    | ChatResponse (reply, is_ready_to_summarise, turn_count, model_used) |
+| POST   | `/llm/summarise`   | SummariseRequest (messages)              | SummariseResponse (idea, idea_summary, inferred_features, use_cases, etc.) |
 | POST   | `/llm/suggest-personas` | SuggestPersonasRequest          | SuggestPersonasResponse (personas, model_used) |
 | POST   | `/llm/generate-journeys` | GenerateJourneysRequest        | GenerateJourneysResponse (personas, unique_api_keys, model_used) |
 | POST   | `/llm/describe`    | DescribeRequest (api_key, idea, step_label, persona_label, journey_title) | DescribeResponse (api_key, description, input_schema, output_schema) |

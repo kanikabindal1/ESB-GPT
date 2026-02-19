@@ -5,9 +5,12 @@ import json
 import re
 
 from app.models import (
+    ChatRequest,
+    ChatResponse,
     ConfirmedPersona,
     DescribeRequest,
     DescribeResponse,
+    FeatureDescription,
     FeatureItem,
     FeaturesRequest,
     FeaturesResponse,
@@ -26,6 +29,9 @@ from app.models import (
     PersonaItem,
     SuggestPersonasRequest,
     SuggestPersonasResponse,
+    SummariseRequest,
+    SummariseResponse,
+    UseCaseDescription,
 )
 
 
@@ -210,6 +216,59 @@ Journey: {journey_title}
 
 Write a 1-2 sentence capability description suitable for semantic API search, and brief input_schema and output_schema text.
 JSON only. Keys: description, input_schema, output_schema."""
+
+
+# --- POST /llm/chat (product discovery coach) ---
+CHAT_MODEL = "gpt-4o"
+CHAT_TEMPERATURE = 0.7
+CHAT_MAX_TOKENS = 600
+
+CHAT_SYSTEM = """You are a product discovery coach helping a user articulate their software product idea.
+Your goal is to understand: what the product does, who uses it, and what the core workflows are.
+
+Ask one focused question at a time. Do not overwhelm with multiple questions.
+After 4-6 turns, when you have a clear picture of the product, its users, and 2-3 key workflows,
+set is_ready_to_summarise to true in your JSON response and tell the user you have enough to proceed.
+
+Always respond with JSON:
+{ "reply": "<your message>", "is_ready_to_summarise": <true|false> }
+No preamble, no markdown outside the reply field.
+
+Good discovery questions cover:
+- What problem does this solve and for whom?
+- Who are the different types of users (end users vs admins)?
+- What are the 2-3 most important things a user needs to do?
+- Are there any integrations, compliance requirements, or constraints?"""
+
+
+# --- POST /llm/summarise (conversation → structured brief) ---
+SUMMARISE_MODEL = "gpt-4o"
+SUMMARISE_TEMPERATURE = 0
+SUMMARISE_MAX_TOKENS = 3000
+
+SUMMARISE_SYSTEM = """You are a product analyst. Given a discovery conversation between a user and a coach,
+extract a structured product brief.
+
+Be specific and detailed — the output will be used to generate an API coverage report,
+so vague feature names like "dashboard" or "settings" are not useful.
+Prefer: "Real-time order tracking with carrier integration" over "order tracking".
+
+Always respond with valid JSON only matching the specified schema. No preamble."""
+
+SUMMARISE_USER_TEMPLATE = """Here is a product discovery conversation:
+
+{messages_formatted}
+
+Extract a structured product brief with:
+- idea: 1-2 sentence summary of the product
+- idea_summary: one sentence
+- detailed_description: 3-5 sentences covering purpose, users, and context
+- inferred_features: 5-10 features, each with a title and a 2-4 sentence description
+- use_cases: 2-4 use cases with persona, goal, and workflow
+- constraints: any compliance, integration, or technical constraints mentioned
+- open_questions: anything that was unclear or not discussed
+
+JSON only."""
 
 
 def _extract_json(text: str) -> str:
@@ -553,6 +612,129 @@ def describe(req: DescribeRequest) -> DescribeResponse:
         description=description,
         input_schema=input_schema,
         output_schema=output_schema,
+    )
+
+
+def chat(req: ChatRequest) -> ChatResponse:
+    """Stateless product discovery coach: one turn. Frontend sends full message history."""
+    from app.main import openai_client
+
+    messages: list[dict[str, str]] = [
+        {"role": "system", "content": CHAT_SYSTEM},
+    ]
+    if (req.idea_context or "").strip():
+        messages.append({
+            "role": "user",
+            "content": f"Context before starting: {req.idea_context.strip()}",
+        })
+    for m in req.messages:
+        messages.append({"role": m.role, "content": m.content})
+
+    resp = openai_client.chat.completions.create(
+        model=CHAT_MODEL,
+        temperature=CHAT_TEMPERATURE,
+        max_tokens=CHAT_MAX_TOKENS,
+        messages=messages,
+    )
+    content = (resp.choices[0].message.content or "").strip()
+    reply = content
+    is_ready = False
+    raw_json = _extract_json(content)
+    if raw_json:
+        try:
+            data = json.loads(raw_json)
+            if isinstance(data, dict):
+                reply = str(data.get("reply", reply)).strip() or content
+                is_ready = bool(data.get("is_ready_to_summarise", False))
+        except json.JSONDecodeError:
+            pass
+    turn_count = len(req.messages) + 1
+    return ChatResponse(
+        reply=reply,
+        is_ready_to_summarise=is_ready,
+        turn_count=turn_count,
+        model_used=CHAT_MODEL,
+    )
+
+
+def summarise(req: SummariseRequest) -> SummariseResponse:
+    """Distill full conversation into structured product brief for /llm/features and feature scoping."""
+    from app.main import openai_client
+
+    lines = []
+    for m in req.messages:
+        prefix = "User:" if m.role == "user" else "Coach:"
+        lines.append(f"{prefix} {m.content}")
+    messages_formatted = "\n\n".join(lines)
+
+    user_msg = SUMMARISE_USER_TEMPLATE.format(messages_formatted=messages_formatted)
+    resp = openai_client.chat.completions.create(
+        model=SUMMARISE_MODEL,
+        temperature=SUMMARISE_TEMPERATURE,
+        max_tokens=SUMMARISE_MAX_TOKENS,
+        response_format={"type": "json_object"},
+        messages=[
+            {"role": "system", "content": SUMMARISE_SYSTEM},
+            {"role": "user", "content": user_msg},
+        ],
+    )
+    content = (resp.choices[0].message.content or "").strip()
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"LLM did not return valid JSON: {e}") from e
+    if not isinstance(data, dict):
+        raise ValueError("LLM did not return a JSON object")
+
+    idea = str(data.get("idea", "")).strip() or "Product idea."
+    idea_summary = str(data.get("idea_summary", "")).strip() or idea
+    detailed_description = str(data.get("detailed_description", "")).strip() or idea
+
+    inferred_raw = data.get("inferred_features")
+    if not isinstance(inferred_raw, list):
+        inferred_raw = []
+    inferred_features: list[FeatureDescription] = []
+    for i, item in enumerate(inferred_raw):
+        if not isinstance(item, dict):
+            continue
+        title = str(item.get("title", "")).strip() or f"Feature {i + 1}"
+        description = str(item.get("description", "")).strip() or ""
+        inferred_features.append(FeatureDescription(title=title, description=description))
+
+    use_cases_raw = data.get("use_cases")
+    if not isinstance(use_cases_raw, list):
+        use_cases_raw = []
+    use_cases: list[UseCaseDescription] = []
+    for u in use_cases_raw:
+        if not isinstance(u, dict):
+            continue
+        use_cases.append(
+            UseCaseDescription(
+                persona=str(u.get("persona", "")).strip() or "User",
+                goal=str(u.get("goal", "")).strip() or "",
+                workflow=str(u.get("workflow", "")).strip() or "",
+            )
+        )
+
+    constraints = data.get("constraints")
+    if not isinstance(constraints, list):
+        constraints = []
+    constraints = [str(c).strip() for c in constraints if c]
+
+    open_questions = data.get("open_questions")
+    if not isinstance(open_questions, list):
+        open_questions = []
+    open_questions = [str(q).strip() for q in open_questions if q]
+
+    return SummariseResponse(
+        idea=idea,
+        idea_summary=idea_summary,
+        detailed_description=detailed_description,
+        inferred_features=inferred_features,
+        use_cases=use_cases,
+        constraints=constraints,
+        open_questions=open_questions,
+        model_used=SUMMARISE_MODEL,
     )
 
 

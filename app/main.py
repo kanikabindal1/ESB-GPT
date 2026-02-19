@@ -13,6 +13,8 @@ from fastapi.responses import FileResponse
 from openai import OpenAI
 
 from app.models import (
+    ChatRequest,
+    ChatResponse,
     DescribeRequest,
     DescribeResponse,
     FeaturesRequest,
@@ -32,9 +34,16 @@ from app.models import (
     SearchResponse,
     SuggestPersonasRequest,
     SuggestPersonasResponse,
+    SummariseRequest,
+    SummariseResponse,
 )
 from app import idea as idea_module
 from app.idea import FeatureParseError
+from app.rag_helpers import (
+    build_rag_query,
+    parse_enhancements_and_gap,
+    record_to_matched_api,
+)
 
 load_dotenv()
 
@@ -131,6 +140,28 @@ def llm_suggest_personas_endpoint(body: SuggestPersonasRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.post("/llm/chat", response_model=ChatResponse)
+def llm_chat_endpoint(body: ChatRequest):
+    """Stateless product discovery coach: one turn. Frontend sends full message history."""
+    try:
+        return idea_module.chat(body)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/llm/summarise", response_model=SummariseResponse)
+def llm_summarise_endpoint(body: SummariseRequest):
+    """Distill full conversation into structured product brief for features and personas."""
+    try:
+        return idea_module.summarise(body)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.post("/llm/generate-journeys", response_model=GenerateJourneysResponse)
 def llm_generate_journeys_endpoint(body: GenerateJourneysRequest):
     """Generate journeys for confirmed personas; steps use api keys for RAG. After user confirms personas."""
@@ -216,93 +247,13 @@ def search_endpoint(body: SearchRequest):
     return SearchResponse(results=api_results)
 
 
-def _build_rag_query(body: RAGLookupRequest) -> str:
-    """Build semantic query string from RAG lookup request."""
-    parts = [body.description]
-    if body.context:
-        ctx = body.context
-        ctx_parts = []
-        if ctx.product_idea:
-            ctx_parts.append(f"Product: {ctx.product_idea}")
-        if ctx.persona:
-            ctx_parts.append(f"Persona: {ctx.persona}")
-        if ctx.journey:
-            ctx_parts.append(f"Journey: {ctx.journey}")
-        if ctx.step_label:
-            ctx_parts.append(f"Step: {ctx.step_label}")
-        if ctx_parts:
-            parts.append(" ".join(ctx_parts))
-    if body.expected_io:
-        if body.expected_io.input_schema:
-            parts.append(f"Expected input: {body.expected_io.input_schema}")
-        if body.expected_io.output_schema:
-            parts.append(f"Expected output: {body.expected_io.output_schema}")
-    return " ".join(parts)
-
-
-def _record_to_matched_api(record: dict) -> RAGMatchedAPI:
-    """Map catalog record to RAGMatchedAPI (new schema: path, owner, readiness)."""
-    endpoint = record.get("path") or record.get("url") or record.get("endpoint") or ""
-    return RAGMatchedAPI(
-        name=record.get("name", ""),
-        endpoint=endpoint,
-        method=record.get("method"),
-        team=record.get("team"),
-        author=record.get("owner"),
-        status=record.get("readiness"),
-        version=record.get("version"),
-        desc=record.get("description"),
-        contract=record.get("confluence"),
-        sla=None,
-        latency=None,
-        calls=None,
-    )
-
-
-def _parse_enhancements_and_gap(text: str) -> tuple[list[str], str | None]:
-    """Parse LLM enhancement suggestion into list of enhancements and optional gap_summary."""
-    if not text or not text.strip():
-        return [], None
-    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
-    enhancements = []
-    gap_parts = []
-    in_gap = False
-    for ln in lines:
-        # Strip common list prefixes
-        stripped = ln.lstrip()
-        for prefix in ("1.", "2.", "3.", "4.", "5.", "- ", "* ", "• "):
-            if stripped.startswith(prefix):
-                stripped = stripped[len(prefix) :].strip()
-                break
-        if not stripped:
-            continue
-        # Heuristic: short lines often bullets; "what is missing" / "missing" → gap
-        lower = stripped.lower()
-        if "missing" in lower or "what is missing" in lower or "gap" in lower:
-            in_gap = True
-            if len(stripped) > 20:
-                gap_parts.append(stripped)
-            continue
-        if in_gap:
-            gap_parts.append(stripped)
-        elif len(stripped) < 120 and not stripped.startswith("Respond with"):
-            enhancements.append(stripped)
-        else:
-            gap_parts.append(stripped)
-    gap_summary = " ".join(gap_parts).strip() or None
-    if not enhancements and gap_summary:
-        enhancements = [gap_summary]
-        gap_summary = None
-    return enhancements, gap_summary
-
-
 @app.post("/api/rag/lookup", response_model=RAGLookupResponse)
 def rag_lookup_endpoint(body: RAGLookupRequest):
     """RAG pipeline: semantic lookup → best match, match_status, enhancements, gap_summary, build_required."""
     from app.recommender import get_enhancement_suggestion
     from app.retriever import search as retriever_search
 
-    query = _build_rag_query(body)
+    query = build_rag_query(body)
     results_raw = retriever_search(query, n_results=body.top_k)
 
     if not results_raw:
@@ -330,14 +281,14 @@ def rag_lookup_endpoint(body: RAGLookupRequest):
         match_status = "none"
 
     build_required = match_status == "none" or (match_status == "partial" and similarity < 0.60)
-    matched_api = _record_to_matched_api(record) if record else None
+    matched_api = record_to_matched_api(record) if record else None
 
     enhancements: list[str] = []
     gap_summary: str | None = None
     if match_status == "partial" or (match_status == "exact" and similarity < 0.95):
         try:
             raw_suggestion = get_enhancement_suggestion(query, record)
-            enhancements, gap_summary = _parse_enhancements_and_gap(raw_suggestion)
+            enhancements, gap_summary = parse_enhancements_and_gap(raw_suggestion)
         except Exception:
             pass
 
