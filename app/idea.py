@@ -5,16 +5,27 @@ import json
 import re
 
 from app.models import (
+    ConfirmedPersona,
+    DescribeRequest,
+    DescribeResponse,
     FeatureItem,
     FeaturesRequest,
     FeaturesResponse,
+    GenerateJourneysRequest,
+    GenerateJourneysResponse,
     IdeaPersonasResponse,
     IdeaFeaturesResponse,
     JiraGenerateResponse,
     JiraStory,
     Journey,
     JourneyStep,
+    LLMJourney,
+    LLMJourneyStep,
+    PersonaSuggestion,
+    PersonaWithJourneys,
     PersonaItem,
+    SuggestPersonasRequest,
+    SuggestPersonasResponse,
 )
 
 
@@ -129,6 +140,76 @@ Each feature object: {{ id, icon, title, desc, on: true }}
 - on: true
 
 idea_summary: one sentence describing what this product does."""
+
+
+# --- POST /llm/suggest-personas ---
+SUGGEST_PERSONAS_MODEL = "gpt-4o"
+SUGGEST_PERSONAS_TEMPERATURE = 0.1
+SUGGEST_PERSONAS_MAX_TOKENS = 1500
+
+SUGGEST_PERSONAS_SYSTEM = """You are a UX strategist with expertise in enterprise product design.
+Given a product idea and its features, suggest the most relevant user personas.
+Each persona must be meaningfully distinct in their goals and workflows.
+Always respond with valid JSON only. Root key must be 'personas' (array)."""
+
+SUGGEST_PERSONAS_USER = """Product idea: "{idea}"
+Summary: "{idea_summary}"
+Confirmed features: {selected_features_str}
+
+Suggest {min_personas}-{max_personas} distinct user personas for this product.
+
+For each persona return:
+  id: snake_case (e.g. 'clinic_admin')
+  label: 2-4 word display name
+  icon: single emoji representing the persona
+  desc: one sentence description of who this person is
+  color: one of ['blue', 'green', 'purple', 'amber']
+  rationale: why this persona is critical to this specific product
+  suggested_journeys: 2-3 short journey names they would take
+  is_primary: true if this persona is central to the product's success
+
+Ensure personas cover both end-users and any operator/admin roles if relevant.
+JSON only. Root key: 'personas'."""
+
+
+# --- POST /llm/generate-journeys ---
+GENERATE_JOURNEYS_MODEL = "gpt-4o"
+GENERATE_JOURNEYS_TEMPERATURE = 0
+GENERATE_JOURNEYS_MAX_TOKENS = 4000
+
+GENERATE_JOURNEYS_SYSTEM = """You generate user journeys for product personas.
+Each step has an 'api' field: a snake_case NOUN that is a capability key for API lookup.
+NOT a verb phrase. Same capability must use the SAME key everywhere (e.g. Sign In and Log Out both use 'auth').
+Examples: Sign In -> auth, Pay Now -> payment, Send Message to Doctor -> secure_messaging, Upload Lab Report -> lab_results, Book Appointment -> scheduling, Get Credit Score -> credit_scoring.
+Always respond with valid JSON only. Root key: 'personas' (array of { id, journeys }). Each journey: id, title, steps. Each step: id, label, icon, api (snake_case noun only)."""
+
+GENERATE_JOURNEYS_USER = """Product idea: "{idea}"
+Selected features: {selected_features_str}
+
+Confirmed personas (use suggested_journeys as hints for journey names):
+{confirmed_personas_str}
+
+Generate journeys: {steps_per_journey} steps per journey (4-7), {journeys_per_persona} journeys per persona (1-3).
+For each step set api to a snake_case capability noun. Deduplicate: same capability = same api key.
+JSON only. Root key: 'personas'. Each persona: id, journeys (array). Each journey: id, title, steps. Each step: id, label, icon, api."""
+
+
+# --- POST /llm/describe ---
+DESCRIBE_MODEL = "gpt-4o-mini"
+DESCRIBE_TEMPERATURE = 0
+DESCRIBE_MAX_TOKENS = 300
+
+DESCRIBE_SYSTEM = """You produce a short capability description and input/output schema summary for API search.
+Output valid JSON only. Keys: description (1-2 sentences), input_schema (brief), output_schema (brief)."""
+
+DESCRIBE_USER = """Api key (capability): {api_key}
+Product idea: {idea}
+Step: {step_label}
+Persona: {persona_label}
+Journey: {journey_title}
+
+Write a 1-2 sentence capability description suitable for semantic API search, and brief input_schema and output_schema text.
+JSON only. Keys: description, input_schema, output_schema."""
 
 
 def _extract_json(text: str) -> str:
@@ -289,6 +370,189 @@ def generate_llm_features(req: FeaturesRequest) -> FeaturesResponse:
         features=features,
         idea_summary=idea_summary,
         model_used=LLM_FEATURES_MODEL,
+    )
+
+
+def suggest_personas(req: SuggestPersonasRequest) -> SuggestPersonasResponse:
+    """Suggest distinct user personas for idea + features. Trigger: Map User Journeys."""
+    from app.main import openai_client
+
+    selected_features_str = ", ".join(req.selected_features) if req.selected_features else "(none)"
+    user_msg = SUGGEST_PERSONAS_USER.format(
+        idea=req.idea,
+        idea_summary=req.idea_summary,
+        selected_features_str=selected_features_str,
+        min_personas=req.min_personas,
+        max_personas=req.max_personas,
+    )
+    resp = openai_client.chat.completions.create(
+        model=SUGGEST_PERSONAS_MODEL,
+        temperature=SUGGEST_PERSONAS_TEMPERATURE,
+        max_tokens=SUGGEST_PERSONAS_MAX_TOKENS,
+        response_format={"type": "json_object"},
+        messages=[
+            {"role": "system", "content": SUGGEST_PERSONAS_SYSTEM},
+            {"role": "user", "content": user_msg},
+        ],
+    )
+    content = (resp.choices[0].message.content or "").strip()
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"LLM did not return valid JSON: {e}") from e
+    personas_raw = data.get("personas") if isinstance(data, dict) else []
+    if not isinstance(personas_raw, list):
+        raise ValueError("LLM did not return a personas array")
+    valid_colors = ["blue", "green", "purple", "amber"]
+    personas = []
+    for i, p in enumerate(personas_raw):
+        if not isinstance(p, dict):
+            continue
+        raw_color = str(p.get("color", "blue")).lower().strip()
+        color = raw_color if raw_color in valid_colors else "blue"
+        suggested = p.get("suggested_journeys")
+        if not isinstance(suggested, list):
+            suggested = []
+        suggested = [str(s).strip() for s in suggested if s]
+        personas.append(
+            PersonaSuggestion(
+                id=str(p.get("id", f"persona_{i}")).strip() or f"persona_{i}",
+                label=str(p.get("label", "Persona")).strip() or "Persona",
+                icon=str(p.get("icon", "👤"))[0] if str(p.get("icon", "👤")).strip() else "👤",
+                desc=str(p.get("desc", "")).strip() or "User persona.",
+                color=color,
+                rationale=str(p.get("rationale", "")).strip() or "Relevant to product.",
+                suggested_journeys=suggested,
+                is_primary=bool(p.get("is_primary", False)),
+            )
+        )
+    return SuggestPersonasResponse(
+        personas=personas,
+        model_used=SUGGEST_PERSONAS_MODEL,
+    )
+
+
+def generate_journeys(req: GenerateJourneysRequest) -> GenerateJourneysResponse:
+    """Generate journeys for confirmed personas; steps use api (snake_case) for RAG."""
+    from app.main import openai_client
+
+    selected_features_str = ", ".join(req.selected_features) if req.selected_features else "(none)"
+    confirmed_personas_str = json.dumps(
+        [
+            {
+                "id": p.id,
+                "label": p.label,
+                "suggested_journeys": p.suggested_journeys,
+            }
+            for p in req.confirmed_personas
+        ],
+        indent=2,
+    )
+    user_msg = GENERATE_JOURNEYS_USER.format(
+        idea=req.idea,
+        selected_features_str=selected_features_str,
+        confirmed_personas_str=confirmed_personas_str,
+        steps_per_journey=req.steps_per_journey,
+        journeys_per_persona=req.journeys_per_persona,
+    )
+    resp = openai_client.chat.completions.create(
+        model=GENERATE_JOURNEYS_MODEL,
+        temperature=GENERATE_JOURNEYS_TEMPERATURE,
+        max_tokens=GENERATE_JOURNEYS_MAX_TOKENS,
+        response_format={"type": "json_object"},
+        messages=[
+            {"role": "system", "content": GENERATE_JOURNEYS_SYSTEM},
+            {"role": "user", "content": user_msg},
+        ],
+    )
+    content = (resp.choices[0].message.content or "").strip()
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"LLM did not return valid JSON: {e}") from e
+    personas_raw = data.get("personas") if isinstance(data, dict) else []
+    if not isinstance(personas_raw, list):
+        raise ValueError("LLM did not return a personas array")
+    all_api_keys: list[str] = []
+    persona_list: list[PersonaWithJourneys] = []
+    for p in personas_raw:
+        if not isinstance(p, dict):
+            continue
+        pid = str(p.get("id", "")).strip() or "p"
+        journeys_raw = p.get("journeys") or []
+        if not isinstance(journeys_raw, list):
+            continue
+        journeys: list[LLMJourney] = []
+        for j in journeys_raw:
+            if not isinstance(j, dict):
+                continue
+            jid = str(j.get("id", "")).strip() or "j"
+            title = str(j.get("title", "Journey")).strip() or "Journey"
+            steps_raw = j.get("steps") or []
+            if not isinstance(steps_raw, list):
+                continue
+            steps: list[LLMJourneyStep] = []
+            for si, s in enumerate(steps_raw):
+                if not isinstance(s, dict):
+                    continue
+                api_val = str(s.get("api", "unknown")).strip().lower() or "unknown"
+                api_val = "_".join(api_val.split())  # normalize to snake_case
+                steps.append(
+                    LLMJourneyStep(
+                        id=str(s.get("id", f"step_{si}")).strip() or f"step_{si}",
+                        label=str(s.get("label", "Step")).strip() or "Step",
+                        icon=str(s.get("icon", "•"))[0] if str(s.get("icon", "•")).strip() else "•",
+                        api=api_val,
+                    )
+                )
+                all_api_keys.append(api_val)
+            journeys.append(LLMJourney(id=jid, title=title, steps=steps))
+        persona_list.append(PersonaWithJourneys(id=pid, journeys=journeys))
+    seen: set[str] = set()
+    unique_api_keys = [k for k in all_api_keys if k not in seen and not seen.add(k)]
+    return GenerateJourneysResponse(
+        personas=persona_list,
+        unique_api_keys=unique_api_keys,
+        model_used=GENERATE_JOURNEYS_MODEL,
+    )
+
+
+def describe(req: DescribeRequest) -> DescribeResponse:
+    """Produce capability description and input/output schema for RAG lookup. Called in batches per api_key."""
+    from app.main import openai_client
+
+    user_msg = DESCRIBE_USER.format(
+        api_key=req.api_key,
+        idea=req.idea,
+        step_label=req.step_label,
+        persona_label=req.persona_label,
+        journey_title=req.journey_title,
+    )
+    resp = openai_client.chat.completions.create(
+        model=DESCRIBE_MODEL,
+        temperature=DESCRIBE_TEMPERATURE,
+        max_tokens=DESCRIBE_MAX_TOKENS,
+        response_format={"type": "json_object"},
+        messages=[
+            {"role": "system", "content": DESCRIBE_SYSTEM},
+            {"role": "user", "content": user_msg},
+        ],
+    )
+    content = (resp.choices[0].message.content or "").strip()
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"LLM did not return valid JSON: {e}") from e
+    if not isinstance(data, dict):
+        raise ValueError("LLM did not return a JSON object")
+    description = str(data.get("description", "")).strip() or "API capability."
+    input_schema = str(data.get("input_schema", "")).strip() or ""
+    output_schema = str(data.get("output_schema", "")).strip() or ""
+    return DescribeResponse(
+        api_key=req.api_key,
+        description=description,
+        input_schema=input_schema,
+        output_schema=output_schema,
     )
 
 

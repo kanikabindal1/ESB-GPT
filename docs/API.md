@@ -184,6 +184,126 @@ Extract 8–12 product features from a raw idea using gpt-4o with deterministic 
 
 ---
 
+### `POST /llm/suggest-personas`
+
+Suggest distinct user personas for a product idea and its selected features. Called when the user clicks "Map User Journeys →". Frontend shows persona cards; user can rename, edit desc, change icon, select/deselect. Only confirmed (selected) personas are sent to `/llm/generate-journeys`.
+
+**Request:** `application/json`
+
+```ts
+{
+  idea: string;
+  idea_summary: string;           // from FeaturesResponse.idea_summary
+  selected_features: string[];    // titles of features where on=true
+  max_personas?: number;         // default 4
+  min_personas?: number;         // default 2
+}
+```
+
+**Response:** `200 OK`
+
+```ts
+{
+  personas: Array<{
+    id: string;                  // e.g. "guest_shopper"
+    label: string;
+    icon: string;                 // single emoji
+    desc: string;
+    color: "blue" | "green" | "purple" | "amber";
+    rationale: string;
+    suggested_journeys: string[]; // 2-3 journey names
+    is_primary: boolean;
+  }>;
+  model_used: string;             // "gpt-4o"
+}
+```
+
+**Errors:** `400` (validation, e.g. min_personas > max_personas), `500` (server/OpenAI).
+
+---
+
+### `POST /llm/generate-journeys`
+
+Generate journeys for confirmed personas in a single call. Called after the user confirms selected personas (and any edits). Each step has an `api` field: a snake_case **noun** (capability key) used for RAG lookup; same capability reuses the same key. Response includes `unique_api_keys` for batching `/llm/describe` calls.
+
+**Request:** `application/json`
+
+```ts
+{
+  idea: string;
+  selected_features: string[];
+  confirmed_personas: Array<{
+    id: string;
+    label: string;
+    icon: string;
+    desc: string;
+    color: string;
+    suggested_journeys: string[];
+  }>;
+  steps_per_journey?: number;     // default 5, 4-7
+  journeys_per_persona?: number;  // default 2, 1-3
+}
+```
+
+**Response:** `200 OK`
+
+```ts
+{
+  personas: Array<{
+    id: string;
+    journeys: Array<{
+      id: string;
+      title: string;              // 3-5 words
+      steps: Array<{
+        id: string;
+        label: string;
+        icon: string;
+        api: string;              // snake_case capability key (noun)
+      }>;
+    }>;
+  }>;
+  unique_api_keys: string[];      // deduplicated step.api for batch /llm/describe
+  model_used: string;
+}
+```
+
+**Api key rules:** Step label "Sign In" → api `auth`; "Pay Now" → `payment`; "Send Message to Doctor" → `secure_messaging`. Noun only, deduplicated across all steps.
+
+**Errors:** `400`, `500`.
+
+---
+
+### `POST /llm/describe`
+
+Produce a short capability description and input/output schema for one api_key. Called in batches (e.g. 10 at a time) from the frontend, one call per unique api_key. Results are used as the `description` (and optional expected_io) when calling `/api/rag/lookup`.
+
+**Request:** `application/json`
+
+```ts
+{
+  api_key: string;                // snake_case from journey step
+  idea: string;
+  step_label: string;
+  persona_label: string;
+  journey_title: string;
+}
+```
+
+**Response:** `200 OK`
+
+```ts
+{
+  api_key: string;                // echoed for correlation
+  description: string;             // 1-2 sentence capability description for RAG
+  input_schema: string;
+  output_schema: string;
+}
+```
+
+**Errors:** `400`, `500`.
+
+---
+
 ### `POST /api/rag/lookup`
 
 RAG pipeline: semantic lookup against the embedded API catalog. Returns a single best match with `match_status` (exact / partial / none), `confidence_score`, `matched_api`, `enhancements`, `gap_summary`, and `build_required`. Intended for use with pre-processed input from `/llm/describe`.
@@ -265,5 +385,8 @@ RAG pipeline: semantic lookup against the embedded API catalog. Returns a single
 | GET    | `/catalog`         | —                                | `{ "apis": [...], "_meta"?: {...} }` |
 | POST   | `/search`          | `{ "query": "..." }`             | `{ "results": [ APIResult, ... ] }` |
 | POST   | `/llm/features`    | FeaturesRequest (idea, min/max_features) | FeaturesResponse (features, idea_summary, model_used) |
+| POST   | `/llm/suggest-personas` | SuggestPersonasRequest          | SuggestPersonasResponse (personas, model_used) |
+| POST   | `/llm/generate-journeys` | GenerateJourneysRequest        | GenerateJourneysResponse (personas, unique_api_keys, model_used) |
+| POST   | `/llm/describe`    | DescribeRequest (api_key, idea, step_label, persona_label, journey_title) | DescribeResponse (api_key, description, input_schema, output_schema) |
 | POST   | `/api/rag/lookup`  | RAGLookupRequest                 | RAGLookupResponse |
 | POST   | `/ingest`          | —                                | `{ "status": "ok", "upserted": N }` |

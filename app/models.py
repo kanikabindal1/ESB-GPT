@@ -169,6 +169,172 @@ class IdeaPersonasResponse(BaseModel):
     personas: list[PersonaItem]
 
 
+# --- POST /llm/suggest-personas, /llm/generate-journeys, /llm/describe ---
+PersonaColorLiteral = Literal["blue", "green", "purple", "amber"]
+
+
+class SuggestPersonasRequest(BaseModel):
+    """Request body for POST /llm/suggest-personas."""
+
+    idea: str = Field(..., min_length=1, description="The original product idea.")
+    idea_summary: str = Field(..., description="From FeaturesResponse.idea_summary.")
+    selected_features: list[str] = Field(
+        default_factory=list,
+        description="Titles of features where on=True.",
+    )
+    max_personas: int = Field(default=4, description="How many personas to suggest.")
+    min_personas: int = Field(default=2, description="Minimum personas to suggest.")
+
+    @model_validator(mode="after")
+    def min_max_order(self):
+        if self.min_personas > self.max_personas:
+            raise ValueError("min_personas must be <= max_personas")
+        return self
+
+
+class PersonaSuggestion(BaseModel):
+    """One suggested persona from POST /llm/suggest-personas."""
+
+    id: str = Field(..., description="snake_case unique id, e.g. 'guest_shopper'")
+    label: str = Field(..., description="Display name, e.g. 'Guest Shopper'")
+    icon: str = Field(..., description="Single emoji.")
+    desc: str = Field(..., description="One sentence describing this persona.")
+    color: PersonaColorLiteral = Field(
+        ..., description="One of blue, green, purple, amber."
+    )
+    rationale: str = Field(
+        ..., description="Why this persona is relevant to the idea."
+    )
+    suggested_journeys: list[str] = Field(
+        default_factory=list,
+        description="2-3 journey names as hints for user.",
+    )
+    is_primary: bool = Field(
+        default=False,
+        description="True if this is a core/critical persona.",
+    )
+
+
+class SuggestPersonasResponse(BaseModel):
+    """Response for POST /llm/suggest-personas."""
+
+    personas: list[PersonaSuggestion] = Field(..., description="Suggested personas.")
+    model_used: str = Field(..., description="Model echoed back, e.g. 'gpt-4o'.")
+
+
+class ConfirmedPersona(BaseModel):
+    """User-confirmed persona passed to POST /llm/generate-journeys."""
+
+    id: str = Field(..., description="From PersonaSuggestion, possibly user-edited.")
+    label: str = Field(..., description="Possibly user-edited.")
+    icon: str = Field(..., description="Possibly user-edited.")
+    desc: str = Field(..., description="Possibly user-edited.")
+    color: str = Field(..., description="User may keep or change.")
+    suggested_journeys: list[str] = Field(
+        default_factory=list,
+        description="From LLM suggestion (hints for journey gen).",
+    )
+
+
+class GenerateJourneysRequest(BaseModel):
+    """Request body for POST /llm/generate-journeys."""
+
+    idea: str = Field(..., description="Product idea.")
+    selected_features: list[str] = Field(
+        default_factory=list,
+        description="Feature titles where on=True.",
+    )
+    confirmed_personas: list[ConfirmedPersona] = Field(
+        ...,
+        description="User-confirmed personas including edits.",
+    )
+    steps_per_journey: int = Field(
+        default=5,
+        ge=4,
+        le=7,
+        description="Target steps per journey.",
+    )
+    journeys_per_persona: int = Field(
+        default=2,
+        ge=1,
+        le=3,
+        description="Target journeys per persona.",
+    )
+
+
+class LLMJourneyStep(BaseModel):
+    """One step in a journey from POST /llm/generate-journeys; api = RAG query key."""
+
+    id: str = Field(..., description="Unique, e.g. 'step_guest_browse_1'")
+    label: str = Field(..., description="2-3 word step label.")
+    icon: str = Field(..., description="Single emoji.")
+    api: str = Field(
+        ...,
+        description="snake_case capability key for RAG lookup; noun not verb-phrase.",
+    )
+
+
+class LLMJourney(BaseModel):
+    """One journey from POST /llm/generate-journeys (4-7 steps)."""
+
+    id: str = Field(..., description="Journey id.")
+    title: str = Field(..., description="3-5 word journey name.")
+    steps: list[LLMJourneyStep] = Field(..., description="4-7 steps.")
+
+
+class PersonaWithJourneys(BaseModel):
+    """Persona with generated journeys; response shape for generate-journeys."""
+
+    id: str = Field(..., description="Matches ConfirmedPersona.id.")
+    journeys: list[LLMJourney] = Field(..., description="Generated journeys.")
+
+
+class GenerateJourneysResponse(BaseModel):
+    """Response for POST /llm/generate-journeys."""
+
+    personas: list[PersonaWithJourneys] = Field(
+        ..., description="Personas with their journeys."
+    )
+    unique_api_keys: list[str] = Field(
+        ...,
+        description="Deduplicated list of all step.api keys for batch /llm/describe.",
+    )
+    model_used: str = Field(..., description="Model echoed back, e.g. 'gpt-4o'.")
+
+
+class DescribeRequest(BaseModel):
+    """Request body for POST /llm/describe (one call per unique api_key)."""
+
+    api_key: str = Field(
+        ...,
+        description="The snake_case api key from journey step.",
+    )
+    idea: str = Field(..., description="Product idea for context.")
+    step_label: str = Field(..., description="Step label for richer context.")
+    persona_label: str = Field(
+        ..., description="The persona this step belongs to."
+    )
+    journey_title: str = Field(
+        ..., description="The journey this step belongs to."
+    )
+
+
+class DescribeResponse(BaseModel):
+    """Response for POST /llm/describe; feeds RAG lookup description."""
+
+    api_key: str = Field(..., description="Echoed back for correlation.")
+    description: str = Field(
+        ...,
+        description="1-2 sentence capability description for semantic RAG search.",
+    )
+    input_schema: str = Field(
+        ..., description="Brief description of key input fields."
+    )
+    output_schema: str = Field(
+        ..., description="Brief description of key output fields."
+    )
+
+
 # --- IdeaGPT: Jira stories for missing steps ---
 class MissingStep(BaseModel):
     label: str

@@ -13,8 +13,12 @@ from fastapi.responses import FileResponse
 from openai import OpenAI
 
 from app.models import (
+    DescribeRequest,
+    DescribeResponse,
     FeaturesRequest,
     FeaturesResponse,
+    GenerateJourneysRequest,
+    GenerateJourneysResponse,
     IdeaFeaturesRequest,
     IdeaFeaturesResponse,
     IdeaPersonasRequest,
@@ -26,6 +30,8 @@ from app.models import (
     RAGMatchedAPI,
     SearchRequest,
     SearchResponse,
+    SuggestPersonasRequest,
+    SuggestPersonasResponse,
 )
 from app import idea as idea_module
 from app.idea import FeatureParseError
@@ -108,6 +114,39 @@ def llm_features_endpoint(body: FeaturesRequest):
             status_code=422,
             detail={"error_code": "FEATURE_PARSE_FAILED"},
         )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/llm/suggest-personas", response_model=SuggestPersonasResponse)
+def llm_suggest_personas_endpoint(body: SuggestPersonasRequest):
+    """Suggest distinct personas for idea + features. Trigger: Map User Journeys."""
+    try:
+        return idea_module.suggest_personas(body)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/llm/generate-journeys", response_model=GenerateJourneysResponse)
+def llm_generate_journeys_endpoint(body: GenerateJourneysRequest):
+    """Generate journeys for confirmed personas; steps use api keys for RAG. After user confirms personas."""
+    try:
+        return idea_module.generate_journeys(body)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/llm/describe", response_model=DescribeResponse)
+def llm_describe_endpoint(body: DescribeRequest):
+    """Produce capability description for RAG lookup. Called in batches per unique api_key."""
+    try:
+        return idea_module.describe(body)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
