@@ -9,6 +9,7 @@ from pathlib import Path
 import chromadb
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from openai import OpenAI
 
@@ -27,6 +28,8 @@ from app.models import (
     IdeaPersonasResponse,
     JiraGenerateRequest,
     JiraGenerateResponse,
+    JiraRequest,
+    JiraResponse,
     RAGLookupRequest,
     RAGLookupResponse,
     RAGMatchedAPI,
@@ -67,6 +70,17 @@ api_collection = chroma_client.get_or_create_collection(
 app = FastAPI(
     title="API Discovery RAG",
     description="Lightweight RAG for API recommendation — search by natural language.",
+)
+
+# CORS: allow UI (e.g. Vite dev server on localhost:5173) to call this API
+_cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173").strip().split(",")
+_cors_origins = [o.strip() for o in _cors_origins if o.strip()]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_cors_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 STATIC_DIR = PROJECT_ROOT / "static"
@@ -178,6 +192,17 @@ def llm_describe_endpoint(body: DescribeRequest):
     """Produce capability description for RAG lookup. Called in batches per unique api_key."""
     try:
         return idea_module.describe(body)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/llm/jira", response_model=JiraResponse)
+def llm_jira_endpoint(body: JiraRequest):
+    """Generate one Jira ticket for a missing api_key. BRD §4.5; called per api_key from frontend."""
+    try:
+        return idea_module.generate_jira_ticket(body)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:

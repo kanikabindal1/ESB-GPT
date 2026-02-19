@@ -19,6 +19,8 @@ from app.models import (
     IdeaPersonasResponse,
     IdeaFeaturesResponse,
     JiraGenerateResponse,
+    JiraRequest,
+    JiraResponse,
     JiraStory,
     Journey,
     JourneyStep,
@@ -216,6 +218,29 @@ Journey: {journey_title}
 
 Write a 1-2 sentence capability description suitable for semantic API search, and brief input_schema and output_schema text.
 JSON only. Keys: description, input_schema, output_schema."""
+
+
+# --- POST /llm/jira (one ticket per api_key, BRD §4.5) ---
+LLM_JIRA_MODEL = "gpt-4o"
+LLM_JIRA_TEMPERATURE = 0.2
+LLM_JIRA_MAX_TOKENS = 1200
+
+LLM_JIRA_SYSTEM = """You are a tech lead. Given a missing API capability (api_key), product idea, and the workflow steps that need it, generate exactly one Jira ticket.
+Always respond with valid JSON only. No markdown, no code fence.
+Root keys: title, epic, priority, story, acceptance (array of 4-5 strings), sp (story points: 3/5/8/13/21), days (man-days), sprint, squad, deps (array of 0-3 API/service names)."""
+
+LLM_JIRA_USER = """Missing API capability (api_key): {api_key}
+Product idea: {idea}
+Suggested priority: {suggested_priority}
+RAG gap summary (if any): {rag_gap_summary}
+RAG enhancements: {rag_enhancements_str}
+
+Affected workflow steps (persona / journey / step):
+{affected_steps_str}
+
+Generate one Jira ticket for building this API. Use the suggested priority.
+Story must be in "As a [persona], I want ... So that ..." format.
+Return JSON only with keys: title, epic, priority, story, acceptance, sp, days, sprint, squad, deps."""
 
 
 # --- POST /llm/chat (product discovery coach) ---
@@ -612,6 +637,77 @@ def describe(req: DescribeRequest) -> DescribeResponse:
         description=description,
         input_schema=input_schema,
         output_schema=output_schema,
+    )
+
+
+def generate_jira_ticket(req: JiraRequest) -> JiraResponse:
+    """Generate one Jira ticket for a missing api_key. BRD §4.5; called per api_key from frontend."""
+    from app.main import openai_client
+
+    affected_steps_str = "\n".join(
+        f"  - {s.persona_label} / {s.journey_title} / {s.step_label}"
+        for s in (req.affected_steps or [])
+    ) or "  (no steps listed)"
+    rag_enhancements_str = "\n".join(f"  - {e}" for e in (req.rag_enhancements or [])) or "  (none)"
+
+    user_msg = LLM_JIRA_USER.format(
+        api_key=req.api_key,
+        idea=req.idea,
+        suggested_priority=req.suggested_priority,
+        rag_gap_summary=(req.rag_gap_summary or "").strip() or "(none)",
+        rag_enhancements_str=rag_enhancements_str,
+        affected_steps_str=affected_steps_str,
+    )
+    resp = openai_client.chat.completions.create(
+        model=LLM_JIRA_MODEL,
+        temperature=LLM_JIRA_TEMPERATURE,
+        max_tokens=LLM_JIRA_MAX_TOKENS,
+        response_format={"type": "json_object"},
+        messages=[
+            {"role": "system", "content": LLM_JIRA_SYSTEM},
+            {"role": "user", "content": user_msg},
+        ],
+    )
+    content = (resp.choices[0].message.content or "").strip()
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"LLM did not return valid JSON: {e}") from e
+    if not isinstance(data, dict):
+        raise ValueError("LLM did not return a JSON object")
+
+    title = str(data.get("title", "")).strip() or f"API: {req.api_key}"
+    epic = str(data.get("epic", "Platform")).strip() or "Platform"
+    priority_raw = str(data.get("priority", "P2")).strip().upper()
+    priority = priority_raw if priority_raw in ("P0", "P1", "P2") else "P2"
+    story = str(data.get("story", "")).strip() or f"As a user I want {req.api_key} API."
+    acceptance_raw = data.get("acceptance")
+    if isinstance(acceptance_raw, list):
+        acceptance = [str(a).strip() for a in acceptance_raw if a][:5]
+    else:
+        acceptance = [story]
+    if not acceptance:
+        acceptance = [story]
+    sp = int(data.get("sp", 5)) if isinstance(data.get("sp"), (int, float)) else 5
+    days = int(data.get("days", 5)) if isinstance(data.get("days"), (int, float)) else 5
+    sprint = str(data.get("sprint", "Sprint 1")).strip() or "Sprint 1"
+    squad = str(data.get("squad", "Platform Team")).strip() or "Platform Team"
+    deps_raw = data.get("deps")
+    deps = [str(d).strip() for d in deps_raw if d] if isinstance(deps_raw, list) else []
+
+    return JiraResponse(
+        api_key=req.api_key,
+        title=title,
+        epic=epic,
+        priority=priority,
+        story=story,
+        acceptance=acceptance,
+        sp=sp,
+        days=days,
+        sprint=sprint,
+        squad=squad,
+        deps=deps,
+        model_used=LLM_JIRA_MODEL,
     )
 
 

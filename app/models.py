@@ -424,7 +424,65 @@ class DescribeResponse(BaseModel):
     )
 
 
-# --- IdeaGPT: Jira stories for missing steps ---
+# --- POST /llm/jira (BRD §4.5: one ticket per api_key) ---
+class AffectedStep(BaseModel):
+    """One step that needs this API; used in JiraRequest."""
+
+    step_label: str = Field(..., description="Step label.")
+    journey_title: str = Field(default="", description="Journey this step belongs to.")
+    persona_label: str = Field(default="", description="Persona this step belongs to.")
+
+
+class JiraRequest(BaseModel):
+    """Request body for POST /llm/jira (one ticket per missing api_key)."""
+
+    api_key: str = Field(..., description="The missing capability key.")
+    idea: str = Field(..., description="Original product idea.")
+    affected_steps: list[AffectedStep] = Field(
+        default_factory=list,
+        description="All steps needing this API.",
+    )
+    rag_gap_summary: str = Field(
+        default="",
+        description="gap_summary from RAG response (if any).",
+    )
+    rag_enhancements: list[str] = Field(
+        default_factory=list,
+        description="Enhancement suggestions from RAG.",
+    )
+    suggested_priority: Literal["P0", "P1", "P2"] = Field(
+        default="P2",
+        description="Priority computed by frontend (P0/P1/P2).",
+    )
+
+
+class JiraResponse(BaseModel):
+    """Response for POST /llm/jira; one ticket per call, api_key echoed for state merging."""
+
+    api_key: str = Field(..., description="Echoed back for state merging.")
+    title: str = Field(..., description="Ticket title.")
+    epic: str = Field(..., description="Parent epic name.")
+    priority: Literal["P0", "P1", "P2"] = Field(..., description="P0, P1, or P2.")
+    story: str = Field(
+        ...,
+        description="User story in 'As a [persona], I want to...' format.",
+    )
+    acceptance: list[str] = Field(
+        ...,
+        description="4-5 acceptance criteria.",
+    )
+    sp: int = Field(..., description="Story points (Fibonacci: 3/5/8/13/21).")
+    days: int = Field(..., description="Estimated man-days.")
+    sprint: str = Field(..., description="e.g. 'Sprint 1', 'Sprint 2'.")
+    squad: str = Field(..., description="Owning squad name.")
+    deps: list[str] = Field(
+        default_factory=list,
+        description="API names this ticket depends on.",
+    )
+    model_used: str = Field(..., description="Model echoed back, e.g. 'gpt-4o'.")
+
+
+# --- IdeaGPT: Jira stories for missing steps (batch: POST /jira/generate) ---
 class MissingStep(BaseModel):
     label: str
     search_text: str = ""
