@@ -11,6 +11,7 @@ from app.idea import FeatureParseError, generate_features
 from app.models import (
     ConfirmedPersona,
     DescribeRequest,
+    FeatureDescription,
     FeaturesRequest,
     GenerateJourneysRequest,
     SuggestPersonasRequest,
@@ -104,6 +105,33 @@ class TestSuggestPersonas:
         call = mock_client.chat.completions.create.call_args
         assert call.kwargs["response_format"] == {"type": "json_object"}
 
+    @patch("app.main.openai_client")
+    def test_prompt_includes_feature_descriptions_when_provided(self, mock_client):
+        payload = {
+            "personas": [
+                {"id": "guest", "label": "Guest", "icon": "👤", "desc": "Guest", "color": "blue", "rationale": "x", "suggested_journeys": [], "is_primary": True},
+            ],
+        }
+        mock_client.chat.completions.create.return_value = MagicMock(
+            choices=[MagicMock(message=MagicMock(content=json.dumps(payload)))]
+        )
+        from app.idea import suggest_personas
+        req = SuggestPersonasRequest(
+            idea="Shop",
+            idea_summary="E-commerce",
+            selected_features=["Auth", "Checkout"],
+            selected_feature_descriptions=[
+                FeatureDescription(title="Auth", description="Login and SSO."),
+                FeatureDescription(title="Checkout", description="One-click payment."),
+            ],
+        )
+        result = suggest_personas(req)
+        assert len(result.personas) == 1
+        call = mock_client.chat.completions.create.call_args
+        user_content = call.kwargs["messages"][1]["content"]
+        assert "Auth: Login and SSO." in user_content
+        assert "Checkout: One-click payment." in user_content
+
 
 class TestGenerateJourneys:
     @patch("app.main.openai_client")
@@ -140,6 +168,46 @@ class TestGenerateJourneys:
         assert len(result.personas[0].journeys) == 1
         assert result.personas[0].journeys[0].steps[0].api == "product_search"
         assert "product_search" in result.unique_api_keys
+
+    @patch("app.main.openai_client")
+    def test_prompt_includes_feature_descriptions_when_provided(self, mock_client):
+        payload = {
+            "personas": [
+                {
+                    "id": "p1",
+                    "journeys": [
+                        {
+                            "id": "j1",
+                            "title": "Browse",
+                            "steps": [
+                                {"id": "s1", "label": "Search", "icon": "🔍", "api": "product_search"},
+                            ],
+                        },
+                    ],
+                },
+            ],
+        }
+        mock_client.chat.completions.create.return_value = MagicMock(
+            choices=[MagicMock(message=MagicMock(content=json.dumps(payload)))]
+        )
+        from app.idea import generate_journeys
+        req = GenerateJourneysRequest(
+            idea="Shop",
+            selected_features=["Cart", "Pay"],
+            selected_feature_descriptions=[
+                FeatureDescription(title="Cart", description="Add and persist items."),
+                FeatureDescription(title="Pay", description="Checkout and payment."),
+            ],
+            confirmed_personas=[
+                ConfirmedPersona(id="p1", label="User", icon="👤", desc="User", color="blue", suggested_journeys=[]),
+            ],
+        )
+        result = generate_journeys(req)
+        assert len(result.personas) == 1
+        call = mock_client.chat.completions.create.call_args
+        user_content = call.kwargs["messages"][1]["content"]
+        assert "Cart: Add and persist items." in user_content
+        assert "Pay: Checkout and payment." in user_content
 
 
 class TestDescribe:

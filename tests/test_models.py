@@ -6,7 +6,9 @@ from pydantic import ValidationError
 
 from app.models import (
     APIResult,
+    FeatureDescription,
     FeaturesRequest,
+    GenerateJourneysRequest,
     IdeaFeaturesRequest,
     IdeaPersonasRequest,
     JiraGenerateRequest,
@@ -221,6 +223,57 @@ class TestSuggestPersonasRequest:
         req = SuggestPersonasRequest(idea="x", idea_summary="y", min_personas=2, max_personas=4)
         assert req.min_personas == 2
         assert req.max_personas == 4
+
+    def test_accepts_optional_selected_feature_descriptions(self):
+        req = SuggestPersonasRequest(
+            idea="x",
+            idea_summary="y",
+            selected_features=["Auth", "Checkout"],
+            selected_feature_descriptions=[
+                FeatureDescription(title="Auth", description="Login and SSO."),
+                FeatureDescription(title="Checkout", description="One-click payment."),
+            ],
+        )
+        assert req.selected_features == ["Auth", "Checkout"]
+        assert len(req.selected_feature_descriptions) == 2
+        assert req.selected_feature_descriptions[0].title == "Auth"
+        assert req.selected_feature_descriptions[0].description == "Login and SSO."
+        assert req.selected_feature_descriptions[1].description == "One-click payment."
+
+    def test_accepts_none_selected_feature_descriptions(self):
+        req = SuggestPersonasRequest(idea="x", idea_summary="y")
+        assert req.selected_feature_descriptions is None
+
+
+class TestGenerateJourneysRequest:
+    def test_accepts_optional_selected_feature_descriptions(self):
+        from app.models import ConfirmedPersona
+
+        req = GenerateJourneysRequest(
+            idea="Shop",
+            selected_features=["Cart", "Pay"],
+            selected_feature_descriptions=[
+                FeatureDescription(title="Cart", description="Add and persist items."),
+                FeatureDescription(title="Pay", description="Checkout and payment."),
+            ],
+            confirmed_personas=[
+                ConfirmedPersona(id="p1", label="User", icon="👤", desc="User", color="blue", suggested_journeys=[]),
+            ],
+        )
+        assert req.selected_features == ["Cart", "Pay"]
+        assert len(req.selected_feature_descriptions) == 2
+        assert req.selected_feature_descriptions[0].description == "Add and persist items."
+
+    def test_accepts_none_selected_feature_descriptions(self):
+        from app.models import ConfirmedPersona
+
+        req = GenerateJourneysRequest(
+            idea="Shop",
+            confirmed_personas=[
+                ConfirmedPersona(id="p1", label="User", icon="👤", desc="User", color="blue", suggested_journeys=[]),
+            ],
+        )
+        assert req.selected_feature_descriptions is None
 
 
 class TestIdeaFeaturesRequest:

@@ -457,11 +457,34 @@ def generate_llm_features(req: FeaturesRequest) -> FeaturesResponse:
     )
 
 
+def _format_features_str(
+    titles: list[str],
+    descriptions: list[FeatureDescription] | None,
+) -> str:
+    """Build prompt string for features; use descriptions when provided (same order as titles)."""
+    if not titles:
+        return "(none)"
+    if not descriptions:
+        return ", ".join(titles)
+    if len(descriptions) >= len(titles):
+        parts = []
+        for i, t in enumerate(titles):
+            d = (descriptions[i].description or "").strip()
+            parts.append(f"{t}: {d}" if d else t)
+        return "\n".join(parts)
+    desc_by_title = {fd.title.strip(): (fd.description or "").strip() for fd in descriptions}
+    parts = [f"{t}: {desc_by_title[t]}" if desc_by_title.get(t) else t for t in titles]
+    return "\n".join(parts)
+
+
 def suggest_personas(req: SuggestPersonasRequest) -> SuggestPersonasResponse:
     """Suggest distinct user personas for idea + features. Trigger: Map User Journeys."""
     from app.main import openai_client
 
-    selected_features_str = ", ".join(req.selected_features) if req.selected_features else "(none)"
+    selected_features_str = _format_features_str(
+        req.selected_features,
+        req.selected_feature_descriptions,
+    )
     user_msg = SUGGEST_PERSONAS_USER.format(
         idea=req.idea,
         idea_summary=req.idea_summary,
@@ -520,7 +543,10 @@ def generate_journeys(req: GenerateJourneysRequest) -> GenerateJourneysResponse:
     """Generate journeys for confirmed personas; steps use api (snake_case) for RAG."""
     from app.main import openai_client
 
-    selected_features_str = ", ".join(req.selected_features) if req.selected_features else "(none)"
+    selected_features_str = _format_features_str(
+        req.selected_features,
+        req.selected_feature_descriptions,
+    )
     confirmed_personas_str = json.dumps(
         [
             {

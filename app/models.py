@@ -271,6 +271,10 @@ class SuggestPersonasRequest(BaseModel):
         default_factory=list,
         description="Titles of features where on=True.",
     )
+    selected_feature_descriptions: list[FeatureDescription] | None = Field(
+        default=None,
+        description="Optional title+description per feature; same order as selected_features.",
+    )
     max_personas: int = Field(default=4, description="How many personas to suggest.")
     min_personas: int = Field(default=2, description="Minimum personas to suggest.")
 
@@ -332,6 +336,10 @@ class GenerateJourneysRequest(BaseModel):
     selected_features: list[str] = Field(
         default_factory=list,
         description="Feature titles where on=True.",
+    )
+    selected_feature_descriptions: list[FeatureDescription] | None = Field(
+        default=None,
+        description="Optional title+description per feature; same order as selected_features.",
     )
     confirmed_personas: list[ConfirmedPersona] = Field(
         ...,
