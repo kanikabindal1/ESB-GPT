@@ -374,9 +374,9 @@ class GenerateJourneysRequest(BaseModel):
     )
     steps_per_journey: int = Field(
         default=5,
-        ge=4,
+        ge=1,
         le=7,
-        description="Target steps per journey.",
+        description="Target steps per journey (1-7).",
     )
     journeys_per_persona: int = Field(
         default=2,
@@ -399,11 +399,11 @@ class LLMJourneyStep(BaseModel):
 
 
 class LLMJourney(BaseModel):
-    """One journey from POST /llm/generate-journeys (4-7 steps)."""
+    """One journey from POST /llm/generate-journeys (1-7 steps)."""
 
     id: str = Field(..., description="Journey id.")
     title: str = Field(..., description="3-5 word journey name.")
-    steps: list[LLMJourneyStep] = Field(..., description="4-7 steps.")
+    steps: list[LLMJourneyStep] = Field(..., description="1-7 steps.")
 
 
 class PersonaWithJourneys(BaseModel):
@@ -457,6 +457,33 @@ class DescribeResponse(BaseModel):
     output_schema: str = Field(
         ..., description="Brief description of key output fields."
     )
+
+
+class StepIORequest(BaseModel):
+    """Request body for POST /llm/step-io (one call per step; context-based I/O)."""
+
+    idea: str = Field(..., description="Product idea for context.")
+    persona_label: str = Field(..., description="Persona this step belongs to.")
+    journey_title: str = Field(..., description="Journey this step belongs to.")
+    step_label: str = Field(..., description="Step label.")
+    api_key: str = Field(
+        ...,
+        description="Snake_case capability key for this step (e.g. auth, payment).",
+    )
+
+
+class StepIOResponse(BaseModel):
+    """Response for POST /llm/step-io; suggested input/output for this step from context."""
+
+    input_schema: str = Field(
+        ...,
+        description="Brief description of what this step typically needs as input.",
+    )
+    output_schema: str = Field(
+        ...,
+        description="Brief description of what this step typically produces as output.",
+    )
+    model_used: str = Field(..., description="Model echoed back, e.g. 'gpt-4o-mini'.")
 
 
 # --- POST /llm/jira (BRD §4.5: one ticket per api_key) ---

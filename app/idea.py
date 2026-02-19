@@ -29,6 +29,8 @@ from app.models import (
     PersonaSuggestion,
     PersonaWithJourneys,
     PersonaItem,
+    StepIORequest,
+    StepIOResponse,
     SuggestPersonasRequest,
     SuggestPersonasResponse,
     SummariseRequest,
@@ -186,6 +188,11 @@ GENERATE_JOURNEYS_TEMPERATURE = 0
 GENERATE_JOURNEYS_MAX_TOKENS = 4000
 
 GENERATE_JOURNEYS_SYSTEM = """You generate user journeys for product personas.
+CRITICAL: Every step must be a user action that requires calling a backend API or service. Do NOT include steps that are:
+- Pure navigation or "click next" with no backend call
+- Static content or "view page" with no data from an API
+- Purely client-side (e.g. expand accordion) with no API
+Include only as many steps as truly need an API (1 to 7 per journey).
 Each step has an 'api' field: a snake_case NOUN that is a capability key for API lookup.
 NOT a verb phrase. Same capability must use the SAME key everywhere (e.g. Sign In and Log Out both use 'auth').
 Examples: Sign In -> auth, Pay Now -> payment, Send Message to Doctor -> secure_messaging, Upload Lab Report -> lab_results, Book Appointment -> scheduling, Get Credit Score -> credit_scoring.
@@ -197,7 +204,7 @@ Selected features: {selected_features_str}
 Confirmed personas (use suggested_journeys as hints for journey names):
 {confirmed_personas_str}
 
-Generate journeys: {steps_per_journey} steps per journey (4-7), {journeys_per_persona} journeys per persona (1-3).
+Generate journeys: up to {steps_per_journey} steps per journey (1-7; only steps that need an API), {journeys_per_persona} journeys per persona (1-3).
 For each step set api to a snake_case capability noun. Deduplicate: same capability = same api key.
 JSON only. Root key: 'personas'. Each persona: id, journeys (array). Each journey: id, title, steps. Each step: id, label, icon, api."""
 
@@ -218,6 +225,22 @@ Journey: {journey_title}
 
 Write a 1-2 sentence capability description suitable for semantic API search, and brief input_schema and output_schema text.
 JSON only. Keys: description, input_schema, output_schema."""
+
+
+# --- POST /llm/step-io (per-step context-based I/O; no RAG) ---
+STEP_IO_MODEL = "gpt-4o-mini"
+STEP_IO_TEMPERATURE = 0
+STEP_IO_MAX_TOKENS = 300
+
+STEP_IO_SYSTEM = """You suggest what input and output make sense for a single step in a user journey, based only on context (product idea, persona, journey, step label, capability). Do not use any external API catalog. Output valid JSON only with keys: input_schema, output_schema. Each value is a brief 1-2 sentence description of what this step typically needs as input and produces as output in this context."""
+
+STEP_IO_USER = """Product idea: {idea}
+Persona: {persona_label}
+Journey: {journey_title}
+Step: {step_label}
+Capability (api_key): {api_key}
+
+What does this step typically need as input (e.g. user id, search query, cart id)? What does it produce as output (e.g. session token, list of results, order id)? Answer from context only. JSON only. Keys: input_schema, output_schema."""
 
 
 # --- POST /llm/jira (one ticket per api_key, BRD §4.5) ---
@@ -663,6 +686,43 @@ def describe(req: DescribeRequest) -> DescribeResponse:
         description=description,
         input_schema=input_schema,
         output_schema=output_schema,
+    )
+
+
+def step_io(req: StepIORequest) -> StepIOResponse:
+    """Suggest input/output for one step from context only (no RAG). Called per step from frontend."""
+    from app.main import openai_client
+
+    user_msg = STEP_IO_USER.format(
+        idea=req.idea,
+        persona_label=req.persona_label,
+        journey_title=req.journey_title,
+        step_label=req.step_label,
+        api_key=req.api_key,
+    )
+    resp = openai_client.chat.completions.create(
+        model=STEP_IO_MODEL,
+        temperature=STEP_IO_TEMPERATURE,
+        max_tokens=STEP_IO_MAX_TOKENS,
+        response_format={"type": "json_object"},
+        messages=[
+            {"role": "system", "content": STEP_IO_SYSTEM},
+            {"role": "user", "content": user_msg},
+        ],
+    )
+    content = (resp.choices[0].message.content or "").strip()
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"LLM did not return valid JSON: {e}") from e
+    if not isinstance(data, dict):
+        raise ValueError("LLM did not return a JSON object")
+    input_schema = str(data.get("input_schema", "")).strip() or ""
+    output_schema = str(data.get("output_schema", "")).strip() or ""
+    return StepIOResponse(
+        input_schema=input_schema,
+        output_schema=output_schema,
+        model_used=STEP_IO_MODEL,
     )
 
 

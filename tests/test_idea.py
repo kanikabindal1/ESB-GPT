@@ -236,6 +236,32 @@ class TestDescribe:
         assert result.output_schema
 
 
+class TestStepIO:
+    @patch("app.main.openai_client")
+    def test_returns_input_output_schemas_from_context(self, mock_client):
+        payload = {
+            "input_schema": "user_id, product_ids",
+            "output_schema": "order_id, status",
+        }
+        mock_client.chat.completions.create.return_value = MagicMock(
+            choices=[MagicMock(message=MagicMock(content=json.dumps(payload)))]
+        )
+        from app.idea import step_io
+        from app.models import StepIORequest
+
+        req = StepIORequest(
+            idea="E-commerce",
+            persona_label="Shopper",
+            journey_title="Checkout",
+            step_label="Place Order",
+            api_key="order",
+        )
+        result = step_io(req)
+        assert result.input_schema == "user_id, product_ids"
+        assert result.output_schema == "order_id, status"
+        assert result.model_used == "gpt-4o-mini"
+
+
 class TestGeneratePersonas:
     @patch("app.main.openai_client")
     def test_returns_personas_with_journeys_and_steps(self, mock_client):

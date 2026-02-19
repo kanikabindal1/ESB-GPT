@@ -310,7 +310,7 @@ Generate journeys for confirmed personas in a single call. Called after the user
     color: string;
     suggested_journeys: string[];
   }>;
-  steps_per_journey?: number;     // default 5, 4-7
+  steps_per_journey?: number;     // default 5, 1-7
   journeys_per_persona?: number;  // default 2, 1-3
 }
 ```
@@ -367,6 +367,36 @@ Produce a short capability description and input/output schema for one api_key. 
   description: string;             // 1-2 sentence capability description for RAG
   input_schema: string;
   output_schema: string;
+}
+```
+
+**Errors:** `400`, `500`.
+
+---
+
+### `POST /llm/step-io`
+
+Suggest input/output for one journey step from context only (direct LLM, no RAG). Called per step from the frontend. The returned `input_schema` and `output_schema` are used as that step's `expected_io` for RAG lookup and UI.
+
+**Request:** `application/json`
+
+```ts
+{
+  idea: string;
+  persona_label: string;
+  journey_title: string;
+  step_label: string;
+  api_key: string;           // snake_case capability key for this step
+}
+```
+
+**Response:** `200 OK`
+
+```ts
+{
+  input_schema: string;     // brief description of what this step needs as input
+  output_schema: string;    // brief description of what this step produces as output
+  model_used: string;
 }
 ```
 

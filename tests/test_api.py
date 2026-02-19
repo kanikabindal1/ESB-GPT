@@ -504,6 +504,61 @@ class TestLLMDescribe:
         assert resp.status_code == 500
 
 
+class TestLLMStepIO:
+    @patch("app.main.idea_module.step_io")
+    def test_llm_step_io_success(self, mock_step_io, client):
+        mock_step_io.return_value = {
+            "input_schema": "query: string, filters: optional",
+            "output_schema": "results: array of product objects",
+            "model_used": "gpt-4o-mini",
+        }
+        resp = client.post(
+            "/llm/step-io",
+            json={
+                "idea": "E-commerce",
+                "persona_label": "Shopper",
+                "journey_title": "Browse",
+                "step_label": "Search",
+                "api_key": "product_search",
+            },
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "input_schema" in data
+        assert "output_schema" in data
+        assert data["model_used"] == "gpt-4o-mini"
+
+    @patch("app.main.idea_module.step_io")
+    def test_llm_step_io_value_error_returns_400(self, mock_step_io, client):
+        mock_step_io.side_effect = ValueError("Bad JSON")
+        resp = client.post(
+            "/llm/step-io",
+            json={
+                "idea": "x",
+                "persona_label": "p",
+                "journey_title": "j",
+                "step_label": "s",
+                "api_key": "k",
+            },
+        )
+        assert resp.status_code == 400
+
+    @patch("app.main.idea_module.step_io")
+    def test_llm_step_io_exception_returns_500(self, mock_step_io, client):
+        mock_step_io.side_effect = RuntimeError("Error")
+        resp = client.post(
+            "/llm/step-io",
+            json={
+                "idea": "x",
+                "persona_label": "p",
+                "journey_title": "j",
+                "step_label": "s",
+                "api_key": "k",
+            },
+        )
+        assert resp.status_code == 500
+
+
 class TestLLMChat:
     @patch("app.main.idea_module.chat")
     def test_llm_chat_success(self, mock_chat, client):

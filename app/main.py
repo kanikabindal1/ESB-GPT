@@ -37,6 +37,8 @@ from app.models import (
     RAGMatchedAPI,
     SearchRequest,
     SearchResponse,
+    StepIORequest,
+    StepIOResponse,
     SuggestedAPIItem,
     SuggestPersonasRequest,
     SuggestPersonasResponse,
@@ -194,6 +196,17 @@ def llm_describe_endpoint(body: DescribeRequest):
     """Produce capability description for RAG lookup. Called in batches per unique api_key."""
     try:
         return idea_module.describe(body)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/llm/step-io", response_model=StepIOResponse)
+def llm_step_io_endpoint(body: StepIORequest):
+    """Suggest input/output for one step from context only (no RAG). Called per step from frontend."""
+    try:
+        return idea_module.step_io(body)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
