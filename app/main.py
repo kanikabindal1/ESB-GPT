@@ -47,7 +47,6 @@ from app import idea as idea_module
 from app.idea import FeatureParseError
 from app.rag_helpers import (
     build_rag_query,
-    parse_enhancements_and_gap,
     record_to_matched_api,
 )
 
@@ -240,13 +239,11 @@ def jira_generate_endpoint(body: JiraGenerateRequest):
 
 @app.post("/search", response_model=SearchResponse)
 def search_endpoint(body: SearchRequest):
-    """Embed query → retrieve top 5 → classify → call LLM for 'closest' → return results."""
+    """Embed query → retrieve top 5 → classify → return results."""
     from app.models import APIResult
-    from app.recommender import get_enhancement_suggestion
     from app.retriever import search as retriever_search
 
     results_raw = retriever_search(body.query, n_results=5)
-    enhancement_done = False
     api_results = []
 
     for r in results_raw:
@@ -264,12 +261,6 @@ def search_endpoint(body: SearchRequest):
             endpoint=record.get("path") or record.get("endpoint"),
             tags=record.get("tags"),
         )
-        if r["match_type"] == "closest" and not enhancement_done:
-            try:
-                api_result.enhancement_suggestion = get_enhancement_suggestion(body.query, record)
-                enhancement_done = True
-            except Exception:
-                pass
         api_results.append(api_result)
 
     return SearchResponse(results=api_results)
@@ -277,8 +268,7 @@ def search_endpoint(body: SearchRequest):
 
 @app.post("/api/rag/lookup", response_model=RAGLookupResponse)
 def rag_lookup_endpoint(body: RAGLookupRequest):
-    """RAG pipeline: semantic lookup → best match, suggested_apis (above min_score), match_status, enhancements."""
-    from app.recommender import get_enhancement_suggestion
+    """RAG pipeline: semantic lookup → best match, suggested_apis (above min_score), match_status."""
     from app.retriever import search as retriever_search
 
     query = build_rag_query(body)
@@ -311,15 +301,13 @@ def rag_lookup_endpoint(body: RAGLookupRequest):
     similarity = best["similarity"]
     match_type = best["match_type"]
 
-    # exact >= 0.90; else partial (direct/closest) or none
-    if similarity >= 0.90:
+    # API present only at high confidence (>= 95%)
+    if similarity >= 0.95:
         match_status = "exact"
-    elif match_type in ("direct", "closest"):
-        match_status = "partial"
     else:
         match_status = "none"
 
-    build_required = match_status == "none" or (match_status == "partial" and similarity < 0.60)
+    build_required = match_status == "none"
     matched_api = record_to_matched_api(record) if record else None
     if suggested_apis and matched_api is None:
         matched_api = suggested_apis[0].api
@@ -327,12 +315,6 @@ def rag_lookup_endpoint(body: RAGLookupRequest):
 
     enhancements: list[str] = []
     gap_summary: str | None = None
-    if match_status == "partial" or (match_status == "exact" and similarity < 0.95):
-        try:
-            raw_suggestion = get_enhancement_suggestion(query, record)
-            enhancements, gap_summary = parse_enhancements_and_gap(raw_suggestion)
-        except Exception:
-            pass
 
     return RAGLookupResponse(
         query_key=body.query_key,

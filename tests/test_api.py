@@ -64,31 +64,17 @@ class TestSearch:
         assert first["match_type"] == "direct"
         assert first["name"] == "GetCustomerOrders"
 
-    @patch("app.recommender.get_enhancement_suggestion")
     @patch("app.retriever.search")
-    def test_search_calls_enhancement_for_closest_once(
-        self, mock_search, mock_enhancement, client, sample_retriever_results
+    def test_search_closest_returns_no_enhancement_suggestion(
+        self, mock_search, client, sample_retriever_results
     ):
         sample_retriever_results[0]["match_type"] = "closest"
         sample_retriever_results[0]["similarity"] = 0.6
         mock_search.return_value = sample_retriever_results
-        mock_enhancement.return_value = "Consider adding a filter."
         resp = client.post("/search", json={"query": "orders"})
         assert resp.status_code == 200
-        assert mock_enhancement.call_count == 1
         results = resp.json()["results"]
-        assert results[0]["enhancement_suggestion"] == "Consider adding a filter."
-
-    @patch("app.retriever.search")
-    def test_search_recommender_exception_leaves_suggestion_none(
-        self, mock_search, client, sample_retriever_results
-    ):
-        sample_retriever_results[0]["match_type"] = "closest"
-        mock_search.return_value = sample_retriever_results
-        with patch("app.recommender.get_enhancement_suggestion", side_effect=Exception("LLM error")):
-            resp = client.post("/search", json={"query": "orders"})
-        assert resp.status_code == 200
-        assert resp.json()["results"][0]["enhancement_suggestion"] is None
+        assert results[0]["enhancement_suggestion"] is None
 
     def test_search_empty_query_validation_error(self, client):
         resp = client.post("/search", json={"query": ""})
@@ -182,7 +168,7 @@ class TestRAGLookup:
                     "input": {},
                     "output": {},
                 },
-                "similarity": 0.92,
+                "similarity": 0.96,
                 "match_type": "direct",
             },
         ]
@@ -197,7 +183,7 @@ class TestRAGLookup:
         assert resp.status_code == 200
         data = resp.json()
         assert data["match_status"] == "exact"
-        assert data["confidence_score"] == 0.92
+        assert data["confidence_score"] == 0.96
         assert data["build_required"] is False
         assert data["matched_api"] is not None
         assert data["matched_api"]["name"] == "Store Location API"
@@ -206,10 +192,9 @@ class TestRAGLookup:
         assert data["matched_api"]["team"] == "Retail & Store APIs"
         assert data["matched_api"]["status"] == "production"
 
-    @patch("app.recommender.get_enhancement_suggestion")
     @patch("app.retriever.search")
-    def test_rag_lookup_partial_includes_enhancements(
-        self, mock_search, mock_enhancement, client
+    def test_rag_lookup_below_95_confidence_returns_none_and_build_required(
+        self, mock_search, client
     ):
         mock_search.return_value = [
             {
@@ -230,7 +215,6 @@ class TestRAGLookup:
                 "match_type": "closest",
             },
         ]
-        mock_enhancement.return_value = "1. Add idempotency.\n2. What is missing: retry policy."
         resp = client.post(
             "/api/rag/lookup",
             json={
@@ -241,13 +225,13 @@ class TestRAGLookup:
         )
         assert resp.status_code == 200
         data = resp.json()
-        assert data["match_status"] == "partial"
+        assert data["match_status"] == "none"
         assert data["matched_api"]["name"] == "Bank Check Balance API"
-        assert "enhancements" in data
-        assert data["build_required"] is False  # 0.65 >= 0.60
+        assert data["enhancements"] == []
+        assert data["build_required"] is True
 
     @patch("app.retriever.search")
-    def test_rag_lookup_partial_low_similarity_build_required_true(self, mock_search, client):
+    def test_rag_lookup_low_similarity_none_build_required_true(self, mock_search, client):
         mock_search.return_value = [
             {
                 "id": "api-x",
@@ -262,9 +246,9 @@ class TestRAGLookup:
         )
         assert resp.status_code == 200
         data = resp.json()
-        assert data["match_status"] == "partial"
+        assert data["match_status"] == "none"
         assert data["confidence_score"] == 0.55
-        assert data["build_required"] is True  # similarity < 0.60
+        assert data["build_required"] is True
 
     def test_rag_lookup_empty_description_validation_error(self, client):
         resp = client.post(
