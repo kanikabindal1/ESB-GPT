@@ -3,7 +3,7 @@ Phase 6: Pydantic request/response schemas.
 """
 from typing import Any, Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class SearchRequest(BaseModel):
@@ -108,6 +108,29 @@ class FeatureItem(BaseModel):
 
 class IdeaFeaturesResponse(BaseModel):
     features: list[FeatureItem]
+
+
+# --- POST /llm/features (gpt-4o, JSON mode) ---
+class FeaturesRequest(BaseModel):
+    """Request body for POST /llm/features."""
+
+    idea: str = Field(..., min_length=10, description="User's raw product idea text.")
+    max_features: int = Field(default=12, description="Max features to extract.")
+    min_features: int = Field(default=8, description="Min features to extract.")
+
+    @model_validator(mode="after")
+    def min_max_order(self):
+        if self.min_features > self.max_features:
+            raise ValueError("min_features must be <= max_features")
+        return self
+
+
+class FeaturesResponse(BaseModel):
+    """Response for POST /llm/features."""
+
+    features: list[FeatureItem] = Field(..., description="8-12 feature items.")
+    idea_summary: str = Field(..., description="One sentence LLM summary of the idea.")
+    model_used: str = Field(..., description="Model echoed back, e.g. 'gpt-4o'.")
 
 
 # --- IdeaGPT: Features → Personas & Journeys ---

@@ -6,6 +6,8 @@ import re
 
 from app.models import (
     FeatureItem,
+    FeaturesRequest,
+    FeaturesResponse,
     IdeaPersonasResponse,
     IdeaFeaturesResponse,
     JiraGenerateResponse,
@@ -14,6 +16,12 @@ from app.models import (
     JourneyStep,
     PersonaItem,
 )
+
+
+class FeatureParseError(Exception):
+    """Raised when LLM response cannot be parsed or validated after retry. Maps to HTTP 422."""
+
+    pass
 
 MODEL = "gpt-4o-mini"
 MAX_TOKENS = 2000
@@ -83,6 +91,46 @@ For each step, output one story with:
 Output ONLY a valid JSON object with a single key "stories" whose value is an array of objects. No markdown, no code fence."""
 
 
+# --- POST /llm/features: gpt-4o, response_format json_object ---
+LLM_FEATURES_MODEL = "gpt-4o"
+LLM_FEATURES_MAX_TOKENS = 2000
+LLM_FEATURES_TEMPERATURE = 0
+
+LLM_FEATURES_SYSTEM = """You are a product analyst specialising in enterprise software.
+You decompose product ideas into discrete, buildable features.
+Always respond with valid JSON only.
+No markdown, no explanation, no code fences.
+The root key must be 'features' (array) and 'idea_summary' (string)."""
+
+LLM_FEATURES_USER = """Given this product idea, extract {min_features}-{max_features} features.
+
+Idea: "{idea}"
+
+Return JSON with keys: 'features' (array) and 'idea_summary' (string).
+Each feature object: {{ id, icon, title, desc, on: true }}
+- id: 'f1', 'f2', ... (sequential)
+- icon: single relevant emoji
+- title: 4-6 word feature name
+- desc: max 12 word description
+- on: true
+
+idea_summary: one sentence describing what this product does."""
+
+LLM_FEATURES_USER_STRICT = """Return exactly {exact_count} features for this product idea. No more, no less.
+
+Idea: "{idea}"
+
+Return JSON with keys: 'features' (array) and 'idea_summary' (string).
+Each feature object: {{ id, icon, title, desc, on: true }}
+- id: 'f1', 'f2', ... (sequential)
+- icon: single relevant emoji
+- title: 4-6 word feature name
+- desc: max 12 word description
+- on: true
+
+idea_summary: one sentence describing what this product does."""
+
+
 def _extract_json(text: str) -> str:
     """Strip markdown code fence if present and return inner JSON string."""
     text = (text or "").strip()
@@ -124,6 +172,124 @@ def generate_features(idea: str) -> IdeaFeaturesResponse:
             )
         )
     return IdeaFeaturesResponse(features=features)
+
+
+def _parse_llm_features_response(
+    content: str, min_features: int, max_features: int
+) -> tuple[list[dict], str]:
+    """Parse LLM JSON content into (features_raw, idea_summary). Raises FeatureParseError on parse/structure failure only (not on count)."""
+    content = (content or "").strip()
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError:
+        raise FeatureParseError("Invalid JSON")
+    if not isinstance(data, dict):
+        raise FeatureParseError("Response is not a JSON object")
+    features_raw = data.get("features")
+    idea_summary = data.get("idea_summary")
+    if not isinstance(features_raw, list):
+        raise FeatureParseError("Missing or invalid 'features' array")
+    if not isinstance(idea_summary, str):
+        idea_summary = str(idea_summary or "").strip() or "Product idea."
+    return features_raw, idea_summary
+
+
+def _patch_feature_item(i: int, item: dict) -> FeatureItem:
+    """Ensure all 5 fields with safe defaults. Single emoji: take first character for icon."""
+    raw_icon = str(item.get("icon", "⚙️")).strip()
+    icon = raw_icon[0] if raw_icon else "⚙️"
+    return FeatureItem(
+        id=str(item.get("id", f"f{i + 1}")).strip() or f"f{i + 1}",
+        icon=icon,
+        title=str(item.get("title", "Feature")).strip() or "Feature",
+        desc=str(item.get("desc", "")).strip(),
+        on=bool(item.get("on", True)),
+    )
+
+
+def generate_llm_features(req: FeaturesRequest) -> FeaturesResponse:
+    """Extract 8-12 features from idea using gpt-4o with JSON mode. Retry once on count mismatch or parse failure."""
+    min_f = req.min_features
+    max_f = req.max_features
+    idea = req.idea
+
+    def call_llm(strict_count: int | None) -> str:
+        from app.main import openai_client
+
+        if strict_count is not None:
+            user_msg = LLM_FEATURES_USER_STRICT.format(
+                idea=idea, exact_count=strict_count
+            )
+        else:
+            user_msg = LLM_FEATURES_USER.format(
+                idea=idea, min_features=min_f, max_features=max_f
+            )
+        resp = openai_client.chat.completions.create(
+            model=LLM_FEATURES_MODEL,
+            temperature=LLM_FEATURES_TEMPERATURE,
+            max_tokens=LLM_FEATURES_MAX_TOKENS,
+            response_format={"type": "json_object"},
+            messages=[
+                {"role": "system", "content": LLM_FEATURES_SYSTEM},
+                {"role": "user", "content": user_msg},
+            ],
+        )
+        return (resp.choices[0].message.content or "").strip()
+
+    # First attempt
+    content = call_llm(None)
+    try:
+        features_raw, idea_summary = _parse_llm_features_response(
+            content, min_f, max_f
+        )
+    except FeatureParseError:
+        # Retry once with same-style prompt
+        content = call_llm(None)
+        try:
+            features_raw, idea_summary = _parse_llm_features_response(
+                content, min_f, max_f
+            )
+        except FeatureParseError:
+            raise
+
+    # Count in range? If not, retry once with stricter prompt
+    n = len(features_raw)
+    if n < min_f or n > max_f:
+        exact = min_f if n < min_f else max_f
+        content = call_llm(exact)
+        try:
+            features_raw, idea_summary = _parse_llm_features_response(
+                content, min_f, max_f
+            )
+        except FeatureParseError:
+            raise
+        n = len(features_raw)
+        if n < min_f or n > max_f:
+            raise FeatureParseError(
+                f"Feature count {n} outside range [{min_f}, {max_f}] after retry"
+            )
+
+    # Patch each feature to FeatureItem with safe defaults
+    features = []
+    for i, item in enumerate(features_raw):
+        if not isinstance(item, dict):
+            features.append(
+                FeatureItem(
+                    id=f"f{i + 1}",
+                    icon="⚙️",
+                    title="Feature",
+                    desc="",
+                    on=True,
+                )
+            )
+        else:
+            features.append(_patch_feature_item(i, item))
+
+    return FeaturesResponse(
+        features=features,
+        idea_summary=idea_summary,
+        model_used=LLM_FEATURES_MODEL,
+    )
 
 
 def generate_personas(idea: str, feature_ids: list[str]) -> IdeaPersonasResponse:

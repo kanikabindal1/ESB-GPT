@@ -13,6 +13,8 @@ from fastapi.responses import FileResponse
 from openai import OpenAI
 
 from app.models import (
+    FeaturesRequest,
+    FeaturesResponse,
     IdeaFeaturesRequest,
     IdeaFeaturesResponse,
     IdeaPersonasRequest,
@@ -26,6 +28,7 @@ from app.models import (
     SearchResponse,
 )
 from app import idea as idea_module
+from app.idea import FeatureParseError
 
 load_dotenv()
 
@@ -89,6 +92,22 @@ def idea_features_endpoint(body: IdeaFeaturesRequest):
     """Generate product features from idea text using LLM."""
     try:
         return idea_module.generate_features(body.idea)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/llm/features", response_model=FeaturesResponse)
+def llm_features_endpoint(body: FeaturesRequest):
+    """Extract 8-12 features from product idea using gpt-4o (JSON mode). Trigger: Analyse Idea button."""
+    try:
+        return idea_module.generate_llm_features(body)
+    except FeatureParseError:
+        raise HTTPException(
+            status_code=422,
+            detail={"error_code": "FEATURE_PARSE_FAILED"},
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:

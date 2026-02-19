@@ -146,6 +146,44 @@ Re-run ingestion: load `data/apis.json`, embed via OpenAI, upsert into ChromaDB.
 
 ---
 
+### `POST /llm/features`
+
+Extract 8–12 product features from a raw idea using gpt-4o with deterministic JSON output. Called when the user clicks “Analyse Idea →”.
+
+**Request:** `application/json`
+
+```ts
+{
+  idea: string;        // min 10 characters
+  max_features?: number;  // default 12
+  min_features?: number;  // default 8
+}
+```
+
+**Response:** `200 OK`
+
+```ts
+{
+  features: Array<{
+    id: string;      // e.g. "f1", "f2"
+    icon: string;    // single emoji
+    title: string;   // 4-6 words
+    desc: string;    // max 12 words
+    on: boolean;     // default true
+  }>;
+  idea_summary: string;   // one sentence LLM summary
+  model_used: string;    // "gpt-4o"
+}
+```
+
+**Errors:**
+
+- `422 Unprocessable Entity` — LLM response could not be parsed or validated after retry. Body: `{ "error_code": "FEATURE_PARSE_FAILED" }`.
+- `400` — Validation error (e.g. idea too short, min_features > max_features).
+- `500` — Server or OpenAI error.
+
+---
+
 ### `POST /api/rag/lookup`
 
 RAG pipeline: semantic lookup against the embedded API catalog. Returns a single best match with `match_status` (exact / partial / none), `confidence_score`, `matched_api`, `enhancements`, `gap_summary`, and `build_required`. Intended for use with pre-processed input from `/llm/describe`.
@@ -226,5 +264,6 @@ RAG pipeline: semantic lookup against the embedded API catalog. Returns a single
 | GET    | `/health`          | —                                | `{ "status": "ok" }` |
 | GET    | `/catalog`         | —                                | `{ "apis": [...], "_meta"?: {...} }` |
 | POST   | `/search`          | `{ "query": "..." }`             | `{ "results": [ APIResult, ... ] }` |
+| POST   | `/llm/features`    | FeaturesRequest (idea, min/max_features) | FeaturesResponse (features, idea_summary, model_used) |
 | POST   | `/api/rag/lookup`  | RAGLookupRequest                 | RAGLookupResponse |
 | POST   | `/ingest`          | —                                | `{ "status": "ok", "upserted": N }` |
