@@ -61,7 +61,8 @@ class RAGLookupRequest(BaseModel):
     description: str = Field(..., min_length=1, description="Semantic description of the API/capability needed.")
     context: Optional[RAGContext] = None
     expected_io: Optional[RAGExpectedIO] = None
-    top_k: int = Field(default=3, ge=1, le=20, description="Number of top matches to consider.")
+    top_k: int = Field(default=3, ge=1, le=100, description="Number of top matches to consider.")
+    min_score: Optional[float] = Field(default=None, ge=0, le=1, description="Minimum similarity to include in suggested_apis; if None, no filter.")
 
 
 class RAGMatchedAPI(BaseModel):
@@ -81,6 +82,13 @@ class RAGMatchedAPI(BaseModel):
     calls: Optional[Any] = None
 
 
+class SuggestedAPIItem(BaseModel):
+    """One suggested API with its similarity score."""
+
+    api: RAGMatchedAPI = Field(..., description="API details.")
+    score: float = Field(..., ge=0, le=1, description="Similarity score in [0, 1].")
+
+
 class RAGLookupResponse(BaseModel):
     """Response for POST /api/rag/lookup."""
 
@@ -88,9 +96,28 @@ class RAGLookupResponse(BaseModel):
     match_status: Literal["exact", "partial", "none"]
     confidence_score: float = Field(..., ge=0, le=1)
     matched_api: Optional[RAGMatchedAPI] = None
+    suggested_apis: list[SuggestedAPIItem] = Field(default_factory=list, description="All APIs above min_score, ordered by relevance.")
     enhancements: list[str] = Field(default_factory=list)
     gap_summary: Optional[str] = None
     build_required: bool = True
+
+
+class RAGRerankRequest(BaseModel):
+    """Request body for POST /api/rag/rerank."""
+
+    query_key: str = Field(..., description="Key identifying the query.")
+    description: str = Field(..., min_length=1, description="Original semantic description.")
+    context: Optional[RAGContext] = None
+    expected_io: Optional[RAGExpectedIO] = None
+    additional_info: str = Field(default="", description="User's extra context to narrow down.")
+    suggested_apis: list[SuggestedAPIItem] = Field(..., description="Current list to rerank.")
+
+
+class RAGRerankResponse(BaseModel):
+    """Response for POST /api/rag/rerank."""
+
+    query_key: str
+    suggested_apis: list[SuggestedAPIItem] = Field(..., description="Same APIs in new order with updated scores.")
 
 
 # --- IdeaGPT: Idea → Features ---

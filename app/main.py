@@ -32,9 +32,12 @@ from app.models import (
     JiraResponse,
     RAGLookupRequest,
     RAGLookupResponse,
+    RAGRerankRequest,
+    RAGRerankResponse,
     RAGMatchedAPI,
     SearchRequest,
     SearchResponse,
+    SuggestedAPIItem,
     SuggestPersonasRequest,
     SuggestPersonasResponse,
     SummariseRequest,
@@ -274,12 +277,22 @@ def search_endpoint(body: SearchRequest):
 
 @app.post("/api/rag/lookup", response_model=RAGLookupResponse)
 def rag_lookup_endpoint(body: RAGLookupRequest):
-    """RAG pipeline: semantic lookup → best match, match_status, enhancements, gap_summary, build_required."""
+    """RAG pipeline: semantic lookup → best match, suggested_apis (above min_score), match_status, enhancements."""
     from app.recommender import get_enhancement_suggestion
     from app.retriever import search as retriever_search
 
     query = build_rag_query(body)
     results_raw = retriever_search(query, n_results=body.top_k)
+
+    filtered = (
+        results_raw
+        if body.min_score is None
+        else [r for r in results_raw if r["similarity"] >= body.min_score]
+    )
+    suggested_apis = [
+        SuggestedAPIItem(api=record_to_matched_api(r.get("record") or {}), score=round(r["similarity"], 4))
+        for r in filtered
+    ]
 
     if not results_raw:
         return RAGLookupResponse(
@@ -287,6 +300,7 @@ def rag_lookup_endpoint(body: RAGLookupRequest):
             match_status="none",
             confidence_score=0.0,
             matched_api=None,
+            suggested_apis=[],
             enhancements=[],
             gap_summary=None,
             build_required=True,
@@ -307,6 +321,9 @@ def rag_lookup_endpoint(body: RAGLookupRequest):
 
     build_required = match_status == "none" or (match_status == "partial" and similarity < 0.60)
     matched_api = record_to_matched_api(record) if record else None
+    if suggested_apis and matched_api is None:
+        matched_api = suggested_apis[0].api
+    confidence_score = round(similarity, 4)
 
     enhancements: list[str] = []
     gap_summary: str | None = None
@@ -320,12 +337,49 @@ def rag_lookup_endpoint(body: RAGLookupRequest):
     return RAGLookupResponse(
         query_key=body.query_key,
         match_status=match_status,
-        confidence_score=round(similarity, 4),
+        confidence_score=confidence_score,
         matched_api=matched_api,
+        suggested_apis=suggested_apis,
         enhancements=enhancements,
         gap_summary=gap_summary,
         build_required=build_required,
     )
+
+
+@app.post("/api/rag/rerank", response_model=RAGRerankResponse)
+def rag_rerank_endpoint(body: RAGRerankRequest):
+    """Rerank suggested_apis by relevance to description + context + expected_io + additional_info."""
+    from app.retriever import search as retriever_search
+
+    lookup_body = RAGLookupRequest(
+        query_key=body.query_key,
+        description=body.description,
+        context=body.context,
+        expected_io=body.expected_io,
+    )
+    query = build_rag_query(lookup_body)
+    if body.additional_info and body.additional_info.strip():
+        query = query + " " + body.additional_info.strip()
+
+    results_raw = retriever_search(query, n_results=50)
+    endpoint_to_score = {}
+    for r in results_raw:
+        rec = r.get("record") or {}
+        ep = rec.get("path") or rec.get("endpoint") or rec.get("url") or ""
+        if ep:
+            endpoint_to_score[ep] = round(r["similarity"], 4)
+
+    def sort_key(item: SuggestedAPIItem) -> tuple:
+        score = endpoint_to_score.get(item.api.endpoint, 0.0)
+        return (-score, item.api.endpoint)
+
+    reranked = sorted(body.suggested_apis, key=sort_key)
+    reranked_with_scores = []
+    for item in reranked:
+        new_score = endpoint_to_score.get(item.api.endpoint, item.score)
+        reranked_with_scores.append(SuggestedAPIItem(api=item.api, score=new_score))
+
+    return RAGRerankResponse(query_key=body.query_key, suggested_apis=reranked_with_scores)
 
 
 @app.post("/ingest")
