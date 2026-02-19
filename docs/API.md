@@ -119,6 +119,14 @@ Find APIs that match a natural-language description. Returns top 5 matches with 
 
 ---
 
+### `GET /catalog`
+
+Return the full API catalog from `data/apis.json`. Supports new schema `{ _meta, apis }` or legacy array.
+
+**Response:** `200 OK` — `{ "apis": [ ... ], "_meta": { ... } }` (optional)
+
+---
+
 ### `POST /ingest`
 
 Re-run ingestion: load `data/apis.json`, embed via OpenAI, upsert into ChromaDB. Safe to call multiple times.
@@ -138,10 +146,85 @@ Re-run ingestion: load `data/apis.json`, embed via OpenAI, upsert into ChromaDB.
 
 ---
 
+### `POST /api/rag/lookup`
+
+RAG pipeline: semantic lookup against the embedded API catalog. Returns a single best match with `match_status` (exact / partial / none), `confidence_score`, `matched_api`, `enhancements`, `gap_summary`, and `build_required`. Intended for use with pre-processed input from `/llm/describe`.
+
+**Request:** `application/json`
+
+```ts
+{
+  query_key: string;       // e.g. "secure_messaging"
+  description: string;      // semantic description (min length 1)
+  context?: {
+    product_idea?: string;
+    persona?: string;
+    journey?: string;
+    step_label?: string;
+  };
+  expected_io?: {
+    input_schema?: string;
+    output_schema?: string;
+  };
+  top_k?: number;            // default 3, 1–20
+}
+```
+
+**Response:** `200 OK`
+
+```ts
+{
+  query_key: string;
+  match_status: "exact" | "partial" | "none";
+  confidence_score: number;   // 0–1 (exact ≥ 0.90)
+  matched_api: {
+    name: string;
+    endpoint: string;         // from catalog path/url
+    method?: string;
+    team?: string;
+    author?: string;          // from catalog owner
+    status?: string;          // from catalog readiness
+    version?: string;
+    desc?: string;
+    contract?: string;
+    sla?: string | null;
+    latency?: string | null;
+    calls?: unknown;
+  } | null;
+  enhancements: string[];
+  gap_summary: string | null;
+  build_required: boolean;
+}
+```
+
+**Example request:**
+
+```json
+{
+  "query_key": "secure_messaging",
+  "description": "HIPAA-compliant encrypted messaging between patients and care providers",
+  "context": {
+    "product_idea": "Healthcare patient portal",
+    "persona": "Patient",
+    "journey": "Care Journey",
+    "step_label": "Message Doctor"
+  },
+  "expected_io": {
+    "input_schema": "{ sender_id, recipient_id, message_body, attachments[] }",
+    "output_schema": "{ message_id, status, delivered_at }"
+  },
+  "top_k": 3
+}
+```
+
+---
+
 ## Summary table
 
-| Method | Path     | Request body      | Response body                    |
-|--------|----------|--------------------|----------------------------------|
-| GET    | `/health`| —                  | `{ "status": "ok" }`            |
-| POST   | `/search`| `{ "query": "..." }`| `{ "results": [ APIResult, ... ] }` |
-| POST   | `/ingest`| —                  | `{ "status": "ok", "upserted": N }` |
+| Method | Path               | Request body                    | Response body |
+|--------|--------------------|----------------------------------|---------------|
+| GET    | `/health`          | —                                | `{ "status": "ok" }` |
+| GET    | `/catalog`         | —                                | `{ "apis": [...], "_meta"?: {...} }` |
+| POST   | `/search`          | `{ "query": "..." }`             | `{ "results": [ APIResult, ... ] }` |
+| POST   | `/api/rag/lookup`  | RAGLookupRequest                 | RAGLookupResponse |
+| POST   | `/ingest`          | —                                | `{ "status": "ok", "upserted": N }` |

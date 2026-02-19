@@ -1,5 +1,5 @@
 """
-API tests for FastAPI endpoints: GET /health, POST /search, POST /ingest.
+API tests for FastAPI endpoints: GET /health, POST /search, POST /ingest, POST /api/rag/lookup.
 """
 from unittest.mock import patch
 
@@ -105,3 +105,109 @@ class TestIngest:
         resp = client.post("/ingest")
         assert resp.status_code == 500
         assert "Unexpected error" in resp.json()["detail"]
+
+
+class TestRAGLookup:
+    @patch("app.retriever.search")
+    def test_rag_lookup_none_returns_none_status(self, mock_search, client):
+        mock_search.return_value = []
+        resp = client.post(
+            "/api/rag/lookup",
+            json={
+                "query_key": "secure_messaging",
+                "description": "HIPAA-compliant encrypted messaging",
+                "top_k": 2,
+            },
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["query_key"] == "secure_messaging"
+        assert data["match_status"] == "none"
+        assert data["confidence_score"] == 0.0
+        assert data["matched_api"] is None
+        assert data["build_required"] is True
+        assert data["enhancements"] == []
+
+    @patch("app.retriever.search")
+    def test_rag_lookup_exact_returns_matched_api_and_build_not_required(
+        self, mock_search, client
+    ):
+        mock_search.return_value = [
+            {
+                "id": "api-store-location",
+                "record": {
+                    "id": "api-store-location",
+                    "name": "Store Location API",
+                    "path": "/v1/stores",
+                    "method": "GET",
+                    "owner": "Jane Doe",
+                    "team": "Retail & Store APIs",
+                    "readiness": "production",
+                    "version": "1.2.0",
+                    "description": "Get store locations.",
+                    "input": {},
+                    "output": {},
+                },
+                "similarity": 0.92,
+                "match_type": "direct",
+            },
+        ]
+        resp = client.post(
+            "/api/rag/lookup",
+            json={
+                "query_key": "store_lookup",
+                "description": "find stores near me",
+                "top_k": 3,
+            },
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["match_status"] == "exact"
+        assert data["confidence_score"] == 0.92
+        assert data["build_required"] is False
+        assert data["matched_api"] is not None
+        assert data["matched_api"]["name"] == "Store Location API"
+        assert data["matched_api"]["endpoint"] == "/v1/stores"
+        assert data["matched_api"]["author"] == "Jane Doe"
+        assert data["matched_api"]["team"] == "Retail & Store APIs"
+        assert data["matched_api"]["status"] == "production"
+
+    @patch("app.recommender.get_enhancement_suggestion")
+    @patch("app.retriever.search")
+    def test_rag_lookup_partial_includes_enhancements(
+        self, mock_search, mock_enhancement, client
+    ):
+        mock_search.return_value = [
+            {
+                "id": "api-bank-check",
+                "record": {
+                    "id": "api-bank-check",
+                    "name": "Bank Check Balance API",
+                    "path": "/v1/accounts/verify",
+                    "method": "POST",
+                    "owner": "Alice Chen",
+                    "team": "Payments",
+                    "readiness": "production",
+                    "description": "Verify bank account.",
+                    "input": {},
+                    "output": {},
+                },
+                "similarity": 0.65,
+                "match_type": "closest",
+            },
+        ]
+        mock_enhancement.return_value = "1. Add idempotency.\n2. What is missing: retry policy."
+        resp = client.post(
+            "/api/rag/lookup",
+            json={
+                "query_key": "balance_check",
+                "description": "check account balance with retry",
+                "top_k": 2,
+            },
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["match_status"] == "partial"
+        assert data["matched_api"]["name"] == "Bank Check Balance API"
+        assert "enhancements" in data
+        assert data["build_required"] is False  # 0.65 >= 0.60

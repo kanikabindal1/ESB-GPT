@@ -24,14 +24,15 @@ EMBEDDING_MODEL = "text-embedding-3-small"
 
 
 def flatten_record(record: dict) -> str:
-    """Build a single searchable string for embedding (per plan section 4.2)."""
+    """Build a single searchable string for embedding. Supports new schema (path, domain) and legacy (endpoint, use_cases)."""
     name = record.get("name", "")
     description = record.get("description", "")
+    domain = record.get("domain", "")
     use_cases = record.get("use_cases", [])
     inp = record.get("input", {})
     out = record.get("output", {})
     method = record.get("method", "")
-    endpoint = record.get("endpoint", "")
+    path = record.get("path") or record.get("endpoint", "")
     tags = record.get("tags", [])
 
     use_cases_str = ", ".join(use_cases) if isinstance(use_cases, list) else str(use_cases)
@@ -41,10 +42,11 @@ def flatten_record(record: dict) -> str:
 
     parts = [
         f"{name} — {description}.",
-        f"Use cases: {use_cases_str}.",
+        f"Domain: {domain}." if domain else "",
+        f"Use cases: {use_cases_str}." if use_cases_str else "",
         f"Inputs: {inputs_str}.",
         f"Outputs: {outputs_str}.",
-        f"Method: {method}, Endpoint: {endpoint}.",
+        f"Method: {method}, Path: {path}.",
         f"Tags: {tags_str}.",
     ]
     return " ".join(p for p in parts if p.strip())
@@ -64,7 +66,13 @@ def run_ingest() -> int:
         raise ValueError("Set OPENAI_API_KEY in .env")
 
     with open(DATA_PATH, encoding="utf-8") as f:
-        records = json.load(f)
+        data = json.load(f)
+
+    # Support new schema { _meta, apis } or legacy array
+    if isinstance(data, dict) and "apis" in data:
+        records = data["apis"]
+    else:
+        records = data if isinstance(data, list) else []
 
     if not records:
         return 0
