@@ -1,0 +1,1386 @@
+{
+    "_meta": {
+      "schema_version": "1.0",
+      "description": "API knowledge store \u2013 one object per API with simplified metadata",
+      "last_updated": "2025-02-19",
+      "total_apis": 40
+    },
+    "apis": [
+      {
+        "id": "api-store-location",
+        "name": "Store Location API",
+        "domain": "retail",
+        "description": "Get store/outlet locations, opening hours, and availability by geography or filters.",
+        "owner": "Jane Doe",
+        "team": "Retail & Store APIs",
+        "version": "1.2.0",
+        "method": "GET",
+        "path": "/v1/stores",
+        "url": "https://api.company.com/retail/store-location",
+        "confluence": "https://confluence.company.com/display/RETail/Store+Location+API",
+        "bitbucket": "https://bitbucket.company.com/projects/RET/repos/store-locator-svc",
+        "tags": [
+          "retail",
+          "location",
+          "stores",
+          "outlets"
+        ],
+        "sample_input": "{\"latitude\": 28.6139, \"longitude\": 77.2090, \"radius_km\": 5}",
+        "sample_output": "{\"stores\": [{\"id\": \"ST001\", \"name\": \"Main Store\", \"address\": \"123 High St\", \"open_until\": \"21:00\"}]}",
+        "input": {
+          "latitude": "number, optional",
+          "longitude": "number, optional",
+          "radius_km": "integer, optional",
+          "filters": "object, optional"
+        },
+        "output": {
+          "stores": "array of store objects",
+          "total_count": "integer"
+        },
+        "manhours": 80,
+        "api_efficiency": "high",
+        "readiness": "production"
+      },
+      {
+        "id": "api-bank-check-balance",
+        "name": "Bank Check Balance API",
+        "domain": "payments",
+        "description": "Verify bank account and check balance for payment flows (top-up, bill pay).",
+        "owner": "Alice Chen",
+        "team": "Payments & Banking",
+        "version": "1.0.0",
+        "method": "POST",
+        "path": "/v1/accounts/verify",
+        "url": "https://api.company.com/payments/bank-check",
+        "confluence": "https://confluence.company.com/display/PAY/Bank+Check+Balance+API",
+        "bitbucket": "https://bitbucket.company.com/projects/PAY/repos/bank-check-svc",
+        "tags": [
+          "payments",
+          "banking",
+          "balance",
+          "verification"
+        ],
+        "sample_input": "{\"account_number\": \"****1234\", \"bank_code\": \"BIC001\", \"customer_id\": \"C123\"}",
+        "sample_output": "{\"verified\": true, \"balance\": 1500.50, \"currency\": \"USD\"}",
+        "input": {
+          "account_number": "string, required",
+          "bank_code": "string, required",
+          "customer_id": "string, required"
+        },
+        "output": {
+          "verified": "boolean",
+          "balance": "number",
+          "currency": "string"
+        },
+        "manhours": 30,
+        "api_efficiency": "medium",
+        "readiness": "production"
+      },
+      {
+        "id": "api-sim-swaps",
+        "name": "SIM Swap API",
+        "domain": "identity",
+        "description": "Initiate and query SIM swap requests; check swap eligibility and status.",
+        "owner": "Carol Brown",
+        "team": "Identity & SIM",
+        "version": "1.1.0",
+        "method": "POST",
+        "path": "/v1/sim/swap",
+        "url": "https://api.company.com/identity/sim-swap",
+        "confluence": "https://confluence.company.com/display/ID/SIM+Swap+API",
+        "bitbucket": "https://bitbucket.company.com/projects/ID/repos/sim-management-svc",
+        "tags": [
+          "identity",
+          "SIM",
+          "swap",
+          "fraud"
+        ],
+        "sample_input": "{\"msisdn\": \"+1234567890\", \"new_iccid\": \"89014103270000000001\", \"reason\": \"replacement\"}",
+        "sample_output": "{\"request_id\": \"SWAP-001\", \"status\": \"pending\", \"estimated_completion\": \"2025-02-20T14:00:00Z\"}",
+        "input": {
+          "msisdn": "string, required",
+          "new_iccid": "string, required",
+          "reason": "string, optional"
+        },
+        "output": {
+          "request_id": "string",
+          "status": "string",
+          "estimated_completion": "ISO datetime, optional"
+        },
+        "manhours": 79,
+        "api_efficiency": "low",
+        "readiness": "production"
+      },
+      {
+        "id": "api-customer-status",
+        "name": "Customer Status API",
+        "domain": "customer",
+        "description": "Customer profile summary, account status, segment, and service eligibility.",
+        "owner": "Jane Doe",
+        "team": "Customer 360",
+        "version": "2.0.0",
+        "method": "GET",
+        "path": "/v2/customers/{customerId}/status",
+        "url": "https://api.company.com/customer/status",
+        "confluence": "https://confluence.company.com/display/CUST/Customer+Status+API",
+        "bitbucket": "https://bitbucket.company.com/projects/CUST/repos/customer-360-svc",
+        "tags": [
+          "customer",
+          "profile",
+          "status",
+          "eligibility"
+        ],
+        "sample_input": "{\"customer_id\": \"CUST-12345\"}",
+        "sample_output": "{\"status\": \"active\", \"segment\": \"premium\", \"eligible_offers\": [\"bundle_10gb\"], \"balance\": 25.00}",
+        "input": {
+          "customer_id": "string, required"
+        },
+        "output": {
+          "status": "string",
+          "segment": "string",
+          "eligible_offers": "array of strings",
+          "balance": "number"
+        },
+        "manhours": 64,
+        "api_efficiency": "high",
+        "readiness": "beta"
+      },
+      {
+        "id": "api-topup",
+        "name": "Top-Up / Recharge API",
+        "domain": "payments",
+        "description": "Prepaid airtime and data top-up, bundle purchase, and recharge history.",
+        "owner": "Alice Chen",
+        "team": "Payments & Banking",
+        "version": "1.3.0",
+        "method": "POST",
+        "path": "/v1/topup",
+        "url": "https://api.company.com/payments/topup",
+        "confluence": "https://confluence.company.com/display/PAY/Top-Up+API",
+        "bitbucket": "https://bitbucket.company.com/projects/PAY/repos/topup-svc",
+        "tags": [
+          "payments",
+          "topup",
+          "recharge",
+          "prepaid"
+        ],
+        "sample_input": "{\"msisdn\": \"+1234567890\", \"amount\": 10.00, \"payment_ref\": \"TXN-001\"}",
+        "sample_output": "{\"success\": true, \"new_balance\": 35.00, \"receipt_id\": \"RCP-789\"}",
+        "input": {
+          "msisdn": "string, required",
+          "amount": "number, required",
+          "payment_ref": "string, required"
+        },
+        "output": {
+          "success": "boolean",
+          "new_balance": "number",
+          "receipt_id": "string"
+        },
+        "manhours": 21,
+        "api_efficiency": "medium",
+        "readiness": "production"
+      },
+      {
+        "id": "api-bill-pay",
+        "name": "Bill Pay API",
+        "domain": "payments",
+        "description": "Pay postpaid bills, schedule payments, and retrieve payment status.",
+        "owner": "Alice Chen",
+        "team": "Payments & Banking",
+        "version": "1.0.0",
+        "method": "POST",
+        "path": "/v1/bills/pay",
+        "url": "https://api.company.com/payments/bill-pay",
+        "confluence": "https://confluence.company.com/display/PAY/Bill+Pay+API",
+        "bitbucket": "https://bitbucket.company.com/projects/PAY/repos/bill-pay-svc",
+        "tags": [
+          "payments",
+          "billing",
+          "bill-pay",
+          "postpaid"
+        ],
+        "sample_input": "{\"bill_id\": \"BILL-001\", \"amount\": 75.00, \"payment_method\": \"card\"}",
+        "sample_output": "{\"payment_id\": \"PAY-001\", \"status\": \"completed\", \"paid_at\": \"2025-02-19T10:30:00Z\"}",
+        "input": {
+          "bill_id": "string, required",
+          "amount": "number, required",
+          "payment_method": "string, required"
+        },
+        "output": {
+          "payment_id": "string",
+          "status": "string",
+          "paid_at": "ISO datetime"
+        },
+        "manhours": 56,
+        "api_efficiency": "low",
+        "readiness": "production"
+      },
+      {
+        "id": "api-usage-consumption",
+        "name": "Usage / Consumption API",
+        "domain": "billing",
+        "description": "Data, voice, and SMS usage and consumption for prepaid and postpaid.",
+        "owner": "Jane Doe",
+        "team": "Billing & Usage",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/subscribers/{msisdn}/usage",
+        "url": "https://api.company.com/billing/usage",
+        "confluence": "https://confluence.company.com/display/BILL/Usage+API",
+        "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/usage-svc",
+        "tags": [
+          "billing",
+          "usage",
+          "consumption",
+          "data",
+          "voice"
+        ],
+        "sample_input": "{\"msisdn\": \"+1234567890\", \"period\": \"current\"}",
+        "sample_output": "{\"data_mb\": 2048, \"voice_min\": 120, \"sms_count\": 45, \"period_start\": \"2025-02-01\"}",
+        "input": {
+          "msisdn": "string, required",
+          "period": "string, optional"
+        },
+        "output": {
+          "data_mb": "number",
+          "voice_min": "number",
+          "sms_count": "integer",
+          "period_start": "ISO date"
+        },
+        "manhours": 57,
+        "api_efficiency": "high",
+        "readiness": "production"
+      },
+      {
+        "id": "api-device-swap",
+        "name": "Device Swap API",
+        "domain": "identity",
+        "description": "Register device change and swap device binding for a subscriber.",
+        "owner": "Carol Brown",
+        "team": "Identity & SIM",
+        "version": "1.0.0",
+        "method": "POST",
+        "path": "/v1/device/swap",
+        "url": "https://api.company.com/identity/device-swap",
+        "confluence": "https://confluence.company.com/display/ID/Device+Swap+API",
+        "bitbucket": "https://bitbucket.company.com/projects/ID/repos/device-svc",
+        "tags": [
+          "identity",
+          "device",
+          "swap",
+          "IMEI"
+        ],
+        "sample_input": "{\"msisdn\": \"+1234567890\", \"new_imei\": \"123456789012345\", \"reason\": \"device_change\"}",
+        "sample_output": "{\"request_id\": \"DSW-001\", \"status\": \"approved\", \"effective_at\": \"2025-02-19T12:00:00Z\"}",
+        "input": {
+          "msisdn": "string, required",
+          "new_imei": "string, required",
+          "reason": "string, optional"
+        },
+        "output": {
+          "request_id": "string",
+          "status": "string",
+          "effective_at": "ISO datetime"
+        },
+        "manhours": 35,
+        "api_efficiency": "medium",
+        "readiness": "beta"
+      },
+      {
+        "id": "api-mnp",
+        "name": "Number Portability (MNP) API",
+        "domain": "identity",
+        "description": "Check portability status and initiate number port-in/port-out requests.",
+        "owner": "Carol Brown",
+        "team": "Identity & SIM",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/mnp/check/{number}",
+        "url": "https://api.company.com/identity/mnp",
+        "confluence": "https://confluence.company.com/display/ID/MNP+API",
+        "bitbucket": "https://bitbucket.company.com/projects/ID/repos/mnp-svc",
+        "tags": [
+          "identity",
+          "MNP",
+          "portability",
+          "port-in",
+          "port-out"
+        ],
+        "sample_input": "{\"number\": \"+1234567890\"}",
+        "sample_output": "{\"eligible\": true, \"current_operator\": \"OTHER\", \"estimated_days\": 3}",
+        "input": {
+          "number": "string, required"
+        },
+        "output": {
+          "eligible": "boolean",
+          "current_operator": "string",
+          "estimated_days": "integer"
+        },
+        "manhours": 43,
+        "api_efficiency": "low",
+        "readiness": "production"
+      },
+      {
+        "id": "api-otp-verification",
+        "name": "OTP / Verification API",
+        "domain": "identity",
+        "description": "Send and verify OTP for login, transactions, and step-up authentication.",
+        "owner": "Alice Chen",
+        "team": "Identity & SIM",
+        "version": "1.0.0",
+        "method": "POST",
+        "path": "/v1/otp/send",
+        "url": "https://api.company.com/identity/otp",
+        "confluence": "https://confluence.company.com/display/ID/OTP+API",
+        "bitbucket": "https://bitbucket.company.com/projects/ID/repos/otp-svc",
+        "tags": [
+          "identity",
+          "OTP",
+          "verification",
+          "2FA"
+        ],
+        "sample_input": "{\"channel\": \"SMS\", \"destination\": \"+1234567890\", \"purpose\": \"login\"}",
+        "sample_output": "{\"otp_ref\": \"REF-001\", \"expires_in_seconds\": 300, \"masked_destination\": \"+123****890\"}",
+        "input": {
+          "channel": "string, required",
+          "destination": "string, required",
+          "purpose": "string, optional"
+        },
+        "output": {
+          "otp_ref": "string",
+          "expires_in_seconds": "integer",
+          "masked_destination": "string"
+        },
+        "manhours": 52,
+        "api_efficiency": "high",
+        "readiness": "production"
+      },
+      {
+        "id": "api-subscriber-registration",
+        "name": "Subscriber Registration API",
+        "domain": "customer",
+        "description": "Register new prepaid/postpaid subscribers and validate identity.",
+        "owner": "Jane Doe",
+        "team": "Customer 360",
+        "version": "1.0.0",
+        "method": "POST",
+        "path": "/v1/subscribers/register",
+        "url": "https://api.company.com/customer/registration",
+        "confluence": "https://confluence.company.com/display/CUST/Subscriber+Registration+API",
+        "bitbucket": "https://bitbucket.company.com/projects/CUST/repos/registration-svc",
+        "tags": [
+          "customer",
+          "registration",
+          "onboarding",
+          "KYC"
+        ],
+        "sample_input": "{\"msisdn\": \"+1234567890\", \"id_type\": \"national_id\", \"id_number\": \"***123\", \"name\": \"John Doe\"}",
+        "sample_output": "{\"request_id\": \"REG-001\", \"status\": \"pending_verification\", \"customer_id\": \"CUST-NEW-001\"}",
+        "input": {
+          "msisdn": "string, required",
+          "id_type": "string, required",
+          "id_number": "string, required",
+          "name": "string, required"
+        },
+        "output": {
+          "request_id": "string",
+          "status": "string",
+          "customer_id": "string"
+        },
+        "manhours": 57,
+        "api_efficiency": "medium",
+        "readiness": "production"
+      },
+      {
+        "id": "api-balance-inquiry",
+        "name": "Balance Inquiry API",
+        "domain": "billing",
+        "description": "Prepaid balance and postpaid account balance and credit limit.",
+        "owner": "Jane Doe",
+        "team": "Billing & Usage",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/subscribers/{msisdn}/balance",
+        "url": "https://api.company.com/billing/balance",
+        "confluence": "https://confluence.company.com/display/BILL/Balance+Inquiry+API",
+        "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/balance-svc",
+        "tags": [
+          "billing",
+          "balance",
+          "prepaid",
+          "postpaid"
+        ],
+        "sample_input": "{\"msisdn\": \"+1234567890\"}",
+        "sample_output": "{\"balance\": 25.50, \"currency\": \"USD\", \"credit_limit\": 100.00}",
+        "input": {
+          "msisdn": "string, required"
+        },
+        "output": {
+          "balance": "number",
+          "currency": "string",
+          "credit_limit": "number"
+        },
+        "manhours": 22,
+        "api_efficiency": "low",
+        "readiness": "beta"
+      },
+      {
+        "id": "api-bundle-purchase",
+        "name": "Bundle Purchase API",
+        "domain": "billing",
+        "description": "Purchase data, voice, and SMS bundles; list available bundles and active bundles.",
+        "owner": "Jane Doe",
+        "team": "Billing & Usage",
+        "version": "1.0.0",
+        "method": "POST",
+        "path": "/v1/bundles/purchase",
+        "url": "https://api.company.com/billing/bundles",
+        "confluence": "https://confluence.company.com/display/BILL/Bundle+Purchase+API",
+        "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/bundle-svc",
+        "tags": [
+          "billing",
+          "bundles",
+          "data",
+          "voice",
+          "SMS"
+        ],
+        "sample_input": "{\"msisdn\": \"+1234567890\", \"bundle_id\": \"DATA-5GB\", \"payment_ref\": \"TXN-002\"}",
+        "sample_output": "{\"success\": true, \"bundle_code\": \"DATA-5GB\", \"valid_until\": \"2025-03-19\", \"remaining_mb\": 5120}",
+        "input": {
+          "msisdn": "string, required",
+          "bundle_id": "string, required",
+          "payment_ref": "string, required"
+        },
+        "output": {
+          "success": "boolean",
+          "bundle_code": "string",
+          "valid_until": "ISO date",
+          "remaining_mb": "number"
+        },
+        "manhours": 78,
+        "api_efficiency": "high",
+        "readiness": "production"
+      },
+      {
+        "id": "api-roaming-status",
+        "name": "Roaming Status API",
+        "domain": "network",
+        "description": "Check roaming status, activate roaming packs, and get roaming usage.",
+        "owner": "Carol Brown",
+        "team": "Network & Coverage",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/roaming/status/{msisdn}",
+        "url": "https://api.company.com/network/roaming",
+        "confluence": "https://confluence.company.com/display/NET/Roaming+API",
+        "bitbucket": "https://bitbucket.company.com/projects/NET/repos/roaming-svc",
+        "tags": [
+          "network",
+          "roaming",
+          "international"
+        ],
+        "sample_input": "{\"msisdn\": \"+1234567890\"}",
+        "sample_output": "{\"roaming_active\": true, \"current_country\": \"GB\", \"pack\": \"EU_7DAY\", \"data_remaining_mb\": 500}",
+        "input": {
+          "msisdn": "string, required"
+        },
+        "output": {
+          "roaming_active": "boolean",
+          "current_country": "string",
+          "pack": "string",
+          "data_remaining_mb": "number"
+        },
+        "manhours": 33,
+        "api_efficiency": "medium",
+        "readiness": "production"
+      },
+      {
+        "id": "api-coverage-check",
+        "name": "Coverage Check API",
+        "domain": "network",
+        "description": "Check network coverage and quality by location (lat/long or address).",
+        "owner": "Carol Brown",
+        "team": "Network & Coverage",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/coverage",
+        "url": "https://api.company.com/network/coverage",
+        "confluence": "https://confluence.company.com/display/NET/Coverage+API",
+        "bitbucket": "https://bitbucket.company.com/projects/NET/repos/coverage-svc",
+        "tags": [
+          "network",
+          "coverage",
+          "signal",
+          "location"
+        ],
+        "sample_input": "{\"latitude\": 28.6139, \"longitude\": 77.2090}",
+        "sample_output": "{\"coverage\": \"excellent\", \"technologies\": [\"4G\", \"5G\"], \"signal_strength\": -75}",
+        "input": {
+          "latitude": "number, optional",
+          "longitude": "number, optional",
+          "address": "string, optional"
+        },
+        "output": {
+          "coverage": "string",
+          "technologies": "array of strings",
+          "signal_strength": "integer"
+        },
+        "manhours": 41,
+        "api_efficiency": "low",
+        "readiness": "production"
+      },
+      {
+        "id": "api-complaints-tickets",
+        "name": "Complaints / Tickets API",
+        "domain": "care",
+        "description": "Create and track customer complaints and support tickets.",
+        "owner": "Alice Chen",
+        "team": "Care & Support",
+        "version": "1.0.0",
+        "method": "POST",
+        "path": "/v1/tickets",
+        "url": "https://api.company.com/care/tickets",
+        "confluence": "https://confluence.company.com/display/CARE/Complaints+API",
+        "bitbucket": "https://bitbucket.company.com/projects/CARE/repos/ticket-svc",
+        "tags": [
+          "care",
+          "complaints",
+          "tickets",
+          "support"
+        ],
+        "sample_input": "{\"customer_id\": \"CUST-123\", \"category\": \"billing\", \"subject\": \"Wrong charge\", \"description\": \"...\"}",
+        "sample_output": "{\"ticket_id\": \"TKT-001\", \"status\": \"open\", \"priority\": \"medium\", \"created_at\": \"2025-02-19T11:00:00Z\"}",
+        "input": {
+          "customer_id": "string, required",
+          "category": "string, required",
+          "subject": "string, required",
+          "description": "string, required"
+        },
+        "output": {
+          "ticket_id": "string",
+          "status": "string",
+          "priority": "string",
+          "created_at": "ISO datetime"
+        },
+        "manhours": 71,
+        "api_efficiency": "high",
+        "readiness": "beta"
+      },
+      {
+        "id": "api-payment-history",
+        "name": "Payment History API",
+        "domain": "payments",
+        "description": "Retrieve payment and transaction history for a subscriber or account.",
+        "owner": "Alice Chen",
+        "team": "Payments & Banking",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/payments/history",
+        "url": "https://api.company.com/payments/history",
+        "confluence": "https://confluence.company.com/display/PAY/Payment+History+API",
+        "bitbucket": "https://bitbucket.company.com/projects/PAY/repos/history-svc",
+        "tags": [
+          "payments",
+          "history",
+          "transactions"
+        ],
+        "sample_input": "{\"customer_id\": \"CUST-123\", \"from_date\": \"2025-02-01\", \"to_date\": \"2025-02-19\"}",
+        "sample_output": "{\"transactions\": [{\"id\": \"TXN-001\", \"amount\": 10.00, \"type\": \"topup\", \"date\": \"2025-02-18\"}]}",
+        "input": {
+          "customer_id": "string, required",
+          "from_date": "ISO date, optional",
+          "to_date": "ISO date, optional"
+        },
+        "output": {
+          "transactions": "array of transaction objects",
+          "total_count": "integer"
+        },
+        "manhours": 53,
+        "api_efficiency": "medium",
+        "readiness": "production"
+      },
+      {
+        "id": "api-invoice-download",
+        "name": "Invoice Download API",
+        "domain": "billing",
+        "description": "Generate and download postpaid invoices (PDF) and list invoice summaries.",
+        "owner": "Jane Doe",
+        "team": "Billing & Usage",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/invoices/{invoiceId}/download",
+        "url": "https://api.company.com/billing/invoices",
+        "confluence": "https://confluence.company.com/display/BILL/Invoice+API",
+        "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/invoice-svc",
+        "tags": [
+          "billing",
+          "invoice",
+          "postpaid",
+          "PDF"
+        ],
+        "sample_input": "{\"invoice_id\": \"INV-2025-02-001\", \"format\": \"pdf\"}",
+        "sample_output": "{\"download_url\": \"https://api.company.com/billing/invoices/INV-2025-02-001.pdf\", \"expires_at\": \"2025-02-19T23:59:59Z\"}",
+        "input": {
+          "invoice_id": "string, required",
+          "format": "string, optional"
+        },
+        "output": {
+          "download_url": "string",
+          "expires_at": "ISO datetime"
+        },
+        "manhours": 49,
+        "api_efficiency": "low",
+        "readiness": "production"
+      },
+      {
+        "id": "api-plan-change",
+        "name": "Plan Change / Migration API",
+        "domain": "billing",
+        "description": "Change tariff plan, migrate prepaid to postpaid, and check eligibility.",
+        "owner": "Jane Doe",
+        "team": "Billing & Usage",
+        "version": "1.0.0",
+        "method": "POST",
+        "path": "/v1/plans/change",
+        "url": "https://api.company.com/billing/plans",
+        "confluence": "https://confluence.company.com/display/BILL/Plan+Change+API",
+        "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/plan-svc",
+        "tags": [
+          "billing",
+          "plans",
+          "migration",
+          "tariff"
+        ],
+        "sample_input": "{\"msisdn\": \"+1234567890\", \"new_plan_id\": \"POSTPAID-PREMIUM\", \"effective_date\": \"2025-03-01\"}",
+        "sample_output": "{\"request_id\": \"PLN-001\", \"status\": \"scheduled\", \"effective_from\": \"2025-03-01\"}",
+        "input": {
+          "msisdn": "string, required",
+          "new_plan_id": "string, required",
+          "effective_date": "ISO date, optional"
+        },
+        "output": {
+          "request_id": "string",
+          "status": "string",
+          "effective_from": "ISO date"
+        },
+        "manhours": 22,
+        "api_efficiency": "high",
+        "readiness": "production"
+      },
+      {
+        "id": "api-loyalty-rewards",
+        "name": "Loyalty / Rewards API",
+        "domain": "customer",
+        "description": "Loyalty points balance, earn/burn, and rewards catalog and redemption.",
+        "owner": "Alice Chen",
+        "team": "Customer 360",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/loyalty/points",
+        "url": "https://api.company.com/customer/loyalty",
+        "confluence": "https://confluence.company.com/display/CUST/Loyalty+API",
+        "bitbucket": "https://bitbucket.company.com/projects/CUST/repos/loyalty-svc",
+        "tags": [
+          "customer",
+          "loyalty",
+          "rewards",
+          "points"
+        ],
+        "sample_input": "{\"customer_id\": \"CUST-123\"}",
+        "sample_output": "{\"points_balance\": 1250, \"tier\": \"gold\", \"expiring_soon\": 100}",
+        "input": {
+          "customer_id": "string, required"
+        },
+        "output": {
+          "points_balance": "integer",
+          "tier": "string",
+          "expiring_soon": "integer"
+        },
+        "manhours": 72,
+        "api_efficiency": "medium",
+        "readiness": "beta"
+      },
+      {
+        "id": "api-agent-commission",
+        "name": "Agent Commission API",
+        "domain": "partner",
+        "description": "Agent commission balance, transactions, and payout history.",
+        "owner": "Carol Brown",
+        "team": "Partner & Channel",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/agents/{agentId}/commission/balance",
+        "url": "https://api.company.com/partner/commission",
+        "confluence": "https://confluence.company.com/display/PART/Agent+Commission+API",
+        "bitbucket": "https://bitbucket.company.com/projects/PART/repos/commission-svc",
+        "tags": [
+          "partner",
+          "agent",
+          "commission",
+          "payout"
+        ],
+        "sample_input": "{\"agent_id\": \"AGT-001\"}",
+        "sample_output": "{\"balance\": 450.00, \"pending\": 120.00, \"currency\": \"USD\", \"last_payout\": \"2025-02-15\"}",
+        "input": {
+          "agent_id": "string, required"
+        },
+        "output": {
+          "balance": "number",
+          "pending": "number",
+          "currency": "string",
+          "last_payout": "ISO date"
+        },
+        "manhours": 29,
+        "api_efficiency": "low",
+        "readiness": "production"
+      },
+      {
+        "id": "api-kyc-verification",
+        "name": "KYC / Identity Verification API",
+        "domain": "identity",
+        "description": "Submit and verify KYC documents and identity for regulatory compliance.",
+        "owner": "Carol Brown",
+        "team": "Identity & SIM",
+        "version": "1.0.0",
+        "method": "POST",
+        "path": "/v1/kyc/submit",
+        "url": "https://api.company.com/identity/kyc",
+        "confluence": "https://confluence.company.com/display/ID/KYC+API",
+        "bitbucket": "https://bitbucket.company.com/projects/ID/repos/kyc-svc",
+        "tags": [
+          "identity",
+          "KYC",
+          "verification",
+          "compliance"
+        ],
+        "sample_input": "{\"customer_id\": \"CUST-123\", \"id_type\": \"passport\", \"document_ref\": \"DOC-001\"}",
+        "sample_output": "{\"submission_id\": \"KYC-001\", \"status\": \"under_review\", \"estimated_completion\": \"2025-02-22\"}",
+        "input": {
+          "customer_id": "string, required",
+          "id_type": "string, required",
+          "document_ref": "string, required"
+        },
+        "output": {
+          "submission_id": "string",
+          "status": "string",
+          "estimated_completion": "ISO date"
+        },
+        "manhours": 38,
+        "api_efficiency": "high",
+        "readiness": "production"
+      },
+      {
+        "id": "api-blacklist-fraud",
+        "name": "Blacklist / Fraud API",
+        "domain": "identity",
+        "description": "Check and manage blacklist; report and query fraud indicators.",
+        "owner": "Carol Brown",
+        "team": "Identity & SIM",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/blacklist/check/{msisdn}",
+        "url": "https://api.company.com/identity/fraud",
+        "confluence": "https://confluence.company.com/display/ID/Blacklist+Fraud+API",
+        "bitbucket": "https://bitbucket.company.com/projects/ID/repos/fraud-svc",
+        "tags": [
+          "identity",
+          "fraud",
+          "blacklist",
+          "security"
+        ],
+        "sample_input": "{\"msisdn\": \"+1234567890\"}",
+        "sample_output": "{\"blacklisted\": false, \"risk_score\": 5, \"last_checked\": \"2025-02-19T10:00:00Z\"}",
+        "input": {
+          "msisdn": "string, required"
+        },
+        "output": {
+          "blacklisted": "boolean",
+          "risk_score": "integer",
+          "last_checked": "ISO datetime"
+        },
+        "manhours": 45,
+        "api_efficiency": "medium",
+        "readiness": "production"
+      },
+      {
+        "id": "api-notification-preferences",
+        "name": "Notification Preferences API",
+        "domain": "customer",
+        "description": "Get and update notification preferences (SMS, email, push) per channel.",
+        "owner": "Alice Chen",
+        "team": "Customer 360",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/preferences/notifications",
+        "url": "https://api.company.com/customer/notifications/preferences",
+        "confluence": "https://confluence.company.com/display/CUST/Notification+Preferences+API",
+        "bitbucket": "https://bitbucket.company.com/projects/CUST/repos/preferences-svc",
+        "tags": [
+          "customer",
+          "notifications",
+          "preferences",
+          "consent"
+        ],
+        "sample_input": "{\"customer_id\": \"CUST-123\"}",
+        "sample_output": "{\"sms\": true, \"email\": true, \"push\": false, \"marketing_sms\": false}",
+        "input": {
+          "customer_id": "string, required"
+        },
+        "output": {
+          "sms": "boolean",
+          "email": "boolean",
+          "push": "boolean",
+          "marketing_sms": "boolean"
+        },
+        "manhours": 55,
+        "api_efficiency": "low",
+        "readiness": "beta"
+      },
+      {
+        "id": "api-product-catalog",
+        "name": "Product Catalog API",
+        "domain": "retail",
+        "description": "Product and offer catalog for devices, plans, and add-ons.",
+        "owner": "Jane Doe",
+        "team": "Retail & Store APIs",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/products",
+        "url": "https://api.company.com/retail/catalog",
+        "confluence": "https://confluence.company.com/display/RETail/Product+Catalog+API",
+        "bitbucket": "https://bitbucket.company.com/projects/RET/repos/catalog-svc",
+        "tags": [
+          "retail",
+          "catalog",
+          "products",
+          "offers"
+        ],
+        "sample_input": "{\"category\": \"data_bundles\", \"region\": \"US\"}",
+        "sample_output": "{\"products\": [{\"id\": \"DATA-5GB\", \"name\": \"5GB Data Pack\", \"price\": 10.00}]}",
+        "input": {
+          "category": "string, optional",
+          "region": "string, optional"
+        },
+        "output": {
+          "products": "array of product objects"
+        },
+        "manhours": 50,
+        "api_efficiency": "high",
+        "readiness": "production"
+      },
+      {
+        "id": "api-order-status",
+        "name": "Order Status API",
+        "domain": "retail",
+        "description": "Track order status for devices, SIMs, and home delivery.",
+        "owner": "Jane Doe",
+        "team": "Retail & Store APIs",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/orders/{orderId}",
+        "url": "https://api.company.com/retail/orders",
+        "confluence": "https://confluence.company.com/display/RETail/Order+Status+API",
+        "bitbucket": "https://bitbucket.company.com/projects/RET/repos/order-svc",
+        "tags": [
+          "retail",
+          "orders",
+          "tracking",
+          "fulfillment"
+        ],
+        "sample_input": "{\"order_id\": \"ORD-001\"}",
+        "sample_output": "{\"order_id\": \"ORD-001\", \"status\": \"shipped\", \"tracking_number\": \"TRK-123\", \"eta\": \"2025-02-21\"}",
+        "input": {
+          "order_id": "string, required"
+        },
+        "output": {
+          "order_id": "string",
+          "status": "string",
+          "tracking_number": "string",
+          "eta": "ISO date"
+        },
+        "manhours": 25,
+        "api_efficiency": "medium",
+        "readiness": "production"
+      },
+      {
+        "id": "api-activation-provisioning",
+        "name": "Activation / Provisioning API",
+        "domain": "identity",
+        "description": "Activate new lines, provision services, and sync with network.",
+        "owner": "Carol Brown",
+        "team": "Identity & SIM",
+        "version": "1.0.0",
+        "method": "POST",
+        "path": "/v1/activation",
+        "url": "https://api.company.com/identity/activation",
+        "confluence": "https://confluence.company.com/display/ID/Activation+API",
+        "bitbucket": "https://bitbucket.company.com/projects/ID/repos/provisioning-svc",
+        "tags": [
+          "identity",
+          "activation",
+          "provisioning",
+          "network"
+        ],
+        "sample_input": "{\"iccid\": \"89014103270000000001\", \"imei\": \"123456789012345\", \"plan_id\": \"PREPAID-STD\"}",
+        "sample_output": "{\"request_id\": \"ACT-001\", \"msisdn\": \"+1234567891\", \"status\": \"provisioning\", \"estimated_ready\": \"2025-02-19T15:00:00Z\"}",
+        "input": {
+          "iccid": "string, required",
+          "imei": "string, required",
+          "plan_id": "string, required"
+        },
+        "output": {
+          "request_id": "string",
+          "msisdn": "string",
+          "status": "string",
+          "estimated_ready": "ISO datetime"
+        },
+        "manhours": 69,
+        "api_efficiency": "low",
+        "readiness": "production"
+      },
+      {
+        "id": "api-partner-onboarding",
+        "name": "Partner Onboarding API",
+        "domain": "partner",
+        "description": "Onboard partners, manage credentials, and approve API access.",
+        "owner": "Carol Brown",
+        "team": "Partner & Channel",
+        "version": "1.0.0",
+        "method": "POST",
+        "path": "/v1/partners/register",
+        "url": "https://api.company.com/partner/onboarding",
+        "confluence": "https://confluence.company.com/display/PART/Partner+Onboarding+API",
+        "bitbucket": "https://bitbucket.company.com/projects/PART/repos/onboarding-svc",
+        "tags": [
+          "partner",
+          "onboarding",
+          "credentials",
+          "access"
+        ],
+        "sample_input": "{\"company_name\": \"Acme Corp\", \"contact_email\": \"api@acme.com\", \"apis_requested\": [\"topup\", \"balance\"]}",
+        "sample_output": "{\"partner_id\": \"PART-001\", \"status\": \"pending_approval\", \"client_id\": \"client_xxx\"}",
+        "input": {
+          "company_name": "string, required",
+          "contact_email": "string, required",
+          "apis_requested": "array of strings, required"
+        },
+        "output": {
+          "partner_id": "string",
+          "status": "string",
+          "client_id": "string"
+        },
+        "manhours": 72,
+        "api_efficiency": "high",
+        "readiness": "beta"
+      },
+      {
+        "id": "api-audit-activity",
+        "name": "Audit Log / Activity API",
+        "domain": "customer",
+        "description": "Retrieve audit log and user activity for compliance and security.",
+        "owner": "Alice Chen",
+        "team": "Customer 360",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/audit/logs",
+        "url": "https://api.company.com/customer/audit",
+        "confluence": "https://confluence.company.com/display/CUST/Audit+API",
+        "bitbucket": "https://bitbucket.company.com/projects/CUST/repos/audit-svc",
+        "tags": [
+          "audit",
+          "compliance",
+          "security",
+          "activity"
+        ],
+        "sample_input": "{\"customer_id\": \"CUST-123\", \"from\": \"2025-02-01\", \"to\": \"2025-02-19\", \"limit\": 50}",
+        "sample_output": "{\"events\": [{\"timestamp\": \"2025-02-19T09:00:00Z\", \"action\": \"login\", \"ip\": \"1.2.3.4\"}]}",
+        "input": {
+          "customer_id": "string, required",
+          "from": "ISO date, optional",
+          "to": "ISO date, optional",
+          "limit": "integer, optional"
+        },
+        "output": {
+          "events": "array of audit event objects"
+        },
+        "manhours": 71,
+        "api_efficiency": "medium",
+        "readiness": "production"
+      },
+      {
+        "id": "api-speed-test",
+        "name": "Speed Test / Network Quality API",
+        "domain": "network",
+        "description": "Trigger and retrieve speed test results and network quality metrics.",
+        "owner": "Carol Brown",
+        "team": "Network & Coverage",
+        "version": "1.0.0",
+        "method": "POST",
+        "path": "/v1/speedtest/trigger",
+        "url": "https://api.company.com/network/speed-test",
+        "confluence": "https://confluence.company.com/display/NET/Speed+Test+API",
+        "bitbucket": "https://bitbucket.company.com/projects/NET/repos/speedtest-svc",
+        "tags": [
+          "network",
+          "speed-test",
+          "quality",
+          "QoS"
+        ],
+        "sample_input": "{\"msisdn\": \"+1234567890\", \"test_type\": \"full\"}",
+        "sample_output": "{\"test_id\": \"SPD-001\", \"status\": \"running\", \"download_mbps\": null, \"upload_mbps\": null, \"latency_ms\": null}",
+        "input": {
+          "msisdn": "string, required",
+          "test_type": "string, optional"
+        },
+        "output": {
+          "test_id": "string",
+          "status": "string",
+          "download_mbps": "number",
+          "upload_mbps": "number",
+          "latency_ms": "number"
+        },
+        "manhours": 52,
+        "api_efficiency": "low",
+        "readiness": "production"
+      },
+      {
+        "id": "api-spending-summary",
+        "name": "Spending Summary API",
+        "domain": "billing",
+        "description": "User-facing total spend for a period: prepaid top-ups, postpaid bill, add-ons, and roaming in one summary.",
+        "owner": "Jane Doe",
+        "team": "Billing & Usage",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/spending/summary",
+        "url": "https://api.company.com/billing/spending/summary",
+        "confluence": "https://confluence.company.com/display/BILL/Spending+Summary+API",
+        "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/spending-svc",
+        "tags": [
+          "billing",
+          "spending",
+          "money-usage",
+          "summary"
+        ],
+        "sample_input": "{\"customer_id\": \"CUST-123\", \"period\": \"2025-02\"}",
+        "sample_output": "{\"total_spend\": 85.50, \"breakdown\": {\"bill\": 65.00, \"topup\": 10.00, \"addons\": 10.50}, \"currency\": \"USD\"}",
+        "input": {
+          "customer_id": "string, required",
+          "period": "string, required"
+        },
+        "output": {
+          "total_spend": "number",
+          "breakdown": "object",
+          "currency": "string"
+        },
+        "manhours": 40,
+        "api_efficiency": "high",
+        "readiness": "production"
+      },
+      {
+        "id": "api-transaction-breakdown",
+        "name": "Transaction Breakdown API",
+        "domain": "billing",
+        "description": "Itemized list of transactions (top-ups, bundle buys, pay-as-you-go) with amount and date for money usage view.",
+        "owner": "Jane Doe",
+        "team": "Billing & Usage",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/transactions/breakdown",
+        "url": "https://api.company.com/billing/transactions/breakdown",
+        "confluence": "https://confluence.company.com/display/BILL/Transaction+Breakdown+API",
+        "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/transactions-svc",
+        "tags": [
+          "billing",
+          "transactions",
+          "money-usage",
+          "itemized"
+        ],
+        "sample_input": "{\"customer_id\": \"CUST-123\", \"from\": \"2025-02-01\", \"to\": \"2025-02-19\"}",
+        "sample_output": "{\"transactions\": [{\"id\": \"T1\", \"date\": \"2025-02-18\", \"type\": \"topup\", \"amount\": 10.00}, {\"id\": \"T2\", \"type\": \"data_bundle\", \"amount\": 15.00}]}",
+        "input": {
+          "customer_id": "string, required",
+          "from": "ISO date, optional",
+          "to": "ISO date, optional"
+        },
+        "output": {
+          "transactions": "array of transaction objects"
+        },
+        "manhours": 35,
+        "api_efficiency": "high",
+        "readiness": "production"
+      },
+      {
+        "id": "api-bill-breakdown",
+        "name": "Bill Breakdown / Itemized Bill API",
+        "domain": "billing",
+        "description": "Itemized postpaid bill: plan fee, usage charges, add-ons, discounts, and total for user money breakdown.",
+        "owner": "Jane Doe",
+        "team": "Billing & Usage",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/bills/{billId}/breakdown",
+        "url": "https://api.company.com/billing/bills/breakdown",
+        "confluence": "https://confluence.company.com/display/BILL/Bill+Breakdown+API",
+        "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/bill-svc",
+        "tags": [
+          "billing",
+          "bill",
+          "itemized",
+          "money-usage"
+        ],
+        "sample_input": "{\"bill_id\": \"INV-2025-02\"}",
+        "sample_output": "{\"plan_fee\": 45.00, \"usage_charges\": 12.50, \"addons\": 8.00, \"discounts\": -5.00, \"total\": 60.50}",
+        "input": {
+          "bill_id": "string, required"
+        },
+        "output": {
+          "plan_fee": "number",
+          "usage_charges": "number",
+          "addons": "number",
+          "discounts": "number",
+          "total": "number"
+        },
+        "manhours": 45,
+        "api_efficiency": "medium",
+        "readiness": "production"
+      },
+      {
+        "id": "api-usage-cost",
+        "name": "Usage Cost API",
+        "domain": "billing",
+        "description": "Data, voice, and SMS usage converted to cost (pay-as-you-go or overage) for user money usage display.",
+        "owner": "Jane Doe",
+        "team": "Billing & Usage",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/usage/cost",
+        "url": "https://api.company.com/billing/usage/cost",
+        "confluence": "https://confluence.company.com/display/BILL/Usage+Cost+API",
+        "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/usage-svc",
+        "tags": [
+          "billing",
+          "usage",
+          "cost",
+          "money-usage"
+        ],
+        "sample_input": "{\"msisdn\": \"+1234567890\", \"period\": \"current\"}",
+        "sample_output": "{\"data_cost\": 5.00, \"voice_cost\": 3.50, \"sms_cost\": 1.20, \"total_usage_cost\": 9.70}",
+        "input": {
+          "msisdn": "string, required",
+          "period": "string, optional"
+        },
+        "output": {
+          "data_cost": "number",
+          "voice_cost": "number",
+          "sms_cost": "number",
+          "total_usage_cost": "number"
+        },
+        "manhours": 38,
+        "api_efficiency": "high",
+        "readiness": "production"
+      },
+      {
+        "id": "api-monthly-spend",
+        "name": "Monthly Spend API",
+        "domain": "billing",
+        "description": "Total amount spent per calendar month for charts and trends in money usage app.",
+        "owner": "Jane Doe",
+        "team": "Billing & Usage",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/spending/monthly",
+        "url": "https://api.company.com/billing/spending/monthly",
+        "confluence": "https://confluence.company.com/display/BILL/Monthly+Spend+API",
+        "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/spending-svc",
+        "tags": [
+          "billing",
+          "spending",
+          "monthly",
+          "money-usage",
+          "trends"
+        ],
+        "sample_input": "{\"customer_id\": \"CUST-123\", \"months\": 6}",
+        "sample_output": "{\"months\": [{\"month\": \"2025-02\", \"total\": 85.50}, {\"month\": \"2025-01\", \"total\": 72.00}]}",
+        "input": {
+          "customer_id": "string, required",
+          "months": "integer, optional"
+        },
+        "output": {
+          "months": "array of { month, total } objects"
+        },
+        "manhours": 32,
+        "api_efficiency": "high",
+        "readiness": "production"
+      },
+      {
+        "id": "api-budget-alerts",
+        "name": "Budget Alerts API",
+        "domain": "billing",
+        "description": "Get and set spending limits and budget alerts; notify user when threshold is reached.",
+        "owner": "Alice Chen",
+        "team": "Billing & Usage",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/budget/alerts",
+        "url": "https://api.company.com/billing/budget/alerts",
+        "confluence": "https://confluence.company.com/display/BILL/Budget+Alerts+API",
+        "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/budget-svc",
+        "tags": [
+          "billing",
+          "budget",
+          "alerts",
+          "money-usage"
+        ],
+        "sample_input": "{\"customer_id\": \"CUST-123\"}",
+        "sample_output": "{\"monthly_limit\": 100.00, \"alert_at_percent\": 80, \"current_spend\": 65.00, \"alerts_enabled\": true}",
+        "input": {
+          "customer_id": "string, required"
+        },
+        "output": {
+          "monthly_limit": "number",
+          "alert_at_percent": "integer",
+          "current_spend": "number",
+          "alerts_enabled": "boolean"
+        },
+        "manhours": 50,
+        "api_efficiency": "medium",
+        "readiness": "beta"
+      },
+      {
+        "id": "api-spend-by-category",
+        "name": "Spend by Category API",
+        "domain": "billing",
+        "description": "Spending grouped by category: plan, data, voice, SMS, roaming, add-ons for money usage breakdown.",
+        "owner": "Jane Doe",
+        "team": "Billing & Usage",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/spending/category",
+        "url": "https://api.company.com/billing/spending/category",
+        "confluence": "https://confluence.company.com/display/BILL/Spend+by+Category+API",
+        "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/spending-svc",
+        "tags": [
+          "billing",
+          "spending",
+          "category",
+          "money-usage"
+        ],
+        "sample_input": "{\"customer_id\": \"CUST-123\", \"period\": \"2025-02\"}",
+        "sample_output": "{\"plan\": 45.00, \"data\": 12.00, \"voice\": 5.50, \"sms\": 2.00, \"roaming\": 8.00, \"addons\": 13.00}",
+        "input": {
+          "customer_id": "string, required",
+          "period": "string, required"
+        },
+        "output": {
+          "plan": "number",
+          "data": "number",
+          "voice": "number",
+          "sms": "number",
+          "roaming": "number",
+          "addons": "number"
+        },
+        "manhours": 42,
+        "api_efficiency": "high",
+        "readiness": "production"
+      },
+      {
+        "id": "api-recharge-spend-history",
+        "name": "Recharge / Spend History API",
+        "domain": "payments",
+        "description": "Chronological list of recharges and spend (top-up, bundle, payg) for user money history.",
+        "owner": "Alice Chen",
+        "team": "Payments & Banking",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/recharge/history",
+        "url": "https://api.company.com/payments/recharge/history",
+        "confluence": "https://confluence.company.com/display/PAY/Recharge+Spend+History+API",
+        "bitbucket": "https://bitbucket.company.com/projects/PAY/repos/topup-svc",
+        "tags": [
+          "payments",
+          "recharge",
+          "history",
+          "money-usage"
+        ],
+        "sample_input": "{\"msisdn\": \"+1234567890\", \"limit\": 20}",
+        "sample_output": "{\"items\": [{\"date\": \"2025-02-18\", \"type\": \"topup\", \"amount\": 10.00}, {\"date\": \"2025-02-15\", \"type\": \"bundle\", \"amount\": 15.00}]}",
+        "input": {
+          "msisdn": "string, required",
+          "limit": "integer, optional"
+        },
+        "output": {
+          "items": "array of { date, type, amount } objects"
+        },
+        "manhours": 28,
+        "api_efficiency": "high",
+        "readiness": "production"
+      },
+      {
+        "id": "api-roaming-spend",
+        "name": "Roaming Spend API",
+        "domain": "billing",
+        "description": "Spend and usage while roaming: data, voice, SMS cost by country or trip for money usage app.",
+        "owner": "Carol Brown",
+        "team": "Network & Coverage",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/roaming/spend",
+        "url": "https://api.company.com/network/roaming/spend",
+        "confluence": "https://confluence.company.com/display/NET/Roaming+Spend+API",
+        "bitbucket": "https://bitbucket.company.com/projects/NET/repos/roaming-svc",
+        "tags": [
+          "network",
+          "roaming",
+          "spend",
+          "money-usage"
+        ],
+        "sample_input": "{\"msisdn\": \"+1234567890\", \"period\": \"2025-02\"}",
+        "sample_output": "{\"total_roaming_spend\": 25.00, \"by_country\": [{\"country\": \"GB\", \"data_cost\": 10.00, \"voice_cost\": 5.00}]}",
+        "input": {
+          "msisdn": "string, required",
+          "period": "string, optional"
+        },
+        "output": {
+          "total_roaming_spend": "number",
+          "by_country": "array of country spend objects"
+        },
+        "manhours": 36,
+        "api_efficiency": "medium",
+        "readiness": "production"
+      },
+      {
+        "id": "api-wallet-balance-spend",
+        "name": "Wallet Balance & Spend API",
+        "domain": "payments",
+        "description": "Prepaid wallet balance and recent spend from wallet for in-app balance and money usage.",
+        "owner": "Alice Chen",
+        "team": "Payments & Banking",
+        "version": "1.0.0",
+        "method": "GET",
+        "path": "/v1/wallet/balance",
+        "url": "https://api.company.com/payments/wallet/balance",
+        "confluence": "https://confluence.company.com/display/PAY/Wallet+Balance+API",
+        "bitbucket": "https://bitbucket.company.com/projects/PAY/repos/wallet-svc",
+        "tags": [
+          "payments",
+          "wallet",
+          "balance",
+          "money-usage"
+        ],
+        "sample_input": "{\"customer_id\": \"CUST-123\"}",
+        "sample_output": "{\"balance\": 25.50, \"pending\": 0, \"last_spend\": [{\"amount\": 10.00, \"desc\": \"Data bundle\", \"date\": \"2025-02-18\"}]}",
+        "input": {
+          "customer_id": "string, required"
+        },
+        "output": {
+          "balance": "number",
+          "pending": "number",
+          "last_spend": "array of spend objects"
+        },
+        "manhours": 30,
+        "api_efficiency": "high",
+        "readiness": "production"
+      }
+    ]
+  }
