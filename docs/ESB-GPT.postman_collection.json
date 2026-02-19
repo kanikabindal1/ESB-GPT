@@ -1,0 +1,65 @@
+{
+  "info": {
+    "name": "ESB-GPT API",
+    "description": "API Discovery RAG: health, search, ingest.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/health",
+        "description": "Uptime check"
+      }
+    },
+    {
+      "name": "Search - customer orders",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/search",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\": \"get all orders for a customer\"}"
+        },
+        "description": "Natural language search"
+      }
+    },
+    {
+      "name": "Search - charge payment",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/search",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\": \"charge a credit card for 10 dollars\"}"
+        }
+      }
+    },
+    {
+      "name": "Search - send email",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/search",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\": \"send an email to a user\"}"
+        }
+      }
+    },
+    {
+      "name": "Ingest",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/ingest",
+        "description": "Re-run ingestion from data/apis.json"
+      }
+    }
+  ]
+}

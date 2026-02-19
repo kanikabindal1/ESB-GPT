@@ -1,0 +1,514 @@
+[
+  {
+    "id": "api_001",
+    "name": "GetCustomerOrders",
+    "description": "Retrieves all orders placed by a customer within a date range.",
+    "use_cases": ["order history", "customer lookup", "purchase tracking"],
+    "input": {
+      "customer_id": "string, required",
+      "from_date": "ISO date, optional",
+      "to_date": "ISO date, optional"
+    },
+    "output": {
+      "orders": "array of order objects",
+      "total_count": "integer",
+      "status": "string"
+    },
+    "method": "GET",
+    "endpoint": "/customers/{id}/orders",
+    "tags": ["orders", "customers", "e-commerce"]
+  },
+  {
+    "id": "api_002",
+    "name": "GetOrderById",
+    "description": "Returns a single order by its unique identifier including line items and status.",
+    "use_cases": ["order details", "order tracking", "single order lookup"],
+    "input": {
+      "order_id": "string, required"
+    },
+    "output": {
+      "order": "order object with line_items and status",
+      "created_at": "ISO datetime",
+      "updated_at": "ISO datetime"
+    },
+    "method": "GET",
+    "endpoint": "/orders/{order_id}",
+    "tags": ["orders", "e-commerce", "lookup"]
+  },
+  {
+    "id": "api_003",
+    "name": "CreateOrder",
+    "description": "Creates a new order with line items, shipping address, and payment reference.",
+    "use_cases": ["checkout", "place order", "new purchase"],
+    "input": {
+      "customer_id": "string, required",
+      "line_items": "array of {product_id, quantity, unit_price}",
+      "shipping_address": "object, required",
+      "payment_reference": "string, optional"
+    },
+    "output": {
+      "order_id": "string",
+      "status": "string",
+      "total_amount": "number",
+      "created_at": "ISO datetime"
+    },
+    "method": "POST",
+    "endpoint": "/orders",
+    "tags": ["orders", "e-commerce", "checkout"]
+  },
+  {
+    "id": "api_004",
+    "name": "ProcessPayment",
+    "description": "Charges a payment method for a given amount. Supports card, wallet, and bank transfer.",
+    "use_cases": ["charge card", "payment processing", "checkout payment"],
+    "input": {
+      "amount": "number, required (in smallest currency unit)",
+      "currency": "string, required",
+      "payment_method_id": "string, required",
+      "idempotency_key": "string, optional",
+      "metadata": "object, optional"
+    },
+    "output": {
+      "payment_id": "string",
+      "status": "pending | succeeded | failed",
+      "amount": "number",
+      "created_at": "ISO datetime"
+    },
+    "method": "POST",
+    "endpoint": "/payments",
+    "tags": ["payments", "charges", "e-commerce"]
+  },
+  {
+    "id": "api_005",
+    "name": "GetPaymentStatus",
+    "description": "Retrieves the current status and details of a payment by ID.",
+    "use_cases": ["payment lookup", "status check", "refund eligibility"],
+    "input": {
+      "payment_id": "string, required"
+    },
+    "output": {
+      "payment_id": "string",
+      "status": "string",
+      "amount": "number",
+      "currency": "string",
+      "created_at": "ISO datetime",
+      "failure_reason": "string, optional"
+    },
+    "method": "GET",
+    "endpoint": "/payments/{payment_id}",
+    "tags": ["payments", "status", "lookup"]
+  },
+  {
+    "id": "api_006",
+    "name": "RefundPayment",
+    "description": "Issues a full or partial refund for a previously captured payment.",
+    "use_cases": ["refund", "cancel charge", "partial refund"],
+    "input": {
+      "payment_id": "string, required",
+      "amount": "number, optional (full refund if omitted)",
+      "reason": "string, optional"
+    },
+    "output": {
+      "refund_id": "string",
+      "status": "string",
+      "amount": "number",
+      "created_at": "ISO datetime"
+    },
+    "method": "POST",
+    "endpoint": "/payments/{payment_id}/refunds",
+    "tags": ["payments", "refunds"]
+  },
+  {
+    "id": "api_007",
+    "name": "Login",
+    "description": "Authenticates a user with email and password, returns access and refresh tokens.",
+    "use_cases": ["sign in", "authentication", "user login"],
+    "input": {
+      "email": "string, required",
+      "password": "string, required",
+      "scope": "string, optional"
+    },
+    "output": {
+      "access_token": "string",
+      "refresh_token": "string",
+      "expires_in": "integer (seconds)",
+      "token_type": "Bearer"
+    },
+    "method": "POST",
+    "endpoint": "/auth/login",
+    "tags": ["auth", "login", "tokens"]
+  },
+  {
+    "id": "api_008",
+    "name": "RefreshToken",
+    "description": "Exchanges a valid refresh token for a new access token without re-authenticating.",
+    "use_cases": ["token refresh", "session extension", "renew access"],
+    "input": {
+      "refresh_token": "string, required"
+    },
+    "output": {
+      "access_token": "string",
+      "expires_in": "integer",
+      "token_type": "Bearer"
+    },
+    "method": "POST",
+    "endpoint": "/auth/refresh",
+    "tags": ["auth", "tokens", "refresh"]
+  },
+  {
+    "id": "api_009",
+    "name": "GetCurrentUser",
+    "description": "Returns the profile of the currently authenticated user (requires Bearer token).",
+    "use_cases": ["user profile", "current user", "session info"],
+    "input": {},
+    "output": {
+      "user_id": "string",
+      "email": "string",
+      "name": "string",
+      "created_at": "ISO datetime",
+      "roles": "array of strings"
+    },
+    "method": "GET",
+    "endpoint": "/auth/me",
+    "tags": ["auth", "user", "profile"]
+  },
+  {
+    "id": "api_010",
+    "name": "SendEmail",
+    "description": "Sends a single email to one or more recipients with optional HTML body and attachments.",
+    "use_cases": ["transactional email", "notifications", "marketing email"],
+    "input": {
+      "to": "array of email strings, required",
+      "subject": "string, required",
+      "body_text": "string, optional",
+      "body_html": "string, optional",
+      "from": "string, optional",
+      "reply_to": "string, optional",
+      "attachments": "array of {filename, content_base64}, optional"
+    },
+    "output": {
+      "message_id": "string",
+      "status": "accepted | sent | failed",
+      "created_at": "ISO datetime"
+    },
+    "method": "POST",
+    "endpoint": "/notifications/email",
+    "tags": ["notifications", "email", "messaging"]
+  },
+  {
+    "id": "api_011",
+    "name": "SendSMS",
+    "description": "Sends an SMS message to a phone number. Rate-limited per recipient.",
+    "use_cases": ["SMS notification", "OTP", "alerts", "two-factor"],
+    "input": {
+      "to": "string (E.164), required",
+      "body": "string, required (max 1600 chars)",
+      "from": "string, optional (sender ID)"
+    },
+    "output": {
+      "message_id": "string",
+      "status": "queued | sent | failed",
+      "created_at": "ISO datetime"
+    },
+    "method": "POST",
+    "endpoint": "/notifications/sms",
+    "tags": ["notifications", "SMS", "messaging"]
+  },
+  {
+    "id": "api_012",
+    "name": "SendPushNotification",
+    "description": "Sends a push notification to a device or topic (e.g. Firebase, APNs).",
+    "use_cases": ["mobile push", "app alerts", "topic broadcast"],
+    "input": {
+      "device_tokens": "array of strings, or topic, required",
+      "title": "string, required",
+      "body": "string, required",
+      "data": "object, optional (custom payload)",
+      "priority": "high | normal, optional"
+    },
+    "output": {
+      "notification_id": "string",
+      "status": "string",
+      "success_count": "integer",
+      "failure_count": "integer"
+    },
+    "method": "POST",
+    "endpoint": "/notifications/push",
+    "tags": ["notifications", "push", "mobile"]
+  },
+  {
+    "id": "api_013",
+    "name": "TrackEvent",
+    "description": "Records a single analytics event (page view, click, custom event) for later reporting.",
+    "use_cases": ["analytics", "event tracking", "user behavior"],
+    "input": {
+      "event_name": "string, required",
+      "user_id": "string, optional",
+      "session_id": "string, optional",
+      "properties": "object, optional",
+      "timestamp": "ISO datetime, optional"
+    },
+    "output": {
+      "event_id": "string",
+      "received_at": "ISO datetime"
+    },
+    "method": "POST",
+    "endpoint": "/analytics/events",
+    "tags": ["analytics", "events", "tracking"]
+  },
+  {
+    "id": "api_014",
+    "name": "GetEventCounts",
+    "description": "Returns aggregated counts of events by name and optional filters (date range, dimensions).",
+    "use_cases": ["reporting", "dashboards", "event counts"],
+    "input": {
+      "event_names": "array of strings, optional",
+      "from_date": "ISO date, required",
+      "to_date": "ISO date, required",
+      "group_by": "string, optional (e.g. day, week)",
+      "filters": "object, optional"
+    },
+    "output": {
+      "counts": "array of {event_name, count, period}",
+      "total": "integer"
+    },
+    "method": "GET",
+    "endpoint": "/analytics/events/counts",
+    "tags": ["analytics", "reporting", "aggregation"]
+  },
+  {
+    "id": "api_015",
+    "name": "GetCustomerById",
+    "description": "Fetches a customer profile by ID including contact info and preferences.",
+    "use_cases": ["customer lookup", "profile view", "CRM"],
+    "input": {
+      "customer_id": "string, required"
+    },
+    "output": {
+      "customer_id": "string",
+      "email": "string",
+      "name": "string",
+      "created_at": "ISO datetime",
+      "preferences": "object",
+      "metadata": "object"
+    },
+    "method": "GET",
+    "endpoint": "/customers/{customer_id}",
+    "tags": ["customers", "e-commerce", "CRM", "lookup"]
+  },
+  {
+    "id": "api_016",
+    "name": "ListProducts",
+    "description": "Returns a paginated list of products with optional filters by category, price range, and search query.",
+    "use_cases": ["product catalog", "search", "browse"],
+    "input": {
+      "page": "integer, optional",
+      "page_size": "integer, optional",
+      "category": "string, optional",
+      "min_price": "number, optional",
+      "max_price": "number, optional",
+      "q": "string, optional (search)"
+    },
+    "output": {
+      "products": "array of product objects",
+      "total": "integer",
+      "page": "integer",
+      "page_size": "integer"
+    },
+    "method": "GET",
+    "endpoint": "/products",
+    "tags": ["products", "e-commerce", "catalog", "search"]
+  },
+  {
+    "id": "api_017",
+    "name": "GetProductById",
+    "description": "Returns a single product by ID with full details, inventory status, and related products.",
+    "use_cases": ["product details", "PDP", "inventory check"],
+    "input": {
+      "product_id": "string, required"
+    },
+    "output": {
+      "product": "object with name, description, price, sku, inventory, images",
+      "related_products": "array, optional"
+    },
+    "method": "GET",
+    "endpoint": "/products/{product_id}",
+    "tags": ["products", "e-commerce", "lookup"]
+  },
+  {
+    "id": "api_018",
+    "name": "CreateCustomer",
+    "description": "Registers a new customer with email, name, and optional password for account creation.",
+    "use_cases": ["sign up", "registration", "new customer"],
+    "input": {
+      "email": "string, required",
+      "name": "string, required",
+      "password": "string, optional",
+      "metadata": "object, optional"
+    },
+    "output": {
+      "customer_id": "string",
+      "email": "string",
+      "created_at": "ISO datetime"
+    },
+    "method": "POST",
+    "endpoint": "/customers",
+    "tags": ["customers", "e-commerce", "registration", "auth"]
+  },
+  {
+    "id": "api_019",
+    "name": "GetInventory",
+    "description": "Returns current stock levels for one or more products or SKUs, optionally by warehouse.",
+    "use_cases": ["stock check", "inventory levels", "availability"],
+    "input": {
+      "product_ids": "array of strings, optional",
+      "sku": "string, optional",
+      "warehouse_id": "string, optional"
+    },
+    "output": {
+      "items": "array of {product_id, sku, quantity, warehouse_id}",
+      "updated_at": "ISO datetime"
+    },
+    "method": "GET",
+    "endpoint": "/inventory",
+    "tags": ["inventory", "e-commerce", "stock"]
+  },
+  {
+    "id": "api_020",
+    "name": "UpdateInventory",
+    "description": "Adjusts inventory quantity for a product or SKU (increment or set absolute value).",
+    "use_cases": ["stock update", "restock", "inventory adjustment"],
+    "input": {
+      "product_id": "string, required",
+      "quantity_delta": "integer, optional",
+      "quantity_absolute": "integer, optional",
+      "warehouse_id": "string, optional",
+      "reason": "string, optional"
+    },
+    "output": {
+      "product_id": "string",
+      "new_quantity": "integer",
+      "updated_at": "ISO datetime"
+    },
+    "method": "PATCH",
+    "endpoint": "/inventory/{product_id}",
+    "tags": ["inventory", "e-commerce", "stock"]
+  },
+  {
+    "id": "api_021",
+    "name": "ListWebhooks",
+    "description": "Returns all registered webhook endpoints for the account with their events and status.",
+    "use_cases": ["webhook management", "event subscriptions", "integrations"],
+    "input": {
+      "active_only": "boolean, optional",
+      "event": "string, optional"
+    },
+    "output": {
+      "webhooks": "array of {id, url, events, active, created_at}",
+      "total": "integer"
+    },
+    "method": "GET",
+    "endpoint": "/webhooks",
+    "tags": ["webhooks", "integrations", "events"]
+  },
+  {
+    "id": "api_022",
+    "name": "CreateWebhook",
+    "description": "Registers a new webhook URL to receive HTTP callbacks for selected events (e.g. order.created, payment.succeeded).",
+    "use_cases": ["subscribe to events", "webhook registration", "callbacks"],
+    "input": {
+      "url": "string, required",
+      "events": "array of event names, required",
+      "secret": "string, optional (for signature verification)",
+      "description": "string, optional"
+    },
+    "output": {
+      "webhook_id": "string",
+      "url": "string",
+      "events": "array",
+      "created_at": "ISO datetime"
+    },
+    "method": "POST",
+    "endpoint": "/webhooks",
+    "tags": ["webhooks", "integrations", "events"]
+  },
+  {
+    "id": "api_023",
+    "name": "GetOrderHistory",
+    "description": "Returns a chronological list of order summaries for a customer (same as GetCustomerOrders but name emphasizes history).",
+    "use_cases": ["order history", "past orders", "customer orders"],
+    "input": {
+      "customer_id": "string, required",
+      "limit": "integer, optional",
+      "offset": "integer, optional",
+      "status": "string, optional"
+    },
+    "output": {
+      "orders": "array of order summary objects",
+      "total": "integer"
+    },
+    "method": "GET",
+    "endpoint": "/customers/{id}/orders/history",
+    "tags": ["orders", "customers", "e-commerce", "history"]
+  },
+  {
+    "id": "api_024",
+    "name": "SearchOrders",
+    "description": "Full-text and filter-based search across orders (by ID, customer, date, status). Admin/reporting use.",
+    "use_cases": ["order search", "admin orders", "reporting"],
+    "input": {
+      "q": "string, optional",
+      "customer_id": "string, optional",
+      "from_date": "ISO date, optional",
+      "to_date": "ISO date, optional",
+      "status": "string, optional",
+      "page": "integer, optional",
+      "page_size": "integer, optional"
+    },
+    "output": {
+      "orders": "array of order objects",
+      "total": "integer",
+      "page": "integer",
+      "page_size": "integer"
+    },
+    "method": "GET",
+    "endpoint": "/orders/search",
+    "tags": ["orders", "search", "e-commerce", "admin"]
+  },
+  {
+    "id": "api_025",
+    "name": "ValidateToken",
+    "description": "Validates an access or refresh token and returns its payload (claims) and expiry without refreshing.",
+    "use_cases": ["token validation", "auth check", "middleware"],
+    "input": {
+      "token": "string, required"
+    },
+    "output": {
+      "valid": "boolean",
+      "claims": "object (e.g. sub, exp, scope)",
+      "expires_at": "ISO datetime"
+    },
+    "method": "POST",
+    "endpoint": "/auth/validate",
+    "tags": ["auth", "tokens", "validation"]
+  },
+  {
+    "id": "api_026",
+    "name": "GetDailyMetrics",
+    "description": "Returns key business metrics (revenue, orders, active users) aggregated by day for a date range.",
+    "use_cases": ["dashboards", "daily metrics", "KPI reporting"],
+    "input": {
+      "from_date": "ISO date, required",
+      "to_date": "ISO date, required",
+      "metrics": "array of metric names, optional",
+      "timezone": "string, optional"
+    },
+    "output": {
+      "days": "array of {date, metrics object}",
+      "summary": "object with totals"
+    },
+    "method": "GET",
+    "endpoint": "/analytics/metrics/daily",
+    "tags": ["analytics", "metrics", "reporting", "KPI"]
+  }
+]
