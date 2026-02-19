@@ -1,0 +1,610 @@
+{
+  "_meta": {
+    "schema_version": "1.0",
+    "description": "Company API registry – metadata for all APIs (Telecom domain)",
+    "last_updated": "2025-02-19",
+    "maintained_by": "platform-engineering"
+  },
+
+  "teams": [
+    {
+      "id": "team-retail-api",
+      "name": "Retail & Store APIs",
+      "org_unit": "Consumer Business / Digital",
+      "squad": "Store & Location Services",
+      "slack_channel": "#retail-apis",
+      "jira_project": "RETAIL"
+    },
+    {
+      "id": "team-payments",
+      "name": "Payments & Banking",
+      "org_unit": "Finance & Operations",
+      "squad": "Payment APIs",
+      "slack_channel": "#payments-api",
+      "jira_project": "PAY"
+    },
+    {
+      "id": "team-identity",
+      "name": "Identity & SIM",
+      "org_unit": "Network & Identity",
+      "squad": "SIM & KYC",
+      "slack_channel": "#identity-apis",
+      "jira_project": "ID"
+    },
+    {
+      "id": "team-customer",
+      "name": "Customer 360",
+      "org_unit": "Consumer Business",
+      "squad": "Customer Data APIs",
+      "slack_channel": "#customer-apis",
+      "jira_project": "CUST"
+    }
+  ],
+
+  "developers": [
+    { "id": "dev-001", "name": "Jane Doe", "email": "jane.doe@company.com", "role": "Tech Lead" },
+    { "id": "dev-002", "name": "John Smith", "email": "john.smith@company.com", "role": "Backend" },
+    { "id": "dev-003", "name": "Alice Chen", "email": "alice.chen@company.com", "role": "API Owner" },
+    { "id": "dev-004", "name": "Bob Wilson", "email": "bob.wilson@company.com", "role": "Backend" },
+    { "id": "dev-005", "name": "Carol Brown", "email": "carol.brown@company.com", "role": "Tech Lead" }
+  ],
+
+  "services": [
+    {
+      "id": "svc-store-locator",
+      "name": "Store Locator Service",
+      "logical_unit": "retail-store-locator",
+      "description": "Microservice for store/outlet location and availability"
+    },
+    {
+      "id": "svc-bank-check",
+      "name": "Bank Check Service",
+      "logical_unit": "payments-bank-check",
+      "description": "Balance check and bank verification for payments"
+    },
+    {
+      "id": "svc-sim-management",
+      "name": "SIM Management Service",
+      "logical_unit": "identity-sim",
+      "description": "SIM swap, SIM status, and device binding"
+    },
+    {
+      "id": "svc-customer-360",
+      "name": "Customer 360 Service",
+      "logical_unit": "customer-profile",
+      "description": "Unified customer profile and status"
+    },
+    {
+      "id": "svc-topup",
+      "name": "Top-Up & Recharge Service",
+      "logical_unit": "payments-topup",
+      "description": "Prepaid top-up and recharge APIs"
+    }
+  ],
+
+  "apis": [
+    {
+      "id": "api-store-location",
+      "name": "Store Location API",
+      "domain": "retail",
+      "description": "Get store/outlet locations, opening hours, and availability by geography or filters.",
+      "team_id": "team-retail-api",
+      "developer_ids": ["dev-001", "dev-002"],
+      "service_id": "svc-store-locator",
+      "auth": ["API_KEY", "OAuth2"],
+      "lifecycle": "GA",
+      "tags": ["retail", "location", "stores", "outlets"],
+      "environments": {
+        "sandbox": "https://api-sandbox.company.com/retail/store-location",
+        "staging": "https://api-staging.company.com/retail/store-location",
+        "production": "https://api.company.com/retail/store-location"
+      }
+    },
+    {
+      "id": "api-bank-check-balance",
+      "name": "Bank Check Balance API",
+      "domain": "payments",
+      "description": "Verify bank account and check balance for payment flows (top-up, bill pay).",
+      "team_id": "team-payments",
+      "developer_ids": ["dev-003", "dev-004"],
+      "service_id": "svc-bank-check",
+      "auth": ["OAuth2", "mTLS"],
+      "lifecycle": "GA",
+      "tags": ["payments", "banking", "balance", "verification", "PII"],
+      "environments": {
+        "sandbox": "https://api-sandbox.company.com/payments/bank-check",
+        "staging": "https://api-staging.company.com/payments/bank-check",
+        "production": "https://api.company.com/payments/bank-check"
+      }
+    },
+    {
+      "id": "api-sim-swaps",
+      "name": "SIM Swap API",
+      "domain": "identity",
+      "description": "Initiate and query SIM swap requests; check swap eligibility and status.",
+      "team_id": "team-identity",
+      "developer_ids": ["dev-005", "dev-002"],
+      "service_id": "svc-sim-management",
+      "auth": ["OAuth2", "API_KEY"],
+      "lifecycle": "GA",
+      "tags": ["identity", "SIM", "swap", "fraud", "PII"],
+      "environments": {
+        "sandbox": "https://api-sandbox.company.com/identity/sim-swap",
+        "staging": "https://api-staging.company.com/identity/sim-swap",
+        "production": "https://api.company.com/identity/sim-swap"
+      }
+    },
+    {
+      "id": "api-customer-status",
+      "name": "Customer Status API",
+      "domain": "customer",
+      "description": "Customer profile summary, account status, segment, and service eligibility.",
+      "team_id": "team-customer",
+      "developer_ids": ["dev-001", "dev-005"],
+      "service_id": "svc-customer-360",
+      "auth": ["OAuth2"],
+      "lifecycle": "GA",
+      "tags": ["customer", "profile", "status", "eligibility", "PII"],
+      "environments": {
+        "sandbox": "https://api-sandbox.company.com/customer/status",
+        "staging": "https://api-staging.company.com/customer/status",
+        "production": "https://api.company.com/customer/status"
+      }
+    },
+    {
+      "id": "api-topup",
+      "name": "Top-Up / Recharge API",
+      "domain": "payments",
+      "description": "Prepaid airtime and data top-up, bundle purchase, and recharge history.",
+      "team_id": "team-payments",
+      "developer_ids": ["dev-003", "dev-004"],
+      "service_id": "svc-topup",
+      "auth": ["OAuth2", "API_KEY"],
+      "lifecycle": "GA",
+      "tags": ["payments", "topup", "recharge", "prepaid", "airtime"],
+      "environments": {
+        "sandbox": "https://api-sandbox.company.com/payments/topup",
+        "staging": "https://api-staging.company.com/payments/topup",
+        "production": "https://api.company.com/payments/topup"
+      }
+    }
+  ],
+
+  "api_versions": [
+    {
+      "id": "av-store-loc-v1",
+      "api_id": "api-store-location",
+      "semver": "1.2.0",
+      "code_version_ref": "main@store-locator-svc",
+      "doc_version_ref": "Confluence Store Location v1.2",
+      "status": "current",
+      "released_at": "2024-11-01"
+    },
+    {
+      "id": "av-bank-check-v1",
+      "api_id": "api-bank-check-balance",
+      "semver": "1.0.0",
+      "code_version_ref": "release/1.0@bank-check-svc",
+      "doc_version_ref": "Confluence Bank Check v1",
+      "status": "current",
+      "released_at": "2024-09-15"
+    },
+    {
+      "id": "av-sim-swap-v1",
+      "api_id": "api-sim-swaps",
+      "semver": "1.1.0",
+      "code_version_ref": "main@sim-management-svc",
+      "doc_version_ref": "Confluence SIM Swap v1.1",
+      "status": "current",
+      "released_at": "2024-10-20"
+    },
+    {
+      "id": "av-customer-status-v1",
+      "api_id": "api-customer-status",
+      "semver": "2.0.0",
+      "code_version_ref": "main@customer-360-svc",
+      "doc_version_ref": "Confluence Customer Status v2",
+      "status": "current",
+      "released_at": "2025-01-10"
+    },
+    {
+      "id": "av-topup-v1",
+      "api_id": "api-topup",
+      "semver": "1.3.0",
+      "code_version_ref": "release/1.3@topup-svc",
+      "doc_version_ref": "Confluence Top-Up v1.3",
+      "status": "current",
+      "released_at": "2024-12-01"
+    }
+  ],
+
+  "endpoints": [
+    {
+      "id": "ep-store-search",
+      "api_version_id": "av-store-loc-v1",
+      "method": "GET",
+      "path": "/v1/stores",
+      "summary": "Search stores by location or filters",
+      "operation_id": "searchStores"
+    },
+    {
+      "id": "ep-store-by-id",
+      "api_version_id": "av-store-loc-v1",
+      "method": "GET",
+      "path": "/v1/stores/{storeId}",
+      "summary": "Get store details by ID",
+      "operation_id": "getStoreById"
+    },
+    {
+      "id": "ep-bank-verify",
+      "api_version_id": "av-bank-check-v1",
+      "method": "POST",
+      "path": "/v1/accounts/verify",
+      "summary": "Verify bank account and return balance",
+      "operation_id": "verifyAccount"
+    },
+    {
+      "id": "ep-sim-swap-request",
+      "api_version_id": "av-sim-swap-v1",
+      "method": "POST",
+      "path": "/v1/sim/swap",
+      "summary": "Submit SIM swap request",
+      "operation_id": "requestSimSwap"
+    },
+    {
+      "id": "ep-sim-swap-status",
+      "api_version_id": "av-sim-swap-v1",
+      "method": "GET",
+      "path": "/v1/sim/swap/{requestId}",
+      "summary": "Get SIM swap request status",
+      "operation_id": "getSimSwapStatus"
+    },
+    {
+      "id": "ep-customer-status",
+      "api_version_id": "av-customer-status-v1",
+      "method": "GET",
+      "path": "/v2/customers/{customerId}/status",
+      "summary": "Get customer account status and segment",
+      "operation_id": "getCustomerStatus"
+    },
+    {
+      "id": "ep-topup-execute",
+      "api_version_id": "av-topup-v1",
+      "method": "POST",
+      "path": "/v1/topup",
+      "summary": "Execute top-up for a subscriber",
+      "operation_id": "executeTopup"
+    }
+  ],
+
+  "sources_confluence": [
+    {
+      "id": "conf-store-loc",
+      "api_id": "api-store-location",
+      "space_key": "RETail",
+      "page_id": "123456789",
+      "page_title": "Store Location API",
+      "labels": ["api-docs", "retail", "v1"],
+      "version": 12,
+      "url": "https://confluence.company.com/display/RETail/Store+Location+API"
+    },
+    {
+      "id": "conf-bank-check",
+      "api_id": "api-bank-check-balance",
+      "space_key": "PAY",
+      "page_id": "234567890",
+      "page_title": "Bank Check Balance API",
+      "labels": ["api-docs", "payments", "pii"],
+      "version": 8,
+      "url": "https://confluence.company.com/display/PAY/Bank+Check+Balance+API"
+    },
+    {
+      "id": "conf-sim-swap",
+      "api_id": "api-sim-swaps",
+      "space_key": "ID",
+      "page_id": "345678901",
+      "page_title": "SIM Swap API",
+      "labels": ["api-docs", "identity", "sim"],
+      "version": 5,
+      "url": "https://confluence.company.com/display/ID/SIM+Swap+API"
+    },
+    {
+      "id": "conf-customer-status",
+      "api_id": "api-customer-status",
+      "space_key": "CUST",
+      "page_id": "456789012",
+      "page_title": "Customer Status API v2",
+      "labels": ["api-docs", "customer", "v2"],
+      "version": 20,
+      "url": "https://confluence.company.com/display/CUST/Customer+Status+API"
+    },
+    {
+      "id": "conf-topup",
+      "api_id": "api-topup",
+      "space_key": "PAY",
+      "page_id": "567890123",
+      "page_title": "Top-Up API",
+      "labels": ["api-docs", "payments", "topup"],
+      "version": 15,
+      "url": "https://confluence.company.com/display/PAY/Top-Up+API"
+    }
+  ],
+
+  "sources_bitbucket": [
+    {
+      "id": "bb-store-loc",
+      "api_id": "api-store-location",
+      "repo": "retail/store-locator-svc",
+      "branch": "main",
+      "openapi_path": "src/main/resources/openapi/store-location-api.yaml",
+      "last_commit": "a1b2c3d4e5f6",
+      "url": "https://bitbucket.company.com/projects/RET/repos/store-locator-svc/browse"
+    },
+    {
+      "id": "bb-bank-check",
+      "api_id": "api-bank-check-balance",
+      "repo": "payments/bank-check-svc",
+      "branch": "release/1.0",
+      "openapi_path": "api/openapi.yaml",
+      "last_commit": "b2c3d4e5f6a7",
+      "url": "https://bitbucket.company.com/projects/PAY/repos/bank-check-svc/browse"
+    },
+    {
+      "id": "bb-sim-swap",
+      "api_id": "api-sim-swaps",
+      "repo": "identity/sim-management-svc",
+      "branch": "main",
+      "openapi_path": "specs/openapi/sim-swap-api.yaml",
+      "last_commit": "c3d4e5f6a7b8",
+      "url": "https://bitbucket.company.com/projects/ID/repos/sim-management-svc/browse"
+    },
+    {
+      "id": "bb-customer-status",
+      "api_id": "api-customer-status",
+      "repo": "customer/customer-360-svc",
+      "branch": "main",
+      "openapi_path": "openapi/customer-status-v2.yaml",
+      "last_commit": "d4e5f6a7b8c9",
+      "url": "https://bitbucket.company.com/projects/CUST/repos/customer-360-svc/browse"
+    },
+    {
+      "id": "bb-topup",
+      "api_id": "api-topup",
+      "repo": "payments/topup-svc",
+      "branch": "release/1.3",
+      "openapi_path": "api/spec.yaml",
+      "last_commit": "e5f6a7b8c9d0",
+      "url": "https://bitbucket.company.com/projects/PAY/repos/topup-svc/browse"
+    }
+  ],
+
+  "openapi_specs": [
+    {
+      "id": "spec-store-loc-v1",
+      "api_version_id": "av-store-loc-v1",
+      "content_hash": "sha256:9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a",
+      "format": "yaml",
+      "source": "sources_bitbucket.bb-store-loc",
+      "last_synced": "2025-02-18"
+    },
+    {
+      "id": "spec-bank-check-v1",
+      "api_version_id": "av-bank-check-v1",
+      "content_hash": "sha256:1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a",
+      "format": "yaml",
+      "source": "sources_bitbucket.bb-bank-check",
+      "last_synced": "2025-02-17"
+    },
+    {
+      "id": "spec-sim-swap-v1",
+      "api_version_id": "av-sim-swap-v1",
+      "content_hash": "sha256:2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b",
+      "format": "yaml",
+      "source": "sources_bitbucket.bb-sim-swap",
+      "last_synced": "2025-02-19"
+    }
+  ],
+
+  "tags": [
+    { "id": "tag-retail", "name": "retail", "domain": "business", "description": "Retail and store-related APIs" },
+    { "id": "tag-payments", "name": "payments", "domain": "business", "description": "Payment and banking" },
+    { "id": "tag-identity", "name": "identity", "domain": "security", "description": "Identity and SIM" },
+    { "id": "tag-customer", "name": "customer", "domain": "business", "description": "Customer data and profile" },
+    { "id": "tag-pii", "name": "PII", "domain": "compliance", "description": "Handles personally identifiable information" },
+    { "id": "tag-location", "name": "location", "domain": "data", "description": "Location and geography" }
+  ],
+
+  "api_tags": [
+    { "api_id": "api-store-location", "tag_id": "tag-retail" },
+    { "api_id": "api-store-location", "tag_id": "tag-location" },
+    { "api_id": "api-bank-check-balance", "tag_id": "tag-payments" },
+    { "api_id": "api-bank-check-balance", "tag_id": "tag-pii" },
+    { "api_id": "api-sim-swaps", "tag_id": "tag-identity" },
+    { "api_id": "api-sim-swaps", "tag_id": "tag-pii" },
+    { "api_id": "api-customer-status", "tag_id": "tag-customer" },
+    { "api_id": "api-customer-status", "tag_id": "tag-pii" },
+    { "api_id": "api-topup", "tag_id": "tag-payments" }
+  ],
+
+  "metrics_endpoint_daily": [
+    {
+      "endpoint_id": "ep-store-search",
+      "date": "2025-02-18",
+      "request_count": 125000,
+      "p95_latency_ms": 45,
+      "error_rate": 0.002,
+      "rank_by_usage": 2
+    },
+    {
+      "endpoint_id": "ep-bank-verify",
+      "date": "2025-02-18",
+      "request_count": 89000,
+      "p95_latency_ms": 120,
+      "error_rate": 0.005,
+      "rank_by_usage": 4
+    },
+    {
+      "endpoint_id": "ep-customer-status",
+      "date": "2025-02-18",
+      "request_count": 310000,
+      "p95_latency_ms": 28,
+      "error_rate": 0.001,
+      "rank_by_usage": 1
+    },
+    {
+      "endpoint_id": "ep-topup-execute",
+      "date": "2025-02-18",
+      "request_count": 95000,
+      "p95_latency_ms": 85,
+      "error_rate": 0.003,
+      "rank_by_usage": 3
+    }
+  ],
+
+  "dependencies": [
+    {
+      "from_api_id": "api-topup",
+      "to_api_id": "api-bank-check-balance",
+      "relationship": "calls",
+      "context": "Balance check before top-up"
+    },
+    {
+      "from_api_id": "api-topup",
+      "to_api_id": "api-customer-status",
+      "relationship": "calls",
+      "context": "Eligibility and status before recharge"
+    },
+    {
+      "from_api_id": "api-sim-swaps",
+      "to_api_id": "api-customer-status",
+      "relationship": "calls",
+      "context": "Customer verification for SIM swap"
+    },
+    {
+      "from_service_id": "svc-store-locator",
+      "to_service_id": "svc-customer-360",
+      "relationship": "optional",
+      "context": "Personalized store recommendations"
+    }
+  ],
+
+  "compliance": [
+    {
+      "api_id": "api-bank-check-balance",
+      "pii_classification": ["financial_account", "balance"],
+      "data_retention_days": 90,
+      "audit_logged": true,
+      "approval_workflow": "security-review",
+      "last_audit": "2025-01-15",
+      "regulatory_tags": ["PCI-DSS", "local-banking"]
+    },
+    {
+      "api_id": "api-sim-swaps",
+      "pii_classification": ["subscriber_id", "device_id"],
+      "data_retention_days": 365,
+      "audit_logged": true,
+      "approval_workflow": "fraud-review",
+      "last_audit": "2025-02-01",
+      "regulatory_tags": ["telecom-reg", "fraud"]
+    },
+    {
+      "api_id": "api-customer-status",
+      "pii_classification": ["customer_id", "contact", "segment"],
+      "data_retention_days": 730,
+      "audit_logged": true,
+      "approval_workflow": "privacy-review",
+      "last_audit": "2025-01-20",
+      "regulatory_tags": ["GDPR", "telecom-reg"]
+    }
+  ],
+
+  "links": [
+    {
+      "api_id": "api-store-location",
+      "link_type": "confluence",
+      "url": "https://confluence.company.com/display/RETail/Store+Location+API",
+      "label": "Documentation"
+    },
+    {
+      "api_id": "api-store-location",
+      "link_type": "bitbucket",
+      "url": "https://bitbucket.company.com/projects/RET/repos/store-locator-svc",
+      "label": "Source"
+    },
+    {
+      "api_id": "api-store-location",
+      "link_type": "developer_portal",
+      "url": "https://developer.company.com/apis/store-location",
+      "label": "Developer Portal"
+    },
+    {
+      "api_id": "api-bank-check-balance",
+      "link_type": "confluence",
+      "url": "https://confluence.company.com/display/PAY/Bank+Check+Balance+API",
+      "label": "Documentation"
+    },
+    {
+      "api_id": "api-bank-check-balance",
+      "link_type": "runbook",
+      "url": "https://runbook.company.com/payments/bank-check",
+      "label": "Runbook"
+    },
+    {
+      "api_id": "api-sim-swaps",
+      "link_type": "confluence",
+      "url": "https://confluence.company.com/display/ID/SIM+Swap+API",
+      "label": "Documentation"
+    },
+    {
+      "api_id": "api-sim-swaps",
+      "link_type": "postman",
+      "url": "https://api.company.com/postman/identity/sim-swap",
+      "label": "Postman Collection"
+    },
+    {
+      "api_id": "api-customer-status",
+      "link_type": "developer_portal",
+      "url": "https://developer.company.com/apis/customer-status",
+      "label": "Developer Portal"
+    },
+    {
+      "api_id": "api-topup",
+      "link_type": "confluence",
+      "url": "https://confluence.company.com/display/PAY/Top-Up+API",
+      "label": "Documentation"
+    }
+  ],
+
+  "descriptions": [
+    {
+      "api_id": "api-store-location",
+      "summary": "Store Location API provides store/outlet locations, opening hours, and availability for retail and partner channels.",
+      "use_cases": ["Store finder", "Agent locator", "Inventory availability"],
+      "target_consumers": ["Web app", "Mobile app", "Partner portals"]
+    },
+    {
+      "api_id": "api-bank-check-balance",
+      "summary": "Bank Check Balance API verifies bank accounts and returns balance for payment flows (top-up, bill pay, refunds).",
+      "use_cases": ["Account verification", "Balance check before payment", "Reconciliation"],
+      "target_consumers": ["Payments service", "Billing", "Partner gateways"]
+    },
+    {
+      "api_id": "api-sim-swaps",
+      "summary": "SIM Swap API supports initiating and tracking SIM swap requests with fraud and eligibility checks.",
+      "use_cases": ["SIM replacement", "Device change", "Fraud detection"],
+      "target_consumers": ["Care apps", "Retail POS", "Fraud systems"]
+    },
+    {
+      "api_id": "api-customer-status",
+      "summary": "Customer Status API exposes unified customer profile, account status, segment, and service eligibility.",
+      "use_cases": ["Personalization", "Eligibility checks", "Dashboard", "Care"],
+      "target_consumers": ["All consumer-facing apps", "CRM", "Billing"]
+    },
+    {
+      "api_id": "api-topup",
+      "summary": "Top-Up API enables prepaid airtime and data recharge, bundle purchase, and recharge history.",
+      "use_cases": ["Self-care top-up", "Agent recharge", "Bundle purchase"],
+      "target_consumers": ["Mobile app", "USSD", "Retail POS", "Partners"]
+    }
+  ]
+}

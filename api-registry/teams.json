@@ -1,0 +1,494 @@
+{
+  "_meta": {
+    "source": "api-knowledge-store.json",
+    "description": "Team summary by function",
+    "last_updated": "2025-02-19",
+    "total_teams": 8
+  },
+  "teams": [
+    {
+      "id": "airtel-money",
+      "name": "Airtel Money",
+      "summary": "Airtel Money: wallets, P2P, cash-in/out, merchant, FX, remittance, billers, limits, fees.",
+      "what_they_do": "Airtel Money: wallets, P2P, cash-in/out, merchant, FX, remittance, billers, limits, fees.",
+      "api_count": 22,
+      "apis": [
+        {
+          "id": "api-bank-check-balance",
+          "name": "Bank Check Balance API"
+        },
+        {
+          "id": "api-topup",
+          "name": "Top-Up / Recharge API"
+        },
+        {
+          "id": "api-bill-pay",
+          "name": "Bill Pay API"
+        },
+        {
+          "id": "api-bundle-purchase",
+          "name": "Bundle Purchase API"
+        },
+        {
+          "id": "api-wallet-balance-spend",
+          "name": "Wallet Balance & Spend API"
+        },
+        {
+          "id": "api-airtelmoney-af-wallet-open",
+          "name": "Airtel Money Africa Wallet Opening API"
+        },
+        {
+          "id": "api-airtelmoney-af-kyc-tier-upgrade",
+          "name": "AMA KYC Tier Upgrade API"
+        },
+        {
+          "id": "api-airtelmoney-af-p2p",
+          "name": "AMA P2P Transfer API"
+        },
+        {
+          "id": "api-airtelmoney-af-merchant-qr",
+          "name": "AMA Merchant QR Collect API"
+        },
+        {
+          "id": "api-airtelmoney-af-cashin",
+          "name": "AMA Cash-In (Agent Deposit) API"
+        },
+        {
+          "id": "api-airtelmoney-af-cashout",
+          "name": "AMA Cash-Out (Agent Withdrawal) API"
+        },
+        {
+          "id": "api-airtelmoney-af-fx-rates",
+          "name": "AMA FX Rates API"
+        },
+        {
+          "id": "api-crossborder-remittance",
+          "name": "Cross-Border Remittance API"
+        },
+        {
+          "id": "api-biller-catalog-africa",
+          "name": "Africa Biller Catalog API"
+        },
+        {
+          "id": "api-bill-pay-africa",
+          "name": "African Biller Payment API"
+        },
+        {
+          "id": "api-airtelmoney-af-kyc-recheck",
+          "name": "AMA Periodic KYC Recheck API"
+        },
+        {
+          "id": "api-africa-roaming-bundle",
+          "name": "Africa Roaming Bundle Purchase API"
+        },
+        {
+          "id": "api-airtelmoney-af-merchant-settlement",
+          "name": "AMA Merchant Settlement API"
+        },
+        {
+          "id": "api-airtelmoney-af-limits",
+          "name": "AMA Limits & Tier Rules API"
+        },
+        {
+          "id": "api-airtelmoney-af-fee-quote",
+          "name": "AMA Fee Quote API"
+        },
+        {
+          "id": "api-offnet-airtime-buy",
+          "name": "Off-net Airtime/Data Purchase API"
+        },
+        {
+          "id": "api-airtelmoney-af-wallet-block",
+          "name": "AMA Wallet Block/Unblock API"
+        }
+      ],
+      "owners": [
+        "Kartic Grover"
+      ],
+      "domains": [
+        "billing",
+        "network",
+        "payments"
+      ]
+    },
+    {
+      "id": "canvas",
+      "name": "Canvas",
+      "summary": "Customer care and self-care: complaints, tickets, notification and DND preferences.",
+      "what_they_do": "Customer care and self-care: complaints, tickets, notification and DND preferences.",
+      "api_count": 4,
+      "apis": [
+        {
+          "id": "api-complaints-tickets",
+          "name": "Complaints / Tickets API"
+        },
+        {
+          "id": "api-notification-preferences",
+          "name": "Notification Preferences API"
+        },
+        {
+          "id": "api-dnd-africa",
+          "name": "DND Preferences (Africa) API"
+        },
+        {
+          "id": "api-care-complaints-africa",
+          "name": "Care Complaints (Africa) API"
+        }
+      ],
+      "owners": [
+        "Manish Jain"
+      ],
+      "domains": [
+        "care",
+        "customer"
+      ]
+    },
+    {
+      "id": "data-science-team",
+      "name": "Data Science Team",
+      "summary": "APIs that use AI/ML models: offer eligibility, face match, advance scoring.",
+      "what_they_do": "APIs that use AI/ML models: offer eligibility, face match, advance scoring.",
+      "api_count": 3,
+      "apis": [
+        {
+          "id": "api-airtime-advance-africa",
+          "name": "Airtime/Data Advance (Credit) API"
+        },
+        {
+          "id": "api-cvm-offers-africa",
+          "name": "CVM Offer Eligibility (Africa) API"
+        },
+        {
+          "id": "api-kyc-af-face-match",
+          "name": "Africa Face Match API"
+        }
+      ],
+      "owners": [
+        "Manish Jain"
+      ],
+      "domains": [
+        "billing",
+        "customer",
+        "identity"
+      ]
+    },
+    {
+      "id": "fractal",
+      "name": "Fractal",
+      "summary": "Customer dimension and customer-related: profile, status, registration, loyalty, audit, privacy.",
+      "what_they_do": "Customer dimension and customer-related: profile, status, registration, loyalty, audit, privacy.",
+      "api_count": 8,
+      "apis": [
+        {
+          "id": "api-customer-status",
+          "name": "Customer Status API"
+        },
+        {
+          "id": "api-mnp",
+          "name": "Number Portability (MNP) API"
+        },
+        {
+          "id": "api-subscriber-registration",
+          "name": "Subscriber Registration API"
+        },
+        {
+          "id": "api-plan-change",
+          "name": "Plan Change / Migration API"
+        },
+        {
+          "id": "api-loyalty-rewards",
+          "name": "Loyalty / Rewards API"
+        },
+        {
+          "id": "api-order-status",
+          "name": "Order Status API"
+        },
+        {
+          "id": "api-audit-activity",
+          "name": "Audit Log / Activity API"
+        },
+        {
+          "id": "api-africa-privacy-data-requests",
+          "name": "Africa Privacy Data Request API"
+        }
+      ],
+      "owners": [
+        "Manish Jain"
+      ],
+      "domains": [
+        "billing",
+        "customer",
+        "identity",
+        "retail"
+      ]
+    },
+    {
+      "id": "kyc",
+      "name": "KYC",
+      "summary": "KYC and identity verification: national IDs, SIM registration, agent KYC onboarding.",
+      "what_they_do": "KYC and identity verification: national IDs, SIM registration, agent KYC onboarding.",
+      "api_count": 9,
+      "apis": [
+        {
+          "id": "api-kyc-verification",
+          "name": "KYC / Identity Verification API"
+        },
+        {
+          "id": "api-kyc-ng-nin-verify",
+          "name": "Nigeria NIN Verification API"
+        },
+        {
+          "id": "api-kyc-gh-gcard-verify",
+          "name": "Ghana Card (GID) Verification API"
+        },
+        {
+          "id": "api-kyc-ug-nin-verify",
+          "name": "Uganda NIN Verification API"
+        },
+        {
+          "id": "api-kyc-tz-nida-verify",
+          "name": "Tanzania NIDA Verification API"
+        },
+        {
+          "id": "api-kyc-rw-nid-verify",
+          "name": "Rwanda NID Verification API"
+        },
+        {
+          "id": "api-sim-registration-capture",
+          "name": "SIM Registration Capture API"
+        },
+        {
+          "id": "api-sim-reg-status",
+          "name": "SIM Registration Status API"
+        },
+        {
+          "id": "api-agent-kyc-onboard-africa",
+          "name": "Agent KYC Onboarding (Africa) API"
+        }
+      ],
+      "owners": [
+        "Kartic Grover"
+      ],
+      "domains": [
+        "identity",
+        "partner"
+      ]
+    },
+    {
+      "id": "retailer",
+      "name": "Retailer",
+      "summary": "Services used by retailers: store location, catalog, orders, agent commission and float, vouchers, stock.",
+      "what_they_do": "Services used by retailers: store location, catalog, orders, agent commission and float, vouchers, stock.",
+      "api_count": 12,
+      "apis": [
+        {
+          "id": "api-store-location",
+          "name": "Store Location API"
+        },
+        {
+          "id": "api-otp-verification",
+          "name": "OTP / Verification API"
+        },
+        {
+          "id": "api-agent-commission",
+          "name": "Agent Commission API"
+        },
+        {
+          "id": "api-product-catalog",
+          "name": "Product Catalog API"
+        },
+        {
+          "id": "api-activation-provisioning",
+          "name": "Activation / Provisioning API"
+        },
+        {
+          "id": "api-partner-onboarding",
+          "name": "Partner Onboarding API"
+        },
+        {
+          "id": "api-agent-float-balance",
+          "name": "Agent Float Balance API"
+        },
+        {
+          "id": "api-agent-float-topup",
+          "name": "Agent Float Top-Up API"
+        },
+        {
+          "id": "api-voucher-bulk-generation",
+          "name": "Recharge Voucher Bulk Generation API"
+        },
+        {
+          "id": "api-stock-rollout-africa",
+          "name": "SIM & Starter Pack Stock Rollout API"
+        },
+        {
+          "id": "api-kits-starterpack-activation",
+          "name": "Starter Pack Activation API"
+        },
+        {
+          "id": "api-sales-lead-africa",
+          "name": "Sales Lead (Africa) API"
+        }
+      ],
+      "owners": [
+        "Kartic Grover"
+      ],
+      "domains": [
+        "identity",
+        "partner",
+        "retail",
+        "sales"
+      ]
+    },
+    {
+      "id": "rubik",
+      "name": "Rubik",
+      "summary": "Fraud management: blacklist, AML/PEP/sanctions, KYT, chargebacks, SIM swap, device swap.",
+      "what_they_do": "Fraud management: blacklist, AML/PEP/sanctions, KYT, chargebacks, SIM swap, device swap.",
+      "api_count": 7,
+      "apis": [
+        {
+          "id": "api-sim-swaps",
+          "name": "SIM Swap API"
+        },
+        {
+          "id": "api-device-swap",
+          "name": "Device Swap API"
+        },
+        {
+          "id": "api-blacklist-fraud",
+          "name": "Blacklist / Fraud API"
+        },
+        {
+          "id": "api-aml-pep-sanctions",
+          "name": "AML / PEP / Sanctions Screening API"
+        },
+        {
+          "id": "api-airtelmoney-af-kyt",
+          "name": "AMA KYT Transaction Risk API"
+        },
+        {
+          "id": "api-airtelmoney-af-chargeback-dispute",
+          "name": "AMA Chargeback & Dispute API"
+        },
+        {
+          "id": "api-fraud-velocity-africa",
+          "name": "Africa Fraud Velocity API"
+        }
+      ],
+      "owners": [
+        "Manish Jain"
+      ],
+      "domains": [
+        "identity",
+        "payments"
+      ]
+    },
+    {
+      "id": "stylus",
+      "name": "Stylus",
+      "summary": "Data usage and APIs that fetch or aggregate data from the datalake.",
+      "what_they_do": "Data usage and APIs that fetch or aggregate data from the datalake.",
+      "api_count": 22,
+      "apis": [
+        {
+          "id": "api-usage-consumption",
+          "name": "Usage / Consumption API"
+        },
+        {
+          "id": "api-balance-inquiry",
+          "name": "Balance Inquiry API"
+        },
+        {
+          "id": "api-roaming-status",
+          "name": "Roaming Status API"
+        },
+        {
+          "id": "api-coverage-check",
+          "name": "Coverage Check API"
+        },
+        {
+          "id": "api-payment-history",
+          "name": "Payment History API"
+        },
+        {
+          "id": "api-invoice-download",
+          "name": "Invoice Download API"
+        },
+        {
+          "id": "api-speed-test",
+          "name": "Speed Test / Network Quality API"
+        },
+        {
+          "id": "api-spending-summary",
+          "name": "Spending Summary API"
+        },
+        {
+          "id": "api-transaction-breakdown",
+          "name": "Transaction Breakdown API"
+        },
+        {
+          "id": "api-bill-breakdown",
+          "name": "Bill Breakdown / Itemized Bill API"
+        },
+        {
+          "id": "api-usage-cost",
+          "name": "Usage Cost API"
+        },
+        {
+          "id": "api-monthly-spend",
+          "name": "Monthly Spend API"
+        },
+        {
+          "id": "api-budget-alerts",
+          "name": "Budget Alerts API"
+        },
+        {
+          "id": "api-spend-by-category",
+          "name": "Spend by Category API"
+        },
+        {
+          "id": "api-recharge-spend-history",
+          "name": "Recharge / Spend History API"
+        },
+        {
+          "id": "api-roaming-spend",
+          "name": "Roaming Spend API"
+        },
+        {
+          "id": "api-bill-fetch-africa",
+          "name": "African Biller Bill Fetch API"
+        },
+        {
+          "id": "api-tax-withholding-africa",
+          "name": "Tax Withholding & Levy Computation API"
+        },
+        {
+          "id": "api-regulatory-sim-daily-report",
+          "name": "Regulatory SIM Daily Report API"
+        },
+        {
+          "id": "api-regulatory-mm-transaction-report",
+          "name": "Mobile Money Regulatory Transaction Report API"
+        },
+        {
+          "id": "api-airtelmoney-af-statement",
+          "name": "AMA Wallet Statement API"
+        },
+        {
+          "id": "api-africa-fiber-feasibility",
+          "name": "Africa Fiber Feasibility API"
+        }
+      ],
+      "owners": [
+        "Manish Jain"
+      ],
+      "domains": [
+        "billing",
+        "identity",
+        "network",
+        "payments"
+      ]
+    }
+  ]
+}

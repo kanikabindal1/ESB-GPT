@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://company.com/schemas/api-registry.json",
+  "title": "API Registry Metadata",
+  "description": "Schema for company API registry (teams, apis, versions, endpoints, sources, compliance, etc.)",
+  "type": "object",
+  "required": ["_meta", "teams", "developers", "services", "apis"],
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "properties": {
+        "schema_version": { "type": "string" },
+        "description": { "type": "string" },
+        "last_updated": { "type": "string", "format": "date" },
+        "maintained_by": { "type": "string" }
+      }
+    },
+    "teams": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "org_unit": { "type": "string" },
+          "squad": { "type": "string" },
+          "slack_channel": { "type": "string" },
+          "jira_project": { "type": "string" }
+        }
+      }
+    },
+    "developers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "email"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "role": { "type": "string" }
+        }
+      }
+    },
+    "services": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "logical_unit": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "apis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "domain"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "domain": { "type": "string" },
+          "description": { "type": "string" },
+          "team_id": { "type": "string" },
+          "developer_ids": { "type": "array", "items": { "type": "string" } },
+          "service_id": { "type": "string" },
+          "auth": { "type": "array", "items": { "type": "string" } },
+          "lifecycle": { "type": "string", "enum": ["draft", "beta", "GA", "deprecated", "sunset"] },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "environments": {
+            "type": "object",
+            "additionalProperties": { "type": "string", "format": "uri" }
+          }
+        }
+      }
+    },
+    "api_versions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "api_id", "semver"],
+        "properties": {
+          "id": { "type": "string" },
+          "api_id": { "type": "string" },
+          "semver": { "type": "string" },
+          "code_version_ref": { "type": "string" },
+          "doc_version_ref": { "type": "string" },
+          "status": { "type": "string", "enum": ["draft", "current", "deprecated", "sunset"] },
+          "released_at": { "type": "string", "format": "date" }
+        }
+      }
+    },
+    "endpoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "api_version_id", "method", "path"],
+        "properties": {
+          "id": { "type": "string" },
+          "api_version_id": { "type": "string" },
+          "method": { "type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+          "path": { "type": "string" },
+          "summary": { "type": "string" },
+          "operation_id": { "type": "string" }
+        }
+      }
+    },
+    "sources_confluence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "api_id": { "type": "string" },
+          "space_key": { "type": "string" },
+          "page_id": { "type": "string" },
+          "page_title": { "type": "string" },
+          "labels": { "type": "array", "items": { "type": "string" } },
+          "version": { "type": "integer" },
+          "url": { "type": "string", "format": "uri" }
+        }
+      }
+    },
+    "sources_bitbucket": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "api_id": { "type": "string" },
+          "repo": { "type": "string" },
+          "branch": { "type": "string" },
+          "openapi_path": { "type": "string" },
+          "last_commit": { "type": "string" },
+          "url": { "type": "string", "format": "uri" }
+        }
+      }
+    },
+    "openapi_specs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "api_version_id": { "type": "string" },
+          "content_hash": { "type": "string" },
+          "format": { "type": "string", "enum": ["yaml", "json"] },
+          "source": { "type": "string" },
+          "last_synced": { "type": "string", "format": "date" }
+        }
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "domain": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "api_tags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "api_id": { "type": "string" },
+          "tag_id": { "type": "string" }
+        }
+      }
+    },
+    "metrics_endpoint_daily": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "endpoint_id": { "type": "string" },
+          "date": { "type": "string", "format": "date" },
+          "request_count": { "type": "integer" },
+          "p95_latency_ms": { "type": "number" },
+          "error_rate": { "type": "number" },
+          "rank_by_usage": { "type": "integer" }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from_api_id": { "type": "string" },
+          "to_api_id": { "type": "string" },
+          "from_service_id": { "type": "string" },
+          "to_service_id": { "type": "string" },
+          "relationship": { "type": "string" },
+          "context": { "type": "string" }
+        }
+      }
+    },
+    "compliance": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "api_id": { "type": "string" },
+          "pii_classification": { "type": "array", "items": { "type": "string" } },
+          "data_retention_days": { "type": "integer" },
+          "audit_logged": { "type": "boolean" },
+          "approval_workflow": { "type": "string" },
+          "last_audit": { "type": "string", "format": "date" },
+          "regulatory_tags": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "api_id": { "type": "string" },
+          "link_type": { "type": "string" },
+          "url": { "type": "string", "format": "uri" },
+          "label": { "type": "string" }
+        }
+      }
+    },
+    "descriptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "api_id": { "type": "string" },
+          "summary": { "type": "string" },
+          "use_cases": { "type": "array", "items": { "type": "string" } },
+          "target_consumers": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

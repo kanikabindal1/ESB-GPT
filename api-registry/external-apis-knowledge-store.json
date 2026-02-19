@@ -1,0 +1,994 @@
+{
+  "_meta": {
+    "schema_version": "1.0",
+    "description": "External / third-party / open APIs knowledge store \u2013 commonly used public and vendor APIs",
+    "last_updated": "2025-02-19",
+    "total_apis": 28
+  },
+  "apis": [
+    {
+      "id": "ext-azure-maps",
+      "name": "Azure Maps API",
+      "domain": "mapping",
+      "description": "Geocoding, reverse geocoding, search, routing, traffic, and map rendering from Microsoft Azure.",
+      "owner": "Microsoft",
+      "team": "Third Party",
+      "version": "1.0",
+      "method": "GET",
+      "path": "/search/address/json",
+      "url": "https://atlas.microsoft.com",
+      "confluence": "https://learn.microsoft.com/en-us/azure/azure-maps/",
+      "bitbucket": "https://azure.microsoft.com/products/azure-maps",
+      "tags": [
+        "mapping",
+        "geocoding",
+        "routing",
+        "azure",
+        "location"
+      ],
+      "sample_input": "{\"api-version\": \"1.0\", \"query\": \"Seattle\"}",
+      "sample_output": "{\"results\": [{\"position\": {\"lat\": 47.6062, \"lon\": -122.3321}, \"address\": {\"freeformAddress\": \"Seattle, WA\"}}]}",
+      "input": {
+        "api-version": "string, required",
+        "query": "string, required",
+        "limit": "integer, optional"
+      },
+      "output": {
+        "results": "array of { position, address } objects"
+      },
+      "manhours": 24,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-google-maps-geocoding",
+      "name": "Google Maps Geocoding API",
+      "domain": "mapping",
+      "description": "Convert addresses to coordinates and coordinates to addresses (forward and reverse geocoding).",
+      "owner": "Google",
+      "team": "Third Party",
+      "version": "v1",
+      "method": "GET",
+      "path": "/maps/api/geocode/json",
+      "url": "https://maps.googleapis.com",
+      "confluence": "https://developers.google.com/maps/documentation/geocoding",
+      "bitbucket": "https://console.cloud.google.com/apis/library/geocoding-backend.googleapis.com",
+      "tags": [
+        "mapping",
+        "geocoding",
+        "google",
+        "location"
+      ],
+      "sample_input": "{\"address\": \"1600 Amphitheatre Parkway, Mountain View, CA\"}",
+      "sample_output": "{\"results\": [{\"geometry\": {\"location\": {\"lat\": 37.4224, \"lng\": -122.0842}}, \"formatted_address\": \"...\"}]}",
+      "input": {
+        "address": "string, optional",
+        "latlng": "string, optional",
+        "key": "string, required"
+      },
+      "output": {
+        "results": "array of { geometry, formatted_address } objects",
+        "status": "string"
+      },
+      "manhours": 20,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-mapbox",
+      "name": "Mapbox API",
+      "domain": "mapping",
+      "description": "Maps, geocoding, directions, isochrones, and map tiles; strong customization and offline support.",
+      "owner": "Mapbox",
+      "team": "Third Party",
+      "version": "v5",
+      "method": "GET",
+      "path": "/geocoding/v5/mapbox.places/{query}.json",
+      "url": "https://api.mapbox.com",
+      "confluence": "https://docs.mapbox.com/api/",
+      "bitbucket": "https://account.mapbox.com/",
+      "tags": [
+        "mapping",
+        "geocoding",
+        "directions",
+        "tiles",
+        "open-source"
+      ],
+      "sample_input": "{\"query\": \"Seattle\", \"access_token\": \"<token>\"}",
+      "sample_output": "{\"features\": [{\"geometry\": {\"coordinates\": [-122.3321, 47.6062]}, \"place_name\": \"Seattle, WA\"}]}",
+      "input": {
+        "query": "string, required",
+        "access_token": "string, required",
+        "limit": "integer, optional"
+      },
+      "output": {
+        "features": "array of GeoJSON feature objects"
+      },
+      "manhours": 22,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-twilio-sms",
+      "name": "Twilio SMS API",
+      "domain": "communications",
+      "description": "Send and receive SMS messages globally; programmable messaging and phone numbers.",
+      "owner": "Twilio",
+      "team": "Third Party",
+      "version": "2010-04-01",
+      "method": "POST",
+      "path": "/2010-04-01/Accounts/{AccountSid}/Messages.json",
+      "url": "https://api.twilio.com",
+      "confluence": "https://www.twilio.com/docs/sms",
+      "bitbucket": "https://console.twilio.com/",
+      "tags": [
+        "sms",
+        "messaging",
+        "communications",
+        "notifications"
+      ],
+      "sample_input": "{\"To\": \"+1234567890\", \"From\": \"+0987654321\", \"Body\": \"Hello\"}",
+      "sample_output": "{\"sid\": \"SM...\", \"status\": \"queued\", \"date_created\": \"2025-02-19T12:00:00Z\"}",
+      "input": {
+        "To": "string, required",
+        "From": "string, required",
+        "Body": "string, required"
+      },
+      "output": {
+        "sid": "string",
+        "status": "string",
+        "date_created": "string"
+      },
+      "manhours": 16,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-twilio-voice",
+      "name": "Twilio Voice API",
+      "domain": "communications",
+      "description": "Programmable voice calls, IVR, and telephony; make and receive calls via REST.",
+      "owner": "Twilio",
+      "team": "Third Party",
+      "version": "2010-04-01",
+      "method": "POST",
+      "path": "/2010-04-01/Accounts/{AccountSid}/Calls.json",
+      "url": "https://api.twilio.com",
+      "confluence": "https://www.twilio.com/docs/voice",
+      "bitbucket": "https://console.twilio.com/",
+      "tags": [
+        "voice",
+        "telephony",
+        "ivr",
+        "communications"
+      ],
+      "sample_input": "{\"To\": \"+1234567890\", \"From\": \"+0987654321\", \"Url\": \"https://handler.twilio.com/twiml/...\"}",
+      "sample_output": "{\"sid\": \"CA...\", \"status\": \"queued\"}",
+      "input": {
+        "To": "string, required",
+        "From": "string, required",
+        "Url": "string, required"
+      },
+      "output": {
+        "sid": "string",
+        "status": "string"
+      },
+      "manhours": 28,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-sendgrid",
+      "name": "SendGrid Mail API",
+      "domain": "communications",
+      "description": "Transactional and marketing email delivery; templates, tracking, and analytics.",
+      "owner": "Twilio (SendGrid)",
+      "team": "Third Party",
+      "version": "v3",
+      "method": "POST",
+      "path": "/v3/mail/send",
+      "url": "https://api.sendgrid.com",
+      "confluence": "https://docs.sendgrid.com/api-reference/mail-send/mail-send",
+      "bitbucket": "https://app.sendgrid.com/",
+      "tags": [
+        "email",
+        "transactional",
+        "marketing",
+        "delivery"
+      ],
+      "sample_input": "{\"personalizations\": [{\"to\": [{\"email\": \"user@example.com\"}]}], \"from\": {\"email\": \"noreply@company.com\"}, \"subject\": \"Hello\", \"content\": [{\"type\": \"text/plain\", \"value\": \"Hi\"}]}",
+      "sample_output": "{\"statusCode\": 202, \"body\": \"\"}",
+      "input": {
+        "personalizations": "array, required",
+        "from": "object, required",
+        "subject": "string, required",
+        "content": "array, required"
+      },
+      "output": {
+        "statusCode": "integer",
+        "body": "string"
+      },
+      "manhours": 18,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-stripe-payments",
+      "name": "Stripe Payments API",
+      "domain": "payments",
+      "description": "Accept payments (cards, wallets, local methods); create payment intents and confirm payments.",
+      "owner": "Stripe",
+      "team": "Third Party",
+      "version": "2023-10-16",
+      "method": "POST",
+      "path": "/v1/payment_intents",
+      "url": "https://api.stripe.com",
+      "confluence": "https://docs.stripe.com/api/payment_intents",
+      "bitbucket": "https://dashboard.stripe.com/",
+      "tags": [
+        "payments",
+        "cards",
+        "checkout",
+        "billing"
+      ],
+      "sample_input": "{\"amount\": 1000, \"currency\": \"usd\", \"payment_method_types\": [\"card\"]}",
+      "sample_output": "{\"id\": \"pi_...\", \"client_secret\": \"pi_..._secret_...\", \"status\": \"requires_payment_method\"}",
+      "input": {
+        "amount": "integer, required",
+        "currency": "string, required",
+        "payment_method_types": "array, optional"
+      },
+      "output": {
+        "id": "string",
+        "client_secret": "string",
+        "status": "string"
+      },
+      "manhours": 40,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-openweathermap",
+      "name": "OpenWeatherMap API",
+      "domain": "weather",
+      "description": "Current weather, forecasts, and historical data by city or coordinates; free tier available.",
+      "owner": "OpenWeather",
+      "team": "Third Party",
+      "version": "2.5",
+      "method": "GET",
+      "path": "/data/2.5/weather",
+      "url": "https://api.openweathermap.org",
+      "confluence": "https://openweathermap.org/api",
+      "bitbucket": "https://openweathermap.org/api",
+      "tags": [
+        "weather",
+        "forecast",
+        "open-api",
+        "free-tier"
+      ],
+      "sample_input": "{\"q\": \"London\", \"appid\": \"<api_key>\"}",
+      "sample_output": "{\"main\": {\"temp\": 283.15, \"humidity\": 72}, \"weather\": [{\"description\": \"clear sky\"}]}",
+      "input": {
+        "q": "string, optional",
+        "lat": "number, optional",
+        "lon": "number, optional",
+        "appid": "string, required"
+      },
+      "output": {
+        "main": "object",
+        "weather": "array",
+        "dt": "integer"
+      },
+      "manhours": 8,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-exchange-rate",
+      "name": "Exchange Rate API",
+      "domain": "finance",
+      "description": "Currency exchange rates (current and historical); free and paid tiers.",
+      "owner": "ExchangeRate-API",
+      "team": "Third Party",
+      "version": "v6",
+      "method": "GET",
+      "path": "/v6/latest",
+      "url": "https://v6.exchangerate-api.com",
+      "confluence": "https://www.exchangerate-api.com/docs",
+      "bitbucket": "https://www.exchangerate-api.com/",
+      "tags": [
+        "currency",
+        "exchange-rate",
+        "finance",
+        "open-api"
+      ],
+      "sample_input": "{\"base\": \"USD\"}",
+      "sample_output": "{\"result\": \"success\", \"conversion_rates\": {\"EUR\": 0.92, \"GBP\": 0.79}}",
+      "input": {
+        "base": "string, optional"
+      },
+      "output": {
+        "result": "string",
+        "conversion_rates": "object"
+      },
+      "manhours": 6,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-rest-countries",
+      "name": "REST Countries API",
+      "domain": "reference",
+      "description": "Country data: name, capital, region, languages, currency, timezone; free, no key required.",
+      "owner": "REST Countries",
+      "team": "Third Party",
+      "version": "v3.1",
+      "method": "GET",
+      "path": "/v3.1/name/{name}",
+      "url": "https://restcountries.com",
+      "confluence": "https://restcountries.com/",
+      "bitbucket": "https://restcountries.com/",
+      "tags": [
+        "reference",
+        "countries",
+        "open-api",
+        "free"
+      ],
+      "sample_input": "{\"name\": \"india\"}",
+      "sample_output": "{\"name\": {\"common\": \"India\"}, \"capital\": [\"New Delhi\"], \"currencies\": {\"INR\": {\"name\": \"Indian rupee\"}}}",
+      "input": {
+        "name": "string, optional",
+        "code": "string, optional"
+      },
+      "output": {
+        "name": "object",
+        "capital": "array",
+        "currencies": "object",
+        "region": "string"
+      },
+      "manhours": 4,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-jsonplaceholder",
+      "name": "JSONPlaceholder",
+      "domain": "testing",
+      "description": "Fake REST API for testing and prototyping; posts, users, comments, albums.",
+      "owner": "JSONPlaceholder",
+      "team": "Third Party",
+      "version": "1",
+      "method": "GET",
+      "path": "/posts/1",
+      "url": "https://jsonplaceholder.typicode.com",
+      "confluence": "https://jsonplaceholder.typicode.com/",
+      "bitbucket": "https://jsonplaceholder.typicode.com/",
+      "tags": [
+        "testing",
+        "mock",
+        "open-api",
+        "free"
+      ],
+      "sample_input": "{}",
+      "sample_output": "{\"userId\": 1, \"id\": 1, \"title\": \"sunt aut facere...\", \"body\": \"quia et suscipit...\"}",
+      "input": {},
+      "output": {
+        "userId": "integer",
+        "id": "integer",
+        "title": "string",
+        "body": "string"
+      },
+      "manhours": 2,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-auth0",
+      "name": "Auth0 API",
+      "domain": "identity",
+      "description": "Authentication and authorization: login, signup, tokens, user management, and MFA.",
+      "owner": "Auth0 (Okta)",
+      "team": "Third Party",
+      "version": "v2",
+      "method": "POST",
+      "path": "/oauth/token",
+      "url": "https://your-tenant.auth0.com",
+      "confluence": "https://auth0.com/docs/api",
+      "bitbucket": "https://manage.auth0.com/",
+      "tags": [
+        "auth",
+        "identity",
+        "oauth",
+        "jwt",
+        "mfa"
+      ],
+      "sample_input": "{\"grant_type\": \"password\", \"username\": \"user@example.com\", \"password\": \"***\", \"client_id\": \"...\"}",
+      "sample_output": "{\"access_token\": \"eyJ...\", \"token_type\": \"Bearer\", \"expires_in\": 86400}",
+      "input": {
+        "grant_type": "string, required",
+        "username": "string, optional",
+        "password": "string, optional",
+        "client_id": "string, required"
+      },
+      "output": {
+        "access_token": "string",
+        "token_type": "string",
+        "expires_in": "integer"
+      },
+      "manhours": 48,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-plaid",
+      "name": "Plaid API",
+      "domain": "finance",
+      "description": "Connect to bank accounts; account and balance data, transactions, and identity verification.",
+      "owner": "Plaid",
+      "team": "Third Party",
+      "version": "2020-09-14",
+      "method": "POST",
+      "path": "/accounts/balance/get",
+      "url": "https://development.plaid.com",
+      "confluence": "https://plaid.com/docs/api/",
+      "bitbucket": "https://dashboard.plaid.com/",
+      "tags": [
+        "banking",
+        "finance",
+        "open-banking",
+        "transactions"
+      ],
+      "sample_input": "{\"access_token\": \"access-sandbox-...\", \"options\": {}}",
+      "sample_output": "{\"accounts\": [{\"account_id\": \"...\", \"balances\": {\"available\": 100.50, \"current\": 100.50}}]}",
+      "input": {
+        "access_token": "string, required",
+        "options": "object, optional"
+      },
+      "output": {
+        "accounts": "array of { account_id, balances } objects"
+      },
+      "manhours": 56,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-github",
+      "name": "GitHub REST API",
+      "domain": "devops",
+      "description": "Repos, issues, pull requests, actions, and org management; integrate with GitHub.",
+      "owner": "GitHub",
+      "team": "Third Party",
+      "version": "v3",
+      "method": "GET",
+      "path": "/repos/{owner}/{repo}",
+      "url": "https://api.github.com",
+      "confluence": "https://docs.github.com/en/rest",
+      "bitbucket": "https://github.com/settings/tokens",
+      "tags": [
+        "git",
+        "repos",
+        "ci-cd",
+        "devops"
+      ],
+      "sample_input": "{\"owner\": \"octocat\", \"repo\": \"Hello-World\"}",
+      "sample_output": "{\"id\": 1296269, \"full_name\": \"octocat/Hello-World\", \"private\": false, \"html_url\": \"...\"}",
+      "input": {
+        "owner": "string, required",
+        "repo": "string, required"
+      },
+      "output": {
+        "id": "integer",
+        "full_name": "string",
+        "private": "boolean",
+        "html_url": "string"
+      },
+      "manhours": 20,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-slack",
+      "name": "Slack API",
+      "domain": "communications",
+      "description": "Post messages, manage channels, users, and workflows; Bot and Web API.",
+      "owner": "Slack",
+      "team": "Third Party",
+      "version": "v1",
+      "method": "POST",
+      "path": "/api/chat.postMessage",
+      "url": "https://slack.com/api",
+      "confluence": "https://api.slack.com/methods",
+      "bitbucket": "https://api.slack.com/apps",
+      "tags": [
+        "messaging",
+        "notifications",
+        "bots",
+        "workflow"
+      ],
+      "sample_input": "{\"channel\": \"C123\", \"text\": \"Hello from API\"}",
+      "sample_output": "{\"ok\": true, \"channel\": \"C123\", \"ts\": \"1234567890.123456\"}",
+      "input": {
+        "channel": "string, required",
+        "text": "string, required"
+      },
+      "output": {
+        "ok": "boolean",
+        "channel": "string",
+        "ts": "string"
+      },
+      "manhours": 24,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-microsoft-graph",
+      "name": "Microsoft Graph API",
+      "domain": "productivity",
+      "description": "Unified API for Microsoft 365: Outlook, OneDrive, Teams, Azure AD, and calendar.",
+      "owner": "Microsoft",
+      "team": "Third Party",
+      "version": "v1.0",
+      "method": "GET",
+      "path": "/v1.0/me",
+      "url": "https://graph.microsoft.com",
+      "confluence": "https://learn.microsoft.com/en-us/graph/api/overview",
+      "bitbucket": "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade",
+      "tags": [
+        "microsoft",
+        "outlook",
+        "teams",
+        "azure-ad",
+        "calendar"
+      ],
+      "sample_input": "{}",
+      "sample_output": "{\"displayName\": \"User Name\", \"mail\": \"user@company.com\", \"id\": \"...\"}",
+      "input": {},
+      "output": {
+        "displayName": "string",
+        "mail": "string",
+        "id": "string"
+      },
+      "manhours": 44,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-here-geocoding",
+      "name": "HERE Geocoding API",
+      "domain": "mapping",
+      "description": "Geocode and reverse geocode, autocomplete, and search from HERE (formerly Nokia Maps).",
+      "owner": "HERE",
+      "team": "Third Party",
+      "version": "v1",
+      "method": "GET",
+      "path": "/v1/geocode",
+      "url": "https://geocode.search.hereapi.com",
+      "confluence": "https://developer.here.com/documentation/geocoding-search-api/dev_guide/index.html",
+      "bitbucket": "https://platform.here.com/",
+      "tags": [
+        "mapping",
+        "geocoding",
+        "here",
+        "location",
+        "autocomplete"
+      ],
+      "sample_input": "{\"q\": \"Berlin\", \"apiKey\": \"<key>\"}",
+      "sample_output": "{\"items\": [{\"position\": {\"lat\": 52.52, \"lng\": 13.405}, \"address\": {\"label\": \"Berlin, Germany\"}}]}",
+      "input": {
+        "q": "string, required",
+        "apiKey": "string, required"
+      },
+      "output": {
+        "items": "array of { position, address } objects"
+      },
+      "manhours": 22,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-nominatim",
+      "name": "OpenStreetMap Nominatim",
+      "domain": "mapping",
+      "description": "Free geocoding and reverse geocoding using OpenStreetMap data; usage policy applies.",
+      "owner": "OpenStreetMap",
+      "team": "Third Party",
+      "version": "v1",
+      "method": "GET",
+      "path": "/search",
+      "url": "https://nominatim.openstreetmap.org",
+      "confluence": "https://nominatim.org/release-docs/develop/api/Overview/",
+      "bitbucket": "https://nominatim.org/",
+      "tags": [
+        "mapping",
+        "geocoding",
+        "open-source",
+        "free",
+        "osm"
+      ],
+      "sample_input": "{\"q\": \"Paris\", \"format\": \"json\"}",
+      "sample_output": "{\"lat\": \"48.8566\", \"lon\": \"2.3522\", \"display_name\": \"Paris, France\"}",
+      "input": {
+        "q": "string, required",
+        "format": "string, optional"
+      },
+      "output": {
+        "lat": "string",
+        "lon": "string",
+        "display_name": "string"
+      },
+      "manhours": 10,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-paypal",
+      "name": "PayPal REST API",
+      "domain": "payments",
+      "description": "Create orders, capture payments, refunds, and subscriptions; PayPal and Venmo.",
+      "owner": "PayPal",
+      "team": "Third Party",
+      "version": "v2",
+      "method": "POST",
+      "path": "/v2/checkout/orders",
+      "url": "https://api-m.paypal.com",
+      "confluence": "https://developer.paypal.com/docs/api/orders/v2/",
+      "bitbucket": "https://developer.paypal.com/dashboard/",
+      "tags": [
+        "payments",
+        "checkout",
+        "subscriptions",
+        "refunds"
+      ],
+      "sample_input": "{\"intent\": \"CAPTURE\", \"purchase_units\": [{\"amount\": {\"currency_code\": \"USD\", \"value\": \"10.00\"}}]}",
+      "sample_output": "{\"id\": \"ORDER-ID\", \"status\": \"CREATED\", \"links\": [{\"href\": \"https://api-m.paypal.com/v2/checkout/orders/...\"}]}",
+      "input": {
+        "intent": "string, required",
+        "purchase_units": "array, required"
+      },
+      "output": {
+        "id": "string",
+        "status": "string",
+        "links": "array"
+      },
+      "manhours": 42,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-firebase-auth",
+      "name": "Firebase Authentication API",
+      "domain": "identity",
+      "description": "Email/password, social login, phone auth, and custom tokens; integrate with Firebase and Google.",
+      "owner": "Google (Firebase)",
+      "team": "Third Party",
+      "version": "v1",
+      "method": "POST",
+      "path": "/v1/accounts:signInWithPassword",
+      "url": "https://identitytoolkit.googleapis.com",
+      "confluence": "https://firebase.google.com/docs/reference/rest/auth",
+      "bitbucket": "https://console.firebase.google.com/",
+      "tags": [
+        "auth",
+        "firebase",
+        "google",
+        "identity"
+      ],
+      "sample_input": "{\"email\": \"user@example.com\", \"password\": \"***\", \"returnSecureToken\": true}",
+      "sample_output": "{\"idToken\": \"eyJ...\", \"refreshToken\": \"...\", \"expiresIn\": \"3600\"}",
+      "input": {
+        "email": "string, required",
+        "password": "string, required",
+        "returnSecureToken": "boolean, optional"
+      },
+      "output": {
+        "idToken": "string",
+        "refreshToken": "string",
+        "expiresIn": "string"
+      },
+      "manhours": 32,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-zoom",
+      "name": "Zoom API",
+      "domain": "communications",
+      "description": "Create and manage meetings, webinars, recordings, and users; OAuth or JWT.",
+      "owner": "Zoom",
+      "team": "Third Party",
+      "version": "v2",
+      "method": "POST",
+      "path": "/users/me/meetings",
+      "url": "https://api.zoom.us/v2",
+      "confluence": "https://developers.zoom.us/docs/api/",
+      "bitbucket": "https://marketplace.zoom.us/develop/create",
+      "tags": [
+        "video",
+        "meetings",
+        "webinars",
+        "communications"
+      ],
+      "sample_input": "{\"topic\": \"Team Sync\", \"type\": 2, \"start_time\": \"2025-02-20T14:00:00Z\"}",
+      "sample_output": "{\"id\": 123456789, \"join_url\": \"https://zoom.us/j/...\", \"start_url\": \"...\"}",
+      "input": {
+        "topic": "string, required",
+        "type": "integer, required",
+        "start_time": "string, optional"
+      },
+      "output": {
+        "id": "integer",
+        "join_url": "string",
+        "start_url": "string"
+      },
+      "manhours": 26,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-aws-s3",
+      "name": "AWS S3 API",
+      "domain": "storage",
+      "description": "Object storage: put/get/delete objects, presigned URLs, and bucket operations.",
+      "owner": "Amazon Web Services",
+      "team": "Third Party",
+      "version": "2006-03-01",
+      "method": "PUT",
+      "path": "/{bucket}/{key}",
+      "url": "https://s3.amazonaws.com",
+      "confluence": "https://docs.aws.amazon.com/AmazonS3/latest/API/",
+      "bitbucket": "https://console.aws.amazon.com/s3/",
+      "tags": [
+        "storage",
+        "aws",
+        "objects",
+        "files"
+      ],
+      "sample_input": "{\"Bucket\": \"my-bucket\", \"Key\": \"path/file.txt\", \"Body\": \"...\"}",
+      "sample_output": "{\"ETag\": \"\\\"...\\\"\", \"VersionId\": \"...\"}",
+      "input": {
+        "Bucket": "string, required",
+        "Key": "string, required",
+        "Body": "string or buffer, optional"
+      },
+      "output": {
+        "ETag": "string",
+        "VersionId": "string, optional"
+      },
+      "manhours": 30,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-postman-echo",
+      "name": "Postman Echo",
+      "domain": "testing",
+      "description": "Echo request headers, body, and auth for testing HTTP clients and debugging.",
+      "owner": "Postman",
+      "team": "Third Party",
+      "version": "1",
+      "method": "GET",
+      "path": "/get",
+      "url": "https://postman-echo.com",
+      "confluence": "https://postman-echo.com/",
+      "bitbucket": "https://postman-echo.com/",
+      "tags": [
+        "testing",
+        "echo",
+        "debug",
+        "free"
+      ],
+      "sample_input": "{\"foo\": \"bar\"}",
+      "sample_output": "{\"args\": {}, \"headers\": {\"x-forwarded-proto\": \"https\", ...}, \"url\": \"https://postman-echo.com/get\"}",
+      "input": {
+        "foo": "string, optional"
+      },
+      "output": {
+        "args": "object",
+        "headers": "object",
+        "url": "string"
+      },
+      "manhours": 2,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-mailgun",
+      "name": "Mailgun API",
+      "domain": "communications",
+      "description": "Send transactional email, validate addresses, and manage domains and routes.",
+      "owner": "Mailgun",
+      "team": "Third Party",
+      "version": "v3",
+      "method": "POST",
+      "path": "/v3/{domain}/messages",
+      "url": "https://api.mailgun.net",
+      "confluence": "https://documentation.mailgun.com/en/latest/api-intro.html",
+      "bitbucket": "https://app.mailgun.com/",
+      "tags": [
+        "email",
+        "transactional",
+        "delivery",
+        "validation"
+      ],
+      "sample_input": "{\"from\": \"Mailgun Sandbox <postmaster@...>\", \"to\": \"user@example.com\", \"subject\": \"Hello\", \"text\": \"Test\"}",
+      "sample_output": "{\"id\": \"<message-id>\", \"message\": \"Queued. Thank you.\"}",
+      "input": {
+        "from": "string, required",
+        "to": "string, required",
+        "subject": "string, required",
+        "text": "string, optional"
+      },
+      "output": {
+        "id": "string",
+        "message": "string"
+      },
+      "manhours": 18,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-vonage-sms",
+      "name": "Vonage (Nexmo) SMS API",
+      "domain": "communications",
+      "description": "Send and receive SMS and manage phone numbers; global coverage and two-way messaging.",
+      "owner": "Vonage",
+      "team": "Third Party",
+      "version": "v1",
+      "method": "POST",
+      "path": "/v1/sms",
+      "url": "https://rest.nexmo.com",
+      "confluence": "https://developer.vonage.com/messaging/sms/overview",
+      "bitbucket": "https://dashboard.nexmo.com/",
+      "tags": [
+        "sms",
+        "messaging",
+        "vonage",
+        "nexmo"
+      ],
+      "sample_input": "{\"from\": \"Vonage\", \"to\": \"1234567890\", \"text\": \"Hello\"}",
+      "sample_output": "{\"message-count\": \"1\", \"messages\": [{\"status\": \"0\", \"message-id\": \"...\"}]}",
+      "input": {
+        "from": "string, required",
+        "to": "string, required",
+        "text": "string, required"
+      },
+      "output": {
+        "message-count": "string",
+        "messages": "array"
+      },
+      "manhours": 16,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-ipinfo",
+      "name": "IPinfo API",
+      "domain": "reference",
+      "description": "IP geolocation and metadata: country, city, ASN, company; free tier available.",
+      "owner": "IPinfo",
+      "team": "Third Party",
+      "version": "1",
+      "method": "GET",
+      "path": "/{ip}",
+      "url": "https://ipinfo.io",
+      "confluence": "https://ipinfo.io/developers",
+      "bitbucket": "https://ipinfo.io/signup",
+      "tags": [
+        "ip",
+        "geolocation",
+        "reference",
+        "free-tier"
+      ],
+      "sample_input": "{\"ip\": \"8.8.8.8\"}",
+      "sample_output": "{\"ip\": \"8.8.8.8\", \"city\": \"Mountain View\", \"region\": \"California\", \"country\": \"US\"}",
+      "input": {
+        "ip": "string, optional"
+      },
+      "output": {
+        "ip": "string",
+        "city": "string",
+        "region": "string",
+        "country": "string"
+      },
+      "manhours": 6,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-ipify",
+      "name": "ipify",
+      "domain": "reference",
+      "description": "Get the public IP of the caller; free, no key; useful for diagnostics and consent.",
+      "owner": "ipify",
+      "team": "Third Party",
+      "version": "1",
+      "method": "GET",
+      "path": "/",
+      "url": "https://api.ipify.org",
+      "confluence": "https://www.ipify.org/",
+      "bitbucket": "https://www.ipify.org/",
+      "tags": [
+        "ip",
+        "reference",
+        "free",
+        "open"
+      ],
+      "sample_input": "{}",
+      "sample_output": "{\"ip\": \"203.0.113.42\"}",
+      "input": {},
+      "output": {
+        "ip": "string"
+      },
+      "manhours": 2,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-unsplash",
+      "name": "Unsplash API",
+      "domain": "media",
+      "description": "Search and use high-quality photos; free for use with attribution and rate limits.",
+      "owner": "Unsplash",
+      "team": "Third Party",
+      "version": "v1",
+      "method": "GET",
+      "path": "/search/photos",
+      "url": "https://api.unsplash.com",
+      "confluence": "https://unsplash.com/documentation",
+      "bitbucket": "https://unsplash.com/developers",
+      "tags": [
+        "images",
+        "photos",
+        "media",
+        "free-tier"
+      ],
+      "sample_input": "{\"query\": \"nature\", \"per_page\": 10}",
+      "sample_output": "{\"results\": [{\"id\": \"...\", \"urls\": {\"regular\": \"https://...\"}, \"user\": {\"name\": \"...\"}}]}",
+      "input": {
+        "query": "string, required",
+        "per_page": "integer, optional"
+      },
+      "output": {
+        "results": "array of { id, urls, user } objects"
+      },
+      "manhours": 12,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "ext-newsapi",
+      "name": "News API",
+      "domain": "content",
+      "description": "Search and fetch news articles from many sources; headlines and full-text search.",
+      "owner": "News API",
+      "team": "Third Party",
+      "version": "v2",
+      "method": "GET",
+      "path": "/v2/top-headlines",
+      "url": "https://newsapi.org/v2",
+      "confluence": "https://newsapi.org/docs",
+      "bitbucket": "https://newsapi.org/register",
+      "tags": [
+        "news",
+        "content",
+        "headlines",
+        "free-tier"
+      ],
+      "sample_input": "{\"country\": \"us\", \"apiKey\": \"<key>\"}",
+      "sample_output": "{\"status\": \"ok\", \"totalResults\": 38, \"articles\": [{\"title\": \"...\", \"url\": \"...\", \"publishedAt\": \"...\"}]}",
+      "input": {
+        "country": "string, optional",
+        "apiKey": "string, required",
+        "pageSize": "integer, optional"
+      },
+      "output": {
+        "status": "string",
+        "totalResults": "integer",
+        "articles": "array"
+      },
+      "manhours": 14,
+      "api_efficiency": "high",
+      "readiness": "production"
+    }
+  ]
+}

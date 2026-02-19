@@ -1,0 +1,40 @@
+{
+  "_meta": {
+    "schema_version": "1.0",
+    "description": "API metadata crawled from source",
+    "source": "crawler/sample_openapi.json",
+    "total_apis": 1
+  },
+  "apis": [
+    {
+      "id": "api-post-africa_v1_kyc_ng_nin_verify",
+      "name": "Nigeria NIN Verify API",
+      "domain": "kyc",
+      "description": "Verify Nigeria NIN for SIM registration.",
+      "owner": "Crawler",
+      "team": "Platform",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/kyc/ng/nin/verify",
+      "url": "https://api.company.com/africa/v1/kyc/ng/nin/verify",
+      "confluence": "",
+      "bitbucket": "",
+      "tags": [
+        "KYC"
+      ],
+      "sample_input": "{\n  \"nin\": \"string\",\n  \"full_name\": \"string\"\n}",
+      "sample_output": "{\n  \"valid\": true,\n  \"dob\": \"string\"\n}",
+      "input": {
+        "nin": "string, required",
+        "full_name": "string, optional"
+      },
+      "output": {
+        "valid": "boolean, optional",
+        "dob": "string, optional"
+      },
+      "manhours": 0,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    }
+  ]
+}

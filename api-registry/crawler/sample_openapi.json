@@ -1,0 +1,42 @@
+{
+  "openapi": "3.0.0",
+  "info": { "title": "Sample", "version": "1.0.0" },
+  "paths": {
+    "/africa/v1/kyc/ng/nin/verify": {
+      "post": {
+        "summary": "Nigeria NIN Verify",
+        "description": "Verify Nigeria NIN for SIM registration.",
+        "tags": ["KYC"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["nin"],
+                "properties": {
+                  "nin": { "type": "string" },
+                  "full_name": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "valid": { "type": "boolean" },
+                    "dob": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

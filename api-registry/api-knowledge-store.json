@@ -1,0 +1,2921 @@
+{
+  "_meta": {
+    "schema_version": "1.0",
+    "description": "API knowledge store \u2013 one object per API with simplified metadata",
+    "last_updated": "2025-02-19",
+    "total_apis": 87
+  },
+  "apis": [
+    {
+      "id": "api-store-location",
+      "name": "Store Location API",
+      "domain": "retail",
+      "description": "Get store/outlet locations, opening hours, and availability by geography or filters.",
+      "owner": "Kartic Grover",
+      "team": "Retailer",
+      "version": "1.2.0",
+      "method": "GET",
+      "path": "/v1/stores",
+      "url": "https://api.company.com/retail/store-location",
+      "confluence": "https://confluence.company.com/display/RETail/Store+Location+API",
+      "bitbucket": "https://bitbucket.company.com/projects/RET/repos/store-locator-svc",
+      "tags": [
+        "retail",
+        "location",
+        "stores",
+        "outlets"
+      ],
+      "sample_input": "{\"latitude\": 28.6139, \"longitude\": 77.2090, \"radius_km\": 5}",
+      "sample_output": "{\"stores\": [{\"id\": \"ST001\", \"name\": \"Main Store\", \"address\": \"123 High St\", \"open_until\": \"21:00\"}]}",
+      "input": {
+        "latitude": "number, optional",
+        "longitude": "number, optional",
+        "radius_km": "integer, optional",
+        "filters": "object, optional"
+      },
+      "output": {
+        "stores": "array of store objects",
+        "total_count": "integer"
+      },
+      "manhours": 80,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-bank-check-balance",
+      "name": "Bank Check Balance API",
+      "domain": "payments",
+      "description": "Verify bank account and check balance for payment flows (top-up, bill pay).",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/v1/accounts/verify",
+      "url": "https://api.company.com/payments/bank-check",
+      "confluence": "https://confluence.company.com/display/PAY/Bank+Check+Balance+API",
+      "bitbucket": "https://bitbucket.company.com/projects/PAY/repos/bank-check-svc",
+      "tags": [
+        "payments",
+        "banking",
+        "balance",
+        "verification"
+      ],
+      "sample_input": "{\"account_number\": \"****1234\", \"bank_code\": \"BIC001\", \"customer_id\": \"C123\"}",
+      "sample_output": "{\"verified\": true, \"balance\": 1500.50, \"currency\": \"USD\"}",
+      "input": {
+        "account_number": "string, required",
+        "bank_code": "string, required",
+        "customer_id": "string, required"
+      },
+      "output": {
+        "verified": "boolean",
+        "balance": "number",
+        "currency": "string"
+      },
+      "manhours": 30,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-sim-swaps",
+      "name": "SIM Swap API",
+      "domain": "identity",
+      "description": "Initiate and query SIM swap requests; check swap eligibility and status.",
+      "owner": "Manish Jain",
+      "team": "Rubik",
+      "version": "1.1.0",
+      "method": "POST",
+      "path": "/v1/sim/swap",
+      "url": "https://api.company.com/identity/sim-swap",
+      "confluence": "https://confluence.company.com/display/ID/SIM+Swap+API",
+      "bitbucket": "https://bitbucket.company.com/projects/ID/repos/sim-management-svc",
+      "tags": [
+        "identity",
+        "SIM",
+        "swap",
+        "fraud"
+      ],
+      "sample_input": "{\"msisdn\": \"+1234567890\", \"new_iccid\": \"89014103270000000001\", \"reason\": \"replacement\"}",
+      "sample_output": "{\"request_id\": \"SWAP-001\", \"status\": \"pending\", \"estimated_completion\": \"2025-02-20T14:00:00Z\"}",
+      "input": {
+        "msisdn": "string, required",
+        "new_iccid": "string, required",
+        "reason": "string, optional"
+      },
+      "output": {
+        "request_id": "string",
+        "status": "string",
+        "estimated_completion": "ISO datetime, optional"
+      },
+      "manhours": 79,
+      "api_efficiency": "low",
+      "readiness": "production"
+    },
+    {
+      "id": "api-customer-status",
+      "name": "Customer Status API",
+      "domain": "customer",
+      "description": "Customer profile summary, account status, segment, and service eligibility.",
+      "owner": "Manish Jain",
+      "team": "Fractal",
+      "version": "2.0.0",
+      "method": "GET",
+      "path": "/v2/customers/{customerId}/status",
+      "url": "https://api.company.com/customer/status",
+      "confluence": "https://confluence.company.com/display/CUST/Customer+Status+API",
+      "bitbucket": "https://bitbucket.company.com/projects/CUST/repos/customer-360-svc",
+      "tags": [
+        "customer",
+        "profile",
+        "status",
+        "eligibility"
+      ],
+      "sample_input": "{\"customer_id\": \"CUST-12345\"}",
+      "sample_output": "{\"status\": \"active\", \"segment\": \"premium\", \"eligible_offers\": [\"bundle_10gb\"], \"balance\": 25.00}",
+      "input": {
+        "customer_id": "string, required"
+      },
+      "output": {
+        "status": "string",
+        "segment": "string",
+        "eligible_offers": "array of strings",
+        "balance": "number"
+      },
+      "manhours": 64,
+      "api_efficiency": "high",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-topup",
+      "name": "Top-Up / Recharge API",
+      "domain": "payments",
+      "description": "Prepaid airtime and data top-up, bundle purchase, and recharge history.",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.3.0",
+      "method": "POST",
+      "path": "/v1/topup",
+      "url": "https://api.company.com/payments/topup",
+      "confluence": "https://confluence.company.com/display/PAY/Top-Up+API",
+      "bitbucket": "https://bitbucket.company.com/projects/PAY/repos/topup-svc",
+      "tags": [
+        "payments",
+        "topup",
+        "recharge",
+        "prepaid"
+      ],
+      "sample_input": "{\"msisdn\": \"+1234567890\", \"amount\": 10.00, \"payment_ref\": \"TXN-001\"}",
+      "sample_output": "{\"success\": true, \"new_balance\": 35.00, \"receipt_id\": \"RCP-789\"}",
+      "input": {
+        "msisdn": "string, required",
+        "amount": "number, required",
+        "payment_ref": "string, required"
+      },
+      "output": {
+        "success": "boolean",
+        "new_balance": "number",
+        "receipt_id": "string"
+      },
+      "manhours": 21,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-bill-pay",
+      "name": "Bill Pay API",
+      "domain": "payments",
+      "description": "Pay postpaid bills, schedule payments, and retrieve payment status.",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/v1/bills/pay",
+      "url": "https://api.company.com/payments/bill-pay",
+      "confluence": "https://confluence.company.com/display/PAY/Bill+Pay+API",
+      "bitbucket": "https://bitbucket.company.com/projects/PAY/repos/bill-pay-svc",
+      "tags": [
+        "payments",
+        "billing",
+        "bill-pay",
+        "postpaid"
+      ],
+      "sample_input": "{\"bill_id\": \"BILL-001\", \"amount\": 75.00, \"payment_method\": \"card\"}",
+      "sample_output": "{\"payment_id\": \"PAY-001\", \"status\": \"completed\", \"paid_at\": \"2025-02-19T10:30:00Z\"}",
+      "input": {
+        "bill_id": "string, required",
+        "amount": "number, required",
+        "payment_method": "string, required"
+      },
+      "output": {
+        "payment_id": "string",
+        "status": "string",
+        "paid_at": "ISO datetime"
+      },
+      "manhours": 56,
+      "api_efficiency": "low",
+      "readiness": "production"
+    },
+    {
+      "id": "api-usage-consumption",
+      "name": "Usage / Consumption API",
+      "domain": "billing",
+      "description": "Data, voice, and SMS usage and consumption for prepaid and postpaid.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/subscribers/{msisdn}/usage",
+      "url": "https://api.company.com/billing/usage",
+      "confluence": "https://confluence.company.com/display/BILL/Usage+API",
+      "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/usage-svc",
+      "tags": [
+        "billing",
+        "usage",
+        "consumption",
+        "data",
+        "voice"
+      ],
+      "sample_input": "{\"msisdn\": \"+1234567890\", \"period\": \"current\"}",
+      "sample_output": "{\"data_mb\": 2048, \"voice_min\": 120, \"sms_count\": 45, \"period_start\": \"2025-02-01\"}",
+      "input": {
+        "msisdn": "string, required",
+        "period": "string, optional"
+      },
+      "output": {
+        "data_mb": "number",
+        "voice_min": "number",
+        "sms_count": "integer",
+        "period_start": "ISO date"
+      },
+      "manhours": 57,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-device-swap",
+      "name": "Device Swap API",
+      "domain": "identity",
+      "description": "Register device change and swap device binding for a subscriber.",
+      "owner": "Manish Jain",
+      "team": "Rubik",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/v1/device/swap",
+      "url": "https://api.company.com/identity/device-swap",
+      "confluence": "https://confluence.company.com/display/ID/Device+Swap+API",
+      "bitbucket": "https://bitbucket.company.com/projects/ID/repos/device-svc",
+      "tags": [
+        "identity",
+        "device",
+        "swap",
+        "IMEI"
+      ],
+      "sample_input": "{\"msisdn\": \"+1234567890\", \"new_imei\": \"123456789012345\", \"reason\": \"device_change\"}",
+      "sample_output": "{\"request_id\": \"DSW-001\", \"status\": \"approved\", \"effective_at\": \"2025-02-19T12:00:00Z\"}",
+      "input": {
+        "msisdn": "string, required",
+        "new_imei": "string, required",
+        "reason": "string, optional"
+      },
+      "output": {
+        "request_id": "string",
+        "status": "string",
+        "effective_at": "ISO datetime"
+      },
+      "manhours": 35,
+      "api_efficiency": "medium",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-mnp",
+      "name": "Number Portability (MNP) API",
+      "domain": "identity",
+      "description": "Check portability status and initiate number port-in/port-out requests.",
+      "owner": "Manish Jain",
+      "team": "Fractal",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/mnp/check/{number}",
+      "url": "https://api.company.com/identity/mnp",
+      "confluence": "https://confluence.company.com/display/ID/MNP+API",
+      "bitbucket": "https://bitbucket.company.com/projects/ID/repos/mnp-svc",
+      "tags": [
+        "identity",
+        "MNP",
+        "portability",
+        "port-in",
+        "port-out"
+      ],
+      "sample_input": "{\"number\": \"+1234567890\"}",
+      "sample_output": "{\"eligible\": true, \"current_operator\": \"OTHER\", \"estimated_days\": 3}",
+      "input": {
+        "number": "string, required"
+      },
+      "output": {
+        "eligible": "boolean",
+        "current_operator": "string",
+        "estimated_days": "integer"
+      },
+      "manhours": 43,
+      "api_efficiency": "low",
+      "readiness": "production"
+    },
+    {
+      "id": "api-otp-verification",
+      "name": "OTP / Verification API",
+      "domain": "identity",
+      "description": "Send and verify OTP for login, transactions, and step-up authentication.",
+      "owner": "Kartic Grover",
+      "team": "Retailer",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/v1/otp/send",
+      "url": "https://api.company.com/identity/otp",
+      "confluence": "https://confluence.company.com/display/ID/OTP+API",
+      "bitbucket": "https://bitbucket.company.com/projects/ID/repos/otp-svc",
+      "tags": [
+        "identity",
+        "OTP",
+        "verification",
+        "2FA"
+      ],
+      "sample_input": "{\"channel\": \"SMS\", \"destination\": \"+1234567890\", \"purpose\": \"login\"}",
+      "sample_output": "{\"otp_ref\": \"REF-001\", \"expires_in_seconds\": 300, \"masked_destination\": \"+123****890\"}",
+      "input": {
+        "channel": "string, required",
+        "destination": "string, required",
+        "purpose": "string, optional"
+      },
+      "output": {
+        "otp_ref": "string",
+        "expires_in_seconds": "integer",
+        "masked_destination": "string"
+      },
+      "manhours": 52,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-subscriber-registration",
+      "name": "Subscriber Registration API",
+      "domain": "customer",
+      "description": "Register new prepaid/postpaid subscribers and validate identity.",
+      "owner": "Manish Jain",
+      "team": "Fractal",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/v1/subscribers/register",
+      "url": "https://api.company.com/customer/registration",
+      "confluence": "https://confluence.company.com/display/CUST/Subscriber+Registration+API",
+      "bitbucket": "https://bitbucket.company.com/projects/CUST/repos/registration-svc",
+      "tags": [
+        "customer",
+        "registration",
+        "onboarding",
+        "KYC"
+      ],
+      "sample_input": "{\"msisdn\": \"+1234567890\", \"id_type\": \"national_id\", \"id_number\": \"***123\", \"name\": \"John Doe\"}",
+      "sample_output": "{\"request_id\": \"REG-001\", \"status\": \"pending_verification\", \"customer_id\": \"CUST-NEW-001\"}",
+      "input": {
+        "msisdn": "string, required",
+        "id_type": "string, required",
+        "id_number": "string, required",
+        "name": "string, required"
+      },
+      "output": {
+        "request_id": "string",
+        "status": "string",
+        "customer_id": "string"
+      },
+      "manhours": 57,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-balance-inquiry",
+      "name": "Balance Inquiry API",
+      "domain": "billing",
+      "description": "Prepaid balance and postpaid account balance and credit limit.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/subscribers/{msisdn}/balance",
+      "url": "https://api.company.com/billing/balance",
+      "confluence": "https://confluence.company.com/display/BILL/Balance+Inquiry+API",
+      "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/balance-svc",
+      "tags": [
+        "billing",
+        "balance",
+        "prepaid",
+        "postpaid"
+      ],
+      "sample_input": "{\"msisdn\": \"+1234567890\"}",
+      "sample_output": "{\"balance\": 25.50, \"currency\": \"USD\", \"credit_limit\": 100.00}",
+      "input": {
+        "msisdn": "string, required"
+      },
+      "output": {
+        "balance": "number",
+        "currency": "string",
+        "credit_limit": "number"
+      },
+      "manhours": 22,
+      "api_efficiency": "low",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-bundle-purchase",
+      "name": "Bundle Purchase API",
+      "domain": "billing",
+      "description": "Purchase data, voice, and SMS bundles; list available bundles and active bundles.",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/v1/bundles/purchase",
+      "url": "https://api.company.com/billing/bundles",
+      "confluence": "https://confluence.company.com/display/BILL/Bundle+Purchase+API",
+      "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/bundle-svc",
+      "tags": [
+        "billing",
+        "bundles",
+        "data",
+        "voice",
+        "SMS"
+      ],
+      "sample_input": "{\"msisdn\": \"+1234567890\", \"bundle_id\": \"DATA-5GB\", \"payment_ref\": \"TXN-002\"}",
+      "sample_output": "{\"success\": true, \"bundle_code\": \"DATA-5GB\", \"valid_until\": \"2025-03-19\", \"remaining_mb\": 5120}",
+      "input": {
+        "msisdn": "string, required",
+        "bundle_id": "string, required",
+        "payment_ref": "string, required"
+      },
+      "output": {
+        "success": "boolean",
+        "bundle_code": "string",
+        "valid_until": "ISO date",
+        "remaining_mb": "number"
+      },
+      "manhours": 78,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-roaming-status",
+      "name": "Roaming Status API",
+      "domain": "network",
+      "description": "Check roaming status, activate roaming packs, and get roaming usage.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/roaming/status/{msisdn}",
+      "url": "https://api.company.com/network/roaming",
+      "confluence": "https://confluence.company.com/display/NET/Roaming+API",
+      "bitbucket": "https://bitbucket.company.com/projects/NET/repos/roaming-svc",
+      "tags": [
+        "network",
+        "roaming",
+        "international"
+      ],
+      "sample_input": "{\"msisdn\": \"+1234567890\"}",
+      "sample_output": "{\"roaming_active\": true, \"current_country\": \"GB\", \"pack\": \"EU_7DAY\", \"data_remaining_mb\": 500}",
+      "input": {
+        "msisdn": "string, required"
+      },
+      "output": {
+        "roaming_active": "boolean",
+        "current_country": "string",
+        "pack": "string",
+        "data_remaining_mb": "number"
+      },
+      "manhours": 33,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-coverage-check",
+      "name": "Coverage Check API",
+      "domain": "network",
+      "description": "Check network coverage and quality by location (lat/long or address).",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/coverage",
+      "url": "https://api.company.com/network/coverage",
+      "confluence": "https://confluence.company.com/display/NET/Coverage+API",
+      "bitbucket": "https://bitbucket.company.com/projects/NET/repos/coverage-svc",
+      "tags": [
+        "network",
+        "coverage",
+        "signal",
+        "location"
+      ],
+      "sample_input": "{\"latitude\": 28.6139, \"longitude\": 77.2090}",
+      "sample_output": "{\"coverage\": \"excellent\", \"technologies\": [\"4G\", \"5G\"], \"signal_strength\": -75}",
+      "input": {
+        "latitude": "number, optional",
+        "longitude": "number, optional",
+        "address": "string, optional"
+      },
+      "output": {
+        "coverage": "string",
+        "technologies": "array of strings",
+        "signal_strength": "integer"
+      },
+      "manhours": 41,
+      "api_efficiency": "low",
+      "readiness": "production"
+    },
+    {
+      "id": "api-complaints-tickets",
+      "name": "Complaints / Tickets API",
+      "domain": "care",
+      "description": "Create and track customer complaints and support tickets.",
+      "owner": "Manish Jain",
+      "team": "Canvas",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/v1/tickets",
+      "url": "https://api.company.com/care/tickets",
+      "confluence": "https://confluence.company.com/display/CARE/Complaints+API",
+      "bitbucket": "https://bitbucket.company.com/projects/CARE/repos/ticket-svc",
+      "tags": [
+        "care",
+        "complaints",
+        "tickets",
+        "support"
+      ],
+      "sample_input": "{\"customer_id\": \"CUST-123\", \"category\": \"billing\", \"subject\": \"Wrong charge\", \"description\": \"...\"}",
+      "sample_output": "{\"ticket_id\": \"TKT-001\", \"status\": \"open\", \"priority\": \"medium\", \"created_at\": \"2025-02-19T11:00:00Z\"}",
+      "input": {
+        "customer_id": "string, required",
+        "category": "string, required",
+        "subject": "string, required",
+        "description": "string, required"
+      },
+      "output": {
+        "ticket_id": "string",
+        "status": "string",
+        "priority": "string",
+        "created_at": "ISO datetime"
+      },
+      "manhours": 71,
+      "api_efficiency": "high",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-payment-history",
+      "name": "Payment History API",
+      "domain": "payments",
+      "description": "Retrieve payment and transaction history for a subscriber or account.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/payments/history",
+      "url": "https://api.company.com/payments/history",
+      "confluence": "https://confluence.company.com/display/PAY/Payment+History+API",
+      "bitbucket": "https://bitbucket.company.com/projects/PAY/repos/history-svc",
+      "tags": [
+        "payments",
+        "history",
+        "transactions"
+      ],
+      "sample_input": "{\"customer_id\": \"CUST-123\", \"from_date\": \"2025-02-01\", \"to_date\": \"2025-02-19\"}",
+      "sample_output": "{\"transactions\": [{\"id\": \"TXN-001\", \"amount\": 10.00, \"type\": \"topup\", \"date\": \"2025-02-18\"}]}",
+      "input": {
+        "customer_id": "string, required",
+        "from_date": "ISO date, optional",
+        "to_date": "ISO date, optional"
+      },
+      "output": {
+        "transactions": "array of transaction objects",
+        "total_count": "integer"
+      },
+      "manhours": 53,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-invoice-download",
+      "name": "Invoice Download API",
+      "domain": "billing",
+      "description": "Generate and download postpaid invoices (PDF) and list invoice summaries.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/invoices/{invoiceId}/download",
+      "url": "https://api.company.com/billing/invoices",
+      "confluence": "https://confluence.company.com/display/BILL/Invoice+API",
+      "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/invoice-svc",
+      "tags": [
+        "billing",
+        "invoice",
+        "postpaid",
+        "PDF"
+      ],
+      "sample_input": "{\"invoice_id\": \"INV-2025-02-001\", \"format\": \"pdf\"}",
+      "sample_output": "{\"download_url\": \"https://api.company.com/billing/invoices/INV-2025-02-001.pdf\", \"expires_at\": \"2025-02-19T23:59:59Z\"}",
+      "input": {
+        "invoice_id": "string, required",
+        "format": "string, optional"
+      },
+      "output": {
+        "download_url": "string",
+        "expires_at": "ISO datetime"
+      },
+      "manhours": 49,
+      "api_efficiency": "low",
+      "readiness": "production"
+    },
+    {
+      "id": "api-plan-change",
+      "name": "Plan Change / Migration API",
+      "domain": "billing",
+      "description": "Change tariff plan, migrate prepaid to postpaid, and check eligibility.",
+      "owner": "Manish Jain",
+      "team": "Fractal",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/v1/plans/change",
+      "url": "https://api.company.com/billing/plans",
+      "confluence": "https://confluence.company.com/display/BILL/Plan+Change+API",
+      "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/plan-svc",
+      "tags": [
+        "billing",
+        "plans",
+        "migration",
+        "tariff"
+      ],
+      "sample_input": "{\"msisdn\": \"+1234567890\", \"new_plan_id\": \"POSTPAID-PREMIUM\", \"effective_date\": \"2025-03-01\"}",
+      "sample_output": "{\"request_id\": \"PLN-001\", \"status\": \"scheduled\", \"effective_from\": \"2025-03-01\"}",
+      "input": {
+        "msisdn": "string, required",
+        "new_plan_id": "string, required",
+        "effective_date": "ISO date, optional"
+      },
+      "output": {
+        "request_id": "string",
+        "status": "string",
+        "effective_from": "ISO date"
+      },
+      "manhours": 22,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-loyalty-rewards",
+      "name": "Loyalty / Rewards API",
+      "domain": "customer",
+      "description": "Loyalty points balance, earn/burn, and rewards catalog and redemption.",
+      "owner": "Manish Jain",
+      "team": "Fractal",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/loyalty/points",
+      "url": "https://api.company.com/customer/loyalty",
+      "confluence": "https://confluence.company.com/display/CUST/Loyalty+API",
+      "bitbucket": "https://bitbucket.company.com/projects/CUST/repos/loyalty-svc",
+      "tags": [
+        "customer",
+        "loyalty",
+        "rewards",
+        "points"
+      ],
+      "sample_input": "{\"customer_id\": \"CUST-123\"}",
+      "sample_output": "{\"points_balance\": 1250, \"tier\": \"gold\", \"expiring_soon\": 100}",
+      "input": {
+        "customer_id": "string, required"
+      },
+      "output": {
+        "points_balance": "integer",
+        "tier": "string",
+        "expiring_soon": "integer"
+      },
+      "manhours": 72,
+      "api_efficiency": "medium",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-agent-commission",
+      "name": "Agent Commission API",
+      "domain": "partner",
+      "description": "Agent commission balance, transactions, and payout history.",
+      "owner": "Kartic Grover",
+      "team": "Retailer",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/agents/{agentId}/commission/balance",
+      "url": "https://api.company.com/partner/commission",
+      "confluence": "https://confluence.company.com/display/PART/Agent+Commission+API",
+      "bitbucket": "https://bitbucket.company.com/projects/PART/repos/commission-svc",
+      "tags": [
+        "partner",
+        "agent",
+        "commission",
+        "payout"
+      ],
+      "sample_input": "{\"agent_id\": \"AGT-001\"}",
+      "sample_output": "{\"balance\": 450.00, \"pending\": 120.00, \"currency\": \"USD\", \"last_payout\": \"2025-02-15\"}",
+      "input": {
+        "agent_id": "string, required"
+      },
+      "output": {
+        "balance": "number",
+        "pending": "number",
+        "currency": "string",
+        "last_payout": "ISO date"
+      },
+      "manhours": 29,
+      "api_efficiency": "low",
+      "readiness": "production"
+    },
+    {
+      "id": "api-kyc-verification",
+      "name": "KYC / Identity Verification API",
+      "domain": "identity",
+      "description": "Submit and verify KYC documents and identity for regulatory compliance.",
+      "owner": "Kartic Grover",
+      "team": "KYC",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/v1/kyc/submit",
+      "url": "https://api.company.com/identity/kyc",
+      "confluence": "https://confluence.company.com/display/ID/KYC+API",
+      "bitbucket": "https://bitbucket.company.com/projects/ID/repos/kyc-svc",
+      "tags": [
+        "identity",
+        "KYC",
+        "verification",
+        "compliance"
+      ],
+      "sample_input": "{\"customer_id\": \"CUST-123\", \"id_type\": \"passport\", \"document_ref\": \"DOC-001\"}",
+      "sample_output": "{\"submission_id\": \"KYC-001\", \"status\": \"under_review\", \"estimated_completion\": \"2025-02-22\"}",
+      "input": {
+        "customer_id": "string, required",
+        "id_type": "string, required",
+        "document_ref": "string, required"
+      },
+      "output": {
+        "submission_id": "string",
+        "status": "string",
+        "estimated_completion": "ISO date"
+      },
+      "manhours": 38,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-blacklist-fraud",
+      "name": "Blacklist / Fraud API",
+      "domain": "identity",
+      "description": "Check and manage blacklist; report and query fraud indicators.",
+      "owner": "Manish Jain",
+      "team": "Rubik",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/blacklist/check/{msisdn}",
+      "url": "https://api.company.com/identity/fraud",
+      "confluence": "https://confluence.company.com/display/ID/Blacklist+Fraud+API",
+      "bitbucket": "https://bitbucket.company.com/projects/ID/repos/fraud-svc",
+      "tags": [
+        "identity",
+        "fraud",
+        "blacklist",
+        "security"
+      ],
+      "sample_input": "{\"msisdn\": \"+1234567890\"}",
+      "sample_output": "{\"blacklisted\": false, \"risk_score\": 5, \"last_checked\": \"2025-02-19T10:00:00Z\"}",
+      "input": {
+        "msisdn": "string, required"
+      },
+      "output": {
+        "blacklisted": "boolean",
+        "risk_score": "integer",
+        "last_checked": "ISO datetime"
+      },
+      "manhours": 45,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-notification-preferences",
+      "name": "Notification Preferences API",
+      "domain": "customer",
+      "description": "Get and update notification preferences (SMS, email, push) per channel.",
+      "owner": "Manish Jain",
+      "team": "Canvas",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/preferences/notifications",
+      "url": "https://api.company.com/customer/notifications/preferences",
+      "confluence": "https://confluence.company.com/display/CUST/Notification+Preferences+API",
+      "bitbucket": "https://bitbucket.company.com/projects/CUST/repos/preferences-svc",
+      "tags": [
+        "customer",
+        "notifications",
+        "preferences",
+        "consent"
+      ],
+      "sample_input": "{\"customer_id\": \"CUST-123\"}",
+      "sample_output": "{\"sms\": true, \"email\": true, \"push\": false, \"marketing_sms\": false}",
+      "input": {
+        "customer_id": "string, required"
+      },
+      "output": {
+        "sms": "boolean",
+        "email": "boolean",
+        "push": "boolean",
+        "marketing_sms": "boolean"
+      },
+      "manhours": 55,
+      "api_efficiency": "low",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-product-catalog",
+      "name": "Product Catalog API",
+      "domain": "retail",
+      "description": "Product and offer catalog for devices, plans, and add-ons.",
+      "owner": "Kartic Grover",
+      "team": "Retailer",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/products",
+      "url": "https://api.company.com/retail/catalog",
+      "confluence": "https://confluence.company.com/display/RETail/Product+Catalog+API",
+      "bitbucket": "https://bitbucket.company.com/projects/RET/repos/catalog-svc",
+      "tags": [
+        "retail",
+        "catalog",
+        "products",
+        "offers"
+      ],
+      "sample_input": "{\"category\": \"data_bundles\", \"region\": \"US\"}",
+      "sample_output": "{\"products\": [{\"id\": \"DATA-5GB\", \"name\": \"5GB Data Pack\", \"price\": 10.00}]}",
+      "input": {
+        "category": "string, optional",
+        "region": "string, optional"
+      },
+      "output": {
+        "products": "array of product objects"
+      },
+      "manhours": 50,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-order-status",
+      "name": "Order Status API",
+      "domain": "retail",
+      "description": "Track order status for devices, SIMs, and home delivery.",
+      "owner": "Manish Jain",
+      "team": "Fractal",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/orders/{orderId}",
+      "url": "https://api.company.com/retail/orders",
+      "confluence": "https://confluence.company.com/display/RETail/Order+Status+API",
+      "bitbucket": "https://bitbucket.company.com/projects/RET/repos/order-svc",
+      "tags": [
+        "retail",
+        "orders",
+        "tracking",
+        "fulfillment"
+      ],
+      "sample_input": "{\"order_id\": \"ORD-001\"}",
+      "sample_output": "{\"order_id\": \"ORD-001\", \"status\": \"shipped\", \"tracking_number\": \"TRK-123\", \"eta\": \"2025-02-21\"}",
+      "input": {
+        "order_id": "string, required"
+      },
+      "output": {
+        "order_id": "string",
+        "status": "string",
+        "tracking_number": "string",
+        "eta": "ISO date"
+      },
+      "manhours": 25,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-activation-provisioning",
+      "name": "Activation / Provisioning API",
+      "domain": "identity",
+      "description": "Activate new lines, provision services, and sync with network.",
+      "owner": "Kartic Grover",
+      "team": "Retailer",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/v1/activation",
+      "url": "https://api.company.com/identity/activation",
+      "confluence": "https://confluence.company.com/display/ID/Activation+API",
+      "bitbucket": "https://bitbucket.company.com/projects/ID/repos/provisioning-svc",
+      "tags": [
+        "identity",
+        "activation",
+        "provisioning",
+        "network"
+      ],
+      "sample_input": "{\"iccid\": \"89014103270000000001\", \"imei\": \"123456789012345\", \"plan_id\": \"PREPAID-STD\"}",
+      "sample_output": "{\"request_id\": \"ACT-001\", \"msisdn\": \"+1234567891\", \"status\": \"provisioning\", \"estimated_ready\": \"2025-02-19T15:00:00Z\"}",
+      "input": {
+        "iccid": "string, required",
+        "imei": "string, required",
+        "plan_id": "string, required"
+      },
+      "output": {
+        "request_id": "string",
+        "msisdn": "string",
+        "status": "string",
+        "estimated_ready": "ISO datetime"
+      },
+      "manhours": 69,
+      "api_efficiency": "low",
+      "readiness": "production"
+    },
+    {
+      "id": "api-partner-onboarding",
+      "name": "Partner Onboarding API",
+      "domain": "partner",
+      "description": "Onboard partners, manage credentials, and approve API access.",
+      "owner": "Kartic Grover",
+      "team": "Retailer",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/v1/partners/register",
+      "url": "https://api.company.com/partner/onboarding",
+      "confluence": "https://confluence.company.com/display/PART/Partner+Onboarding+API",
+      "bitbucket": "https://bitbucket.company.com/projects/PART/repos/onboarding-svc",
+      "tags": [
+        "partner",
+        "onboarding",
+        "credentials",
+        "access"
+      ],
+      "sample_input": "{\"company_name\": \"Acme Corp\", \"contact_email\": \"api@acme.com\", \"apis_requested\": [\"topup\", \"balance\"]}",
+      "sample_output": "{\"partner_id\": \"PART-001\", \"status\": \"pending_approval\", \"client_id\": \"client_xxx\"}",
+      "input": {
+        "company_name": "string, required",
+        "contact_email": "string, required",
+        "apis_requested": "array of strings, required"
+      },
+      "output": {
+        "partner_id": "string",
+        "status": "string",
+        "client_id": "string"
+      },
+      "manhours": 72,
+      "api_efficiency": "high",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-audit-activity",
+      "name": "Audit Log / Activity API",
+      "domain": "customer",
+      "description": "Retrieve audit log and user activity for compliance and security.",
+      "owner": "Manish Jain",
+      "team": "Fractal",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/audit/logs",
+      "url": "https://api.company.com/customer/audit",
+      "confluence": "https://confluence.company.com/display/CUST/Audit+API",
+      "bitbucket": "https://bitbucket.company.com/projects/CUST/repos/audit-svc",
+      "tags": [
+        "audit",
+        "compliance",
+        "security",
+        "activity"
+      ],
+      "sample_input": "{\"customer_id\": \"CUST-123\", \"from\": \"2025-02-01\", \"to\": \"2025-02-19\", \"limit\": 50}",
+      "sample_output": "{\"events\": [{\"timestamp\": \"2025-02-19T09:00:00Z\", \"action\": \"login\", \"ip\": \"1.2.3.4\"}]}",
+      "input": {
+        "customer_id": "string, required",
+        "from": "ISO date, optional",
+        "to": "ISO date, optional",
+        "limit": "integer, optional"
+      },
+      "output": {
+        "events": "array of audit event objects"
+      },
+      "manhours": 71,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-speed-test",
+      "name": "Speed Test / Network Quality API",
+      "domain": "network",
+      "description": "Trigger and retrieve speed test results and network quality metrics.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/v1/speedtest/trigger",
+      "url": "https://api.company.com/network/speed-test",
+      "confluence": "https://confluence.company.com/display/NET/Speed+Test+API",
+      "bitbucket": "https://bitbucket.company.com/projects/NET/repos/speedtest-svc",
+      "tags": [
+        "network",
+        "speed-test",
+        "quality",
+        "QoS"
+      ],
+      "sample_input": "{\"msisdn\": \"+1234567890\", \"test_type\": \"full\"}",
+      "sample_output": "{\"test_id\": \"SPD-001\", \"status\": \"running\", \"download_mbps\": null, \"upload_mbps\": null, \"latency_ms\": null}",
+      "input": {
+        "msisdn": "string, required",
+        "test_type": "string, optional"
+      },
+      "output": {
+        "test_id": "string",
+        "status": "string",
+        "download_mbps": "number",
+        "upload_mbps": "number",
+        "latency_ms": "number"
+      },
+      "manhours": 52,
+      "api_efficiency": "low",
+      "readiness": "production"
+    },
+    {
+      "id": "api-spending-summary",
+      "name": "Spending Summary API",
+      "domain": "billing",
+      "description": "User-facing total spend for a period: prepaid top-ups, postpaid bill, add-ons, and roaming in one summary.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/spending/summary",
+      "url": "https://api.company.com/billing/spending/summary",
+      "confluence": "https://confluence.company.com/display/BILL/Spending+Summary+API",
+      "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/spending-svc",
+      "tags": [
+        "billing",
+        "spending",
+        "money-usage",
+        "summary"
+      ],
+      "sample_input": "{\"customer_id\": \"CUST-123\", \"period\": \"2025-02\"}",
+      "sample_output": "{\"total_spend\": 85.50, \"breakdown\": {\"bill\": 65.00, \"topup\": 10.00, \"addons\": 10.50}, \"currency\": \"USD\"}",
+      "input": {
+        "customer_id": "string, required",
+        "period": "string, required"
+      },
+      "output": {
+        "total_spend": "number",
+        "breakdown": "object",
+        "currency": "string"
+      },
+      "manhours": 40,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-transaction-breakdown",
+      "name": "Transaction Breakdown API",
+      "domain": "billing",
+      "description": "Itemized list of transactions (top-ups, bundle buys, pay-as-you-go) with amount and date for money usage view.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/transactions/breakdown",
+      "url": "https://api.company.com/billing/transactions/breakdown",
+      "confluence": "https://confluence.company.com/display/BILL/Transaction+Breakdown+API",
+      "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/transactions-svc",
+      "tags": [
+        "billing",
+        "transactions",
+        "money-usage",
+        "itemized"
+      ],
+      "sample_input": "{\"customer_id\": \"CUST-123\", \"from\": \"2025-02-01\", \"to\": \"2025-02-19\"}",
+      "sample_output": "{\"transactions\": [{\"id\": \"T1\", \"date\": \"2025-02-18\", \"type\": \"topup\", \"amount\": 10.00}, {\"id\": \"T2\", \"type\": \"data_bundle\", \"amount\": 15.00}]}",
+      "input": {
+        "customer_id": "string, required",
+        "from": "ISO date, optional",
+        "to": "ISO date, optional"
+      },
+      "output": {
+        "transactions": "array of transaction objects"
+      },
+      "manhours": 35,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-bill-breakdown",
+      "name": "Bill Breakdown / Itemized Bill API",
+      "domain": "billing",
+      "description": "Itemized postpaid bill: plan fee, usage charges, add-ons, discounts, and total for user money breakdown.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/bills/{billId}/breakdown",
+      "url": "https://api.company.com/billing/bills/breakdown",
+      "confluence": "https://confluence.company.com/display/BILL/Bill+Breakdown+API",
+      "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/bill-svc",
+      "tags": [
+        "billing",
+        "bill",
+        "itemized",
+        "money-usage"
+      ],
+      "sample_input": "{\"bill_id\": \"INV-2025-02\"}",
+      "sample_output": "{\"plan_fee\": 45.00, \"usage_charges\": 12.50, \"addons\": 8.00, \"discounts\": -5.00, \"total\": 60.50}",
+      "input": {
+        "bill_id": "string, required"
+      },
+      "output": {
+        "plan_fee": "number",
+        "usage_charges": "number",
+        "addons": "number",
+        "discounts": "number",
+        "total": "number"
+      },
+      "manhours": 45,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-usage-cost",
+      "name": "Usage Cost API",
+      "domain": "billing",
+      "description": "Data, voice, and SMS usage converted to cost (pay-as-you-go or overage) for user money usage display.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/usage/cost",
+      "url": "https://api.company.com/billing/usage/cost",
+      "confluence": "https://confluence.company.com/display/BILL/Usage+Cost+API",
+      "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/usage-svc",
+      "tags": [
+        "billing",
+        "usage",
+        "cost",
+        "money-usage"
+      ],
+      "sample_input": "{\"msisdn\": \"+1234567890\", \"period\": \"current\"}",
+      "sample_output": "{\"data_cost\": 5.00, \"voice_cost\": 3.50, \"sms_cost\": 1.20, \"total_usage_cost\": 9.70}",
+      "input": {
+        "msisdn": "string, required",
+        "period": "string, optional"
+      },
+      "output": {
+        "data_cost": "number",
+        "voice_cost": "number",
+        "sms_cost": "number",
+        "total_usage_cost": "number"
+      },
+      "manhours": 38,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-monthly-spend",
+      "name": "Monthly Spend API",
+      "domain": "billing",
+      "description": "Total amount spent per calendar month for charts and trends in money usage app.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/spending/monthly",
+      "url": "https://api.company.com/billing/spending/monthly",
+      "confluence": "https://confluence.company.com/display/BILL/Monthly+Spend+API",
+      "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/spending-svc",
+      "tags": [
+        "billing",
+        "spending",
+        "monthly",
+        "money-usage",
+        "trends"
+      ],
+      "sample_input": "{\"customer_id\": \"CUST-123\", \"months\": 6}",
+      "sample_output": "{\"months\": [{\"month\": \"2025-02\", \"total\": 85.50}, {\"month\": \"2025-01\", \"total\": 72.00}]}",
+      "input": {
+        "customer_id": "string, required",
+        "months": "integer, optional"
+      },
+      "output": {
+        "months": "array of { month, total } objects"
+      },
+      "manhours": 32,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-budget-alerts",
+      "name": "Budget Alerts API",
+      "domain": "billing",
+      "description": "Get and set spending limits and budget alerts; notify user when threshold is reached.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/budget/alerts",
+      "url": "https://api.company.com/billing/budget/alerts",
+      "confluence": "https://confluence.company.com/display/BILL/Budget+Alerts+API",
+      "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/budget-svc",
+      "tags": [
+        "billing",
+        "budget",
+        "alerts",
+        "money-usage"
+      ],
+      "sample_input": "{\"customer_id\": \"CUST-123\"}",
+      "sample_output": "{\"monthly_limit\": 100.00, \"alert_at_percent\": 80, \"current_spend\": 65.00, \"alerts_enabled\": true}",
+      "input": {
+        "customer_id": "string, required"
+      },
+      "output": {
+        "monthly_limit": "number",
+        "alert_at_percent": "integer",
+        "current_spend": "number",
+        "alerts_enabled": "boolean"
+      },
+      "manhours": 50,
+      "api_efficiency": "medium",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-spend-by-category",
+      "name": "Spend by Category API",
+      "domain": "billing",
+      "description": "Spending grouped by category: plan, data, voice, SMS, roaming, add-ons for money usage breakdown.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/spending/category",
+      "url": "https://api.company.com/billing/spending/category",
+      "confluence": "https://confluence.company.com/display/BILL/Spend+by+Category+API",
+      "bitbucket": "https://bitbucket.company.com/projects/BILL/repos/spending-svc",
+      "tags": [
+        "billing",
+        "spending",
+        "category",
+        "money-usage"
+      ],
+      "sample_input": "{\"customer_id\": \"CUST-123\", \"period\": \"2025-02\"}",
+      "sample_output": "{\"plan\": 45.00, \"data\": 12.00, \"voice\": 5.50, \"sms\": 2.00, \"roaming\": 8.00, \"addons\": 13.00}",
+      "input": {
+        "customer_id": "string, required",
+        "period": "string, required"
+      },
+      "output": {
+        "plan": "number",
+        "data": "number",
+        "voice": "number",
+        "sms": "number",
+        "roaming": "number",
+        "addons": "number"
+      },
+      "manhours": 42,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-recharge-spend-history",
+      "name": "Recharge / Spend History API",
+      "domain": "payments",
+      "description": "Chronological list of recharges and spend (top-up, bundle, payg) for user money history.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/recharge/history",
+      "url": "https://api.company.com/payments/recharge/history",
+      "confluence": "https://confluence.company.com/display/PAY/Recharge+Spend+History+API",
+      "bitbucket": "https://bitbucket.company.com/projects/PAY/repos/topup-svc",
+      "tags": [
+        "payments",
+        "recharge",
+        "history",
+        "money-usage"
+      ],
+      "sample_input": "{\"msisdn\": \"+1234567890\", \"limit\": 20}",
+      "sample_output": "{\"items\": [{\"date\": \"2025-02-18\", \"type\": \"topup\", \"amount\": 10.00}, {\"date\": \"2025-02-15\", \"type\": \"bundle\", \"amount\": 15.00}]}",
+      "input": {
+        "msisdn": "string, required",
+        "limit": "integer, optional"
+      },
+      "output": {
+        "items": "array of { date, type, amount } objects"
+      },
+      "manhours": 28,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-roaming-spend",
+      "name": "Roaming Spend API",
+      "domain": "billing",
+      "description": "Spend and usage while roaming: data, voice, SMS cost by country or trip for money usage app.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/roaming/spend",
+      "url": "https://api.company.com/network/roaming/spend",
+      "confluence": "https://confluence.company.com/display/NET/Roaming+Spend+API",
+      "bitbucket": "https://bitbucket.company.com/projects/NET/repos/roaming-svc",
+      "tags": [
+        "network",
+        "roaming",
+        "spend",
+        "money-usage"
+      ],
+      "sample_input": "{\"msisdn\": \"+1234567890\", \"period\": \"2025-02\"}",
+      "sample_output": "{\"total_roaming_spend\": 25.00, \"by_country\": [{\"country\": \"GB\", \"data_cost\": 10.00, \"voice_cost\": 5.00}]}",
+      "input": {
+        "msisdn": "string, required",
+        "period": "string, optional"
+      },
+      "output": {
+        "total_roaming_spend": "number",
+        "by_country": "array of country spend objects"
+      },
+      "manhours": 36,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-wallet-balance-spend",
+      "name": "Wallet Balance & Spend API",
+      "domain": "payments",
+      "description": "Prepaid wallet balance and recent spend from wallet for in-app balance and money usage.",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/v1/wallet/balance",
+      "url": "https://api.company.com/payments/wallet/balance",
+      "confluence": "https://confluence.company.com/display/PAY/Wallet+Balance+API",
+      "bitbucket": "https://bitbucket.company.com/projects/PAY/repos/wallet-svc",
+      "tags": [
+        "payments",
+        "wallet",
+        "balance",
+        "money-usage"
+      ],
+      "sample_input": "{\"customer_id\": \"CUST-123\"}",
+      "sample_output": "{\"balance\": 25.50, \"pending\": 0, \"last_spend\": [{\"amount\": 10.00, \"desc\": \"Data bundle\", \"date\": \"2025-02-18\"}]}",
+      "input": {
+        "customer_id": "string, required"
+      },
+      "output": {
+        "balance": "number",
+        "pending": "number",
+        "last_spend": "array of spend objects"
+      },
+      "manhours": 30,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-kyc-ng-nin-verify",
+      "name": "Nigeria NIN Verification API",
+      "domain": "identity",
+      "description": "Verify subscriber identity using Nigeria NIN for SIM registration and Airtel Money onboarding.",
+      "owner": "Kartic Grover",
+      "team": "KYC",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/kyc/ng/nin/verify",
+      "url": "https://api.company.com/africa/identity/ng/nin/verify",
+      "confluence": "https://confluence.company.com/display/AFR/KYC+Nigeria+NIN",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/kyc-ng-svc",
+      "tags": [
+        "kyc",
+        "nigeria",
+        "nin",
+        "sim-reg"
+      ],
+      "sample_input": "{\"nin\": \"12345678901\", \"full_name\": \"Ade Ola\"}",
+      "sample_output": "{\"valid\": true, \"dob\": \"1993-07-11\", \"match_score\": 0.93}",
+      "input": {
+        "nin": "string, required",
+        "full_name": "string, optional"
+      },
+      "output": {
+        "valid": "boolean",
+        "dob": "ISO date",
+        "match_score": "number"
+      },
+      "manhours": 44,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-kyc-gh-gcard-verify",
+      "name": "Ghana Card (GID) Verification API",
+      "domain": "identity",
+      "description": "Verify Ghana National ID (Ghana Card) for SIM and wallet onboarding.",
+      "owner": "Kartic Grover",
+      "team": "KYC",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/kyc/gh/gid/verify",
+      "url": "https://api.company.com/africa/identity/gh/gid/verify",
+      "confluence": "https://confluence.company.com/display/AFR/KYC+Ghana",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/kyc-gh-svc",
+      "tags": [
+        "kyc",
+        "ghana",
+        "gid",
+        "sim-reg"
+      ],
+      "sample_input": "{\"gid\": \"GHA-123456789-0\"}",
+      "sample_output": "{\"valid\": true, \"name\": \"Kofi Mensah\"}",
+      "input": {
+        "gid": "string, required"
+      },
+      "output": {
+        "valid": "boolean",
+        "name": "string"
+      },
+      "manhours": 36,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-kyc-ug-nin-verify",
+      "name": "Uganda NIN Verification API",
+      "domain": "identity",
+      "description": "Verify Uganda National Identification Number (NIN) for SIM and wallet.",
+      "owner": "Kartic Grover",
+      "team": "KYC",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/kyc/ug/nin/verify",
+      "url": "https://api.company.com/africa/identity/ug/nin/verify",
+      "confluence": "https://confluence.company.com/display/AFR/KYC+Uganda",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/kyc-ug-svc",
+      "tags": [
+        "kyc",
+        "uganda",
+        "nin",
+        "sim-reg"
+      ],
+      "sample_input": "{\"nin\": \"CF1234567890U\"}",
+      "sample_output": "{\"valid\": true, \"name\": \"Akena Peter\"}",
+      "input": {
+        "nin": "string, required"
+      },
+      "output": {
+        "valid": "boolean",
+        "name": "string"
+      },
+      "manhours": 34,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-kyc-tz-nida-verify",
+      "name": "Tanzania NIDA Verification API",
+      "domain": "identity",
+      "description": "Verify Tanzania NIDA ID for SIM registration and Airtel Money KYC.",
+      "owner": "Kartic Grover",
+      "team": "KYC",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/kyc/tz/nida/verify",
+      "url": "https://api.company.com/africa/identity/tz/nida/verify",
+      "confluence": "https://confluence.company.com/display/AFR/KYC+Tanzania",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/kyc-tz-svc",
+      "tags": [
+        "kyc",
+        "tanzania",
+        "nida",
+        "sim-reg"
+      ],
+      "sample_input": "{\"nida\": \"19901234-5678-12345-67\"}",
+      "sample_output": "{\"valid\": true, \"dob\": \"1990-12-04\"}",
+      "input": {
+        "nida": "string, required"
+      },
+      "output": {
+        "valid": "boolean",
+        "dob": "ISO date"
+      },
+      "manhours": 35,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-kyc-rw-nid-verify",
+      "name": "Rwanda NID Verification API",
+      "domain": "identity",
+      "description": "Verify Rwanda National ID for compliance in SIM & mobile money.",
+      "owner": "Kartic Grover",
+      "team": "KYC",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/kyc/rw/nid/verify",
+      "url": "https://api.company.com/africa/identity/rw/nid/verify",
+      "confluence": "https://confluence.company.com/display/AFR/KYC+Rwanda",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/kyc-rw-svc",
+      "tags": [
+        "kyc",
+        "rwanda",
+        "nid",
+        "sim-reg"
+      ],
+      "sample_input": "{\"nid\": \"119xxxxxxxxxxx\"}",
+      "sample_output": "{\"valid\": true, \"name\": \"Uwera A\"}",
+      "input": {
+        "nid": "string, required"
+      },
+      "output": {
+        "valid": "boolean",
+        "name": "string"
+      },
+      "manhours": 30,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-sim-registration-capture",
+      "name": "SIM Registration Capture API",
+      "domain": "identity",
+      "description": "Capture SIM registration package (ID, selfie, consent, agent stamp) per market regulation.",
+      "owner": "Kartic Grover",
+      "team": "KYC",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/sim/register",
+      "url": "https://api.company.com/africa/identity/sim/register",
+      "confluence": "https://confluence.company.com/display/AFR/SIM+Registration",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/sim-reg-svc",
+      "tags": [
+        "sim",
+        "registration",
+        "kyc"
+      ],
+      "sample_input": "{\"msisdn\": \"+23480xxxxxx\", \"id_type\": \"national_id\", \"id_number\": \"...\", \"selfie\": \"base64...\"}",
+      "sample_output": "{\"case_id\": \"SIMREG-001\", \"status\": \"under_review\"}",
+      "input": {
+        "msisdn": "string, required",
+        "id_type": "string, required",
+        "id_number": "string, required",
+        "selfie": "base64, optional"
+      },
+      "output": {
+        "case_id": "string",
+        "status": "string"
+      },
+      "manhours": 58,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-sim-reg-status",
+      "name": "SIM Registration Status API",
+      "domain": "identity",
+      "description": "Query SIM registration and compliance status for a subscriber.",
+      "owner": "Kartic Grover",
+      "team": "KYC",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/africa/v1/sim/{msisdn}/registration/status",
+      "url": "https://api.company.com/africa/identity/sim/registration/status",
+      "confluence": "https://confluence.company.com/display/AFR/SIM+Registration",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/sim-reg-svc",
+      "tags": [
+        "sim",
+        "compliance",
+        "kyc"
+      ],
+      "sample_input": "{\"msisdn\": \"+2567xxxxxxx\"}",
+      "sample_output": "{\"registered\": true, \"last_update\": \"2025-11-10\"}",
+      "input": {
+        "msisdn": "string, required"
+      },
+      "output": {
+        "registered": "boolean",
+        "last_update": "ISO date"
+      },
+      "manhours": 22,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-aml-pep-sanctions",
+      "name": "AML / PEP / Sanctions Screening API",
+      "domain": "identity",
+      "description": "Screen identities against PEP and sanctions lists for wallet onboarding and high-value transactions.",
+      "owner": "Manish Jain",
+      "team": "Rubik",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/kyc/aml/screen",
+      "url": "https://api.company.com/africa/identity/aml/screen",
+      "confluence": "https://confluence.company.com/display/AFR/AML+Screening",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/aml-screen-svc",
+      "tags": [
+        "aml",
+        "pep",
+        "sanctions",
+        "risk"
+      ],
+      "sample_input": "{\"full_name\": \"John Doe\", \"dob\": \"1984-04-10\", \"country\": \"NG\"}",
+      "sample_output": "{\"hit\": false, \"reference\": null}",
+      "input": {
+        "full_name": "string, required",
+        "dob": "ISO date, optional",
+        "country": "string, optional"
+      },
+      "output": {
+        "hit": "boolean",
+        "reference": "string"
+      },
+      "manhours": 49,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-airtelmoney-af-wallet-open",
+      "name": "Airtel Money Africa Wallet Opening API",
+      "domain": "payments",
+      "description": "Open mobile money wallet with market-specific KYC checks and product limits.",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.2.0",
+      "method": "POST",
+      "path": "/africa/v1/airtelmoney/wallets",
+      "url": "https://api.company.com/africa/airtelmoney/wallets",
+      "confluence": "https://confluence.company.com/display/AFR/AMA+Wallets",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/ama-wallet-svc",
+      "tags": [
+        "mobile-money",
+        "wallet",
+        "onboarding"
+      ],
+      "sample_input": "{\"msisdn\": \"+2547xxxxxxx\", \"id_type\": \"national_id\", \"id_number\": \"...\"}",
+      "sample_output": "{\"wallet_id\": \"WAF-123\", \"status\": \"active\", \"kyc_level\": \"tier1\"}",
+      "input": {
+        "msisdn": "string, required",
+        "id_type": "string, required",
+        "id_number": "string, required"
+      },
+      "output": {
+        "wallet_id": "string",
+        "status": "string",
+        "kyc_level": "string"
+      },
+      "manhours": 62,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-airtelmoney-af-kyc-tier-upgrade",
+      "name": "AMA KYC Tier Upgrade API",
+      "domain": "payments",
+      "description": "Upgrade Airtel Money Africa wallet KYC tier (tier1\u2192tier2\u2192tier3) with enhanced due diligence.",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.0.0",
+      "method": "PUT",
+      "path": "/africa/v1/airtelmoney/wallets/{walletId}/kyc-tier",
+      "url": "https://api.company.com/africa/airtelmoney/wallets/kyc-tier",
+      "confluence": "https://confluence.company.com/display/AFR/AMA+KYC+Tiers",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/ama-kyc-tier-svc",
+      "tags": [
+        "mobile-money",
+        "kyc",
+        "tier"
+      ],
+      "sample_input": "{\"wallet_id\": \"WAF-123\", \"target_tier\": \"tier2\"}",
+      "sample_output": "{\"status\": \"pending_review\"}",
+      "input": {
+        "wallet_id": "string, required",
+        "target_tier": "string, required"
+      },
+      "output": {
+        "status": "string"
+      },
+      "manhours": 33,
+      "api_efficiency": "high",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-airtelmoney-af-p2p",
+      "name": "AMA P2P Transfer API",
+      "domain": "payments",
+      "description": "Peer-to-peer wallet transfer within country; enforces tiers, limits, and velocity checks.",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.1.0",
+      "method": "POST",
+      "path": "/africa/v1/airtelmoney/p2p",
+      "url": "https://api.company.com/africa/airtelmoney/p2p",
+      "confluence": "https://confluence.company.com/display/AFR/AMA+Transfers",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/ama-transfers-svc",
+      "tags": [
+        "mobile-money",
+        "p2p",
+        "wallet"
+      ],
+      "sample_input": "{\"from\": \"WAF-123\", \"to_msisdn\": \"+2609xxxxxxx\", \"amount\": 150.00, \"currency\": \"ZMW\"}",
+      "sample_output": "{\"txn_id\": \"AMAF-001\", \"status\": \"success\", \"fee\": 1.50}",
+      "input": {
+        "from": "string, required",
+        "to_msisdn": "string, required",
+        "amount": "number, required",
+        "currency": "string, required"
+      },
+      "output": {
+        "txn_id": "string",
+        "status": "string",
+        "fee": "number"
+      },
+      "manhours": 40,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-airtelmoney-af-merchant-qr",
+      "name": "AMA Merchant QR Collect API",
+      "domain": "payments",
+      "description": "Dynamic QR collect for merchant acceptance with reconciliation attributes.",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/airtelmoney/merchant/collect",
+      "url": "https://api.company.com/africa/airtelmoney/merchant/collect",
+      "confluence": "https://confluence.company.com/display/AFR/AMA+Merchants",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/ama-merchant-svc",
+      "tags": [
+        "mobile-money",
+        "merchant",
+        "qr"
+      ],
+      "sample_input": "{\"merchant_id\": \"MER-AF-01\", \"amount\": 5000, \"currency\": \"KES\", \"order_ref\": \"ORD-1001\"}",
+      "sample_output": "{\"payment_id\": \"PMT-1001\", \"status\": \"pending\", \"qr_png\": \"base64...\"}",
+      "input": {
+        "merchant_id": "string, required",
+        "amount": "number, required",
+        "currency": "string, required",
+        "order_ref": "string, required"
+      },
+      "output": {
+        "payment_id": "string",
+        "status": "string",
+        "qr_png": "string"
+      },
+      "manhours": 47,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-airtelmoney-af-cashin",
+      "name": "AMA Cash-In (Agent Deposit) API",
+      "domain": "payments",
+      "description": "Deposit cash at agent to wallet; validate agent float and AML thresholds.",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/airtelmoney/cashin",
+      "url": "https://api.company.com/africa/airtelmoney/cashin",
+      "confluence": "https://confluence.company.com/display/AFR/AMA+Agent+Ops",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/ama-agentops-svc",
+      "tags": [
+        "mobile-money",
+        "agent",
+        "cashin"
+      ],
+      "sample_input": "{\"wallet_id\": \"WAF-123\", \"agent_id\": \"AG-AF-009\", \"amount\": 200.00, \"currency\": \"UGX\"}",
+      "sample_output": "{\"txn_id\": \"CIN-001\", \"status\": \"success\"}",
+      "input": {
+        "wallet_id": "string, required",
+        "agent_id": "string, required",
+        "amount": "number, required",
+        "currency": "string, required"
+      },
+      "output": {
+        "txn_id": "string",
+        "status": "string"
+      },
+      "manhours": 39,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-airtelmoney-af-cashout",
+      "name": "AMA Cash-Out (Agent Withdrawal) API",
+      "domain": "payments",
+      "description": "Withdraw cash at agent; enforce per-tier, per-day limits and OTP.",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/airtelmoney/cashout",
+      "url": "https://api.company.com/africa/airtelmoney/cashout",
+      "confluence": "https://confluence.company.com/display/AFR/AMA+Agent+Ops",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/ama-agentops-svc",
+      "tags": [
+        "mobile-money",
+        "agent",
+        "cashout"
+      ],
+      "sample_input": "{\"wallet_id\": \"WAF-123\", \"agent_id\": \"AG-AF-009\", \"amount\": 100.00, \"currency\": \"TZS\"}",
+      "sample_output": "{\"txn_id\": \"COT-001\", \"status\": \"success\", \"fee\": 1.00}",
+      "input": {
+        "wallet_id": "string, required",
+        "agent_id": "string, required",
+        "amount": "number, required",
+        "currency": "string, required"
+      },
+      "output": {
+        "txn_id": "string",
+        "status": "string",
+        "fee": "number"
+      },
+      "manhours": 41,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-agent-float-balance",
+      "name": "Agent Float Balance API",
+      "domain": "partner",
+      "description": "Retrieve agent float balance, thresholds, and last top-up.",
+      "owner": "Kartic Grover",
+      "team": "Retailer",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/africa/v1/agents/{agentId}/float",
+      "url": "https://api.company.com/africa/agent/float",
+      "confluence": "https://confluence.company.com/display/AFR/Agents",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/agent-float-svc",
+      "tags": [
+        "agent",
+        "float",
+        "liquidity"
+      ],
+      "sample_input": "{\"agent_id\": \"AG-AF-009\"}",
+      "sample_output": "{\"balance\": 250000.00, \"currency\": \"NGN\", \"low_threshold\": 50000.00}",
+      "input": {
+        "agent_id": "string, required"
+      },
+      "output": {
+        "balance": "number",
+        "currency": "string",
+        "low_threshold": "number"
+      },
+      "manhours": 24,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-agent-float-topup",
+      "name": "Agent Float Top-Up API",
+      "domain": "partner",
+      "description": "Top-up agent float via bank transfer or super-agent channel.",
+      "owner": "Kartic Grover",
+      "team": "Retailer",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/agents/{agentId}/float/topup",
+      "url": "https://api.company.com/africa/agent/float/topup",
+      "confluence": "https://confluence.company.com/display/AFR/Agents",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/agent-float-svc",
+      "tags": [
+        "agent",
+        "float",
+        "topup"
+      ],
+      "sample_input": "{\"agent_id\": \"AG-AF-009\", \"amount\": 100000.00, \"currency\": \"KES\"}",
+      "sample_output": "{\"topup_id\": \"FTU-001\", \"status\": \"processing\"}",
+      "input": {
+        "agent_id": "string, required",
+        "amount": "number, required",
+        "currency": "string, required"
+      },
+      "output": {
+        "topup_id": "string",
+        "status": "string"
+      },
+      "manhours": 28,
+      "api_efficiency": "high",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-airtelmoney-af-fx-rates",
+      "name": "AMA FX Rates API",
+      "domain": "payments",
+      "description": "Get current FX rates for cross-border remittances and pricing.",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/africa/v1/fx/rates",
+      "url": "https://api.company.com/africa/fx/rates",
+      "confluence": "https://confluence.company.com/display/AFR/AMA+FX",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/ama-fx-svc",
+      "tags": [
+        "fx",
+        "rates",
+        "remittance"
+      ],
+      "sample_input": "{\"from\": \"KES\", \"to\": \"UGX\"}",
+      "sample_output": "{\"rate\": 30.25, \"as_of\": \"2025-02-19T10:00:00Z\"}",
+      "input": {
+        "from": "string, required",
+        "to": "string, required"
+      },
+      "output": {
+        "rate": "number",
+        "as_of": "ISO datetime"
+      },
+      "manhours": 20,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-crossborder-remittance",
+      "name": "Cross-Border Remittance API",
+      "domain": "payments",
+      "description": "Send/receive cross-border remittances with partner rails and compliance checks.",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/remittance/send",
+      "url": "https://api.company.com/africa/remittance/send",
+      "confluence": "https://confluence.company.com/display/AFR/AMA+Remittance",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/ama-remit-svc",
+      "tags": [
+        "remittance",
+        "fx",
+        "compliance"
+      ],
+      "sample_input": "{\"from_wallet\": \"WAF-123\", \"to_msisdn\": \"+2507xxxxxxx\", \"amount\": 50, \"from_ccy\": \"NGN\", \"to_ccy\": \"RWF\"}",
+      "sample_output": "{\"remit_id\": \"RMT-001\", \"status\": \"in_flight\"}",
+      "input": {
+        "from_wallet": "string, required",
+        "to_msisdn": "string, required",
+        "amount": "number, required",
+        "from_ccy": "string, required",
+        "to_ccy": "string, required"
+      },
+      "output": {
+        "remit_id": "string",
+        "status": "string"
+      },
+      "manhours": 61,
+      "api_efficiency": "medium",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-biller-catalog-africa",
+      "name": "Africa Biller Catalog API",
+      "domain": "payments",
+      "description": "List utility/TV/education billers per market for Airtel Money payments.",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/africa/v1/billers",
+      "url": "https://api.company.com/africa/billers",
+      "confluence": "https://confluence.company.com/display/AFR/Billers",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/billers-svc",
+      "tags": [
+        "billers",
+        "utilities",
+        "payments"
+      ],
+      "sample_input": "{\"market\": \"UG\"}",
+      "sample_output": "{\"billers\": [{\"id\": \"UMEME\", \"type\": \"electricity\"}]}",
+      "input": {
+        "market": "string, required"
+      },
+      "output": {
+        "billers": "array"
+      },
+      "manhours": 18,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-bill-fetch-africa",
+      "name": "African Biller Bill Fetch API",
+      "domain": "payments",
+      "description": "Fetch bill details for regional utilities and government services.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/billers/{billerId}/fetch",
+      "url": "https://api.company.com/africa/billers/fetch",
+      "confluence": "https://confluence.company.com/display/AFR/Billers",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/billers-svc",
+      "tags": [
+        "bill",
+        "fetch",
+        "utilities"
+      ],
+      "sample_input": "{\"biller_id\": \"KPLC\", \"identifier\": \"ACC123\"}",
+      "sample_output": "{\"amount_due\": 1500.00, \"due_date\": \"2025-03-05\"}",
+      "input": {
+        "biller_id": "string, required",
+        "identifier": "string, required"
+      },
+      "output": {
+        "amount_due": "number",
+        "due_date": "ISO date"
+      },
+      "manhours": 29,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-bill-pay-africa",
+      "name": "African Biller Payment API",
+      "domain": "payments",
+      "description": "Pay bills via Airtel Money Africa and obtain receipt token.",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/billers/{billerId}/pay",
+      "url": "https://api.company.com/africa/billers/pay",
+      "confluence": "https://confluence.company.com/display/AFR/Billers",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/billers-svc",
+      "tags": [
+        "bill",
+        "pay",
+        "utilities"
+      ],
+      "sample_input": "{\"biller_id\": \"ZESCO\", \"wallet_id\": \"WAF-123\", \"amount\": 200.00, \"currency\": \"ZMW\"}",
+      "sample_output": "{\"payment_id\": \"BPY-001\", \"status\": \"success\", \"receipt_url\": \"https://.../bp/BPY-001.pdf\"}",
+      "input": {
+        "biller_id": "string, required",
+        "wallet_id": "string, required",
+        "amount": "number, required",
+        "currency": "string, required"
+      },
+      "output": {
+        "payment_id": "string",
+        "status": "string",
+        "receipt_url": "string"
+      },
+      "manhours": 34,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-airtime-advance-africa",
+      "name": "Airtime/Data Advance (Credit) API",
+      "domain": "billing",
+      "description": "Offer small-ticket airtime/data loans (advance) with scorecards and recovery.",
+      "owner": "Manish Jain",
+      "team": "Data Science Team",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/advance/offer",
+      "url": "https://api.company.com/africa/advance/offer",
+      "confluence": "https://confluence.company.com/display/AFR/Advance",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/advance-svc",
+      "tags": [
+        "advance",
+        "airtime",
+        "credit"
+      ],
+      "sample_input": "{\"msisdn\": \"+23480xxxxxx\"}",
+      "sample_output": "{\"eligible\": true, \"offer_amount\": 100.00, \"currency\": \"NGN\"}",
+      "input": {
+        "msisdn": "string, required"
+      },
+      "output": {
+        "eligible": "boolean",
+        "offer_amount": "number",
+        "currency": "string"
+      },
+      "manhours": 38,
+      "api_efficiency": "medium",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-tax-withholding-africa",
+      "name": "Tax Withholding & Levy Computation API",
+      "domain": "billing",
+      "description": "Compute country-specific taxes/levies (e.g., excise/VAT on telecom services).",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/tax/compute",
+      "url": "https://api.company.com/africa/tax/compute",
+      "confluence": "https://confluence.company.com/display/AFR/Tax",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/tax-svc",
+      "tags": [
+        "tax",
+        "levy",
+        "billing"
+      ],
+      "sample_input": "{\"market\": \"UG\", \"amount\": 10000.00, \"service\": \"airtime\"}",
+      "sample_output": "{\"tax\": 1200.00, \"net\": 8800.00}",
+      "input": {
+        "market": "string, required",
+        "amount": "number, required",
+        "service": "string, required"
+      },
+      "output": {
+        "tax": "number",
+        "net": "number"
+      },
+      "manhours": 31,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-regulatory-sim-daily-report",
+      "name": "Regulatory SIM Daily Report API",
+      "domain": "identity",
+      "description": "Generate daily SIM registration compliance report per regulator template.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/africa/v1/regulatory/sim/daily-report",
+      "url": "https://api.company.com/africa/regulatory/sim/daily-report",
+      "confluence": "https://confluence.company.com/display/AFR/Regulatory",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/reg-report-svc",
+      "tags": [
+        "regulatory",
+        "sim",
+        "reporting"
+      ],
+      "sample_input": "{\"market\": \"NG\", \"date\": \"2025-02-18\"}",
+      "sample_output": "{\"file_url\": \"https://.../simreg/NG/2025-02-18.csv\"}",
+      "input": {
+        "market": "string, required",
+        "date": "ISO date, optional"
+      },
+      "output": {
+        "file_url": "string"
+      },
+      "manhours": 27,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-regulatory-mm-transaction-report",
+      "name": "Mobile Money Regulatory Transaction Report API",
+      "domain": "payments",
+      "description": "Produce regulatory transaction logs (AML, thresholds, SAR) per market.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/africa/v1/regulatory/airtelmoney/txn-report",
+      "url": "https://api.company.com/africa/regulatory/airtelmoney/txn-report",
+      "confluence": "https://confluence.company.com/display/AFR/Regulatory",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/reg-report-svc",
+      "tags": [
+        "regulatory",
+        "mobile-money",
+        "reporting"
+      ],
+      "sample_input": "{\"market\": \"RW\", \"period\": \"2025-02\"}",
+      "sample_output": "{\"file_url\": \"https://.../ama/RW/2025-02.csv\"}",
+      "input": {
+        "market": "string, required",
+        "period": "string, required"
+      },
+      "output": {
+        "file_url": "string"
+      },
+      "manhours": 33,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-cvm-offers-africa",
+      "name": "CVM Offer Eligibility (Africa) API",
+      "domain": "customer",
+      "description": "Evaluate customer for Africa-specific packs and mobile money offers.",
+      "owner": "Manish Jain",
+      "team": "Data Science Team",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/offers/evaluate",
+      "url": "https://api.company.com/africa/offers/evaluate",
+      "confluence": "https://confluence.company.com/display/AFR/CVM",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/cvm-af-svc",
+      "tags": [
+        "offers",
+        "cvm",
+        "africa"
+      ],
+      "sample_input": "{\"msisdn\": \"+2250xxxxxxx\", \"context\": {\"intent\": \"recharge\"}}",
+      "sample_output": "{\"eligible_offers\": [\"DATA-WEEK-2GB\",\"AMA-FREE-30\"]}",
+      "input": {
+        "msisdn": "string, required",
+        "context": "object, optional"
+      },
+      "output": {
+        "eligible_offers": "array"
+      },
+      "manhours": 45,
+      "api_efficiency": "medium",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-voucher-bulk-generation",
+      "name": "Recharge Voucher Bulk Generation API",
+      "domain": "sales",
+      "description": "Generate and assign physical/e-voucher batches for distributors and retailers.",
+      "owner": "Kartic Grover",
+      "team": "Retailer",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/vouchers/bulk",
+      "url": "https://api.company.com/africa/vouchers/bulk",
+      "confluence": "https://confluence.company.com/display/AFR/Vouchers",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/voucher-svc",
+      "tags": [
+        "vouchers",
+        "recharge",
+        "distribution"
+      ],
+      "sample_input": "{\"count\": 1000, \"denomination\": 100.00, \"currency\": \"Naira\"}",
+      "sample_output": "{\"batch_id\": \"VB-2025-02-19-01\", \"status\": \"generated\"}",
+      "input": {
+        "count": "integer, required",
+        "denomination": "number, required",
+        "currency": "string, required"
+      },
+      "output": {
+        "batch_id": "string",
+        "status": "string"
+      },
+      "manhours": 42,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-stock-rollout-africa",
+      "name": "SIM & Starter Pack Stock Rollout API",
+      "domain": "partner",
+      "description": "Allocate SIM/starter packs to regions, distributors, and track movement.",
+      "owner": "Kartic Grover",
+      "team": "Retailer",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/stock/allocate",
+      "url": "https://api.company.com/africa/stock/allocate",
+      "confluence": "https://confluence.company.com/display/AFR/Distribution",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/stock-svc",
+      "tags": [
+        "stock",
+        "distribution",
+        "sim"
+      ],
+      "sample_input": "{\"batch_id\": \"SIMB-001\", \"to\": \"DIST-009\", \"quantity\": 500}",
+      "sample_output": "{\"allocation_id\": \"STK-AL-01\", \"status\": \"in_transit\"}",
+      "input": {
+        "batch_id": "string, required",
+        "to": "string, required",
+        "quantity": "integer, required"
+      },
+      "output": {
+        "allocation_id": "string",
+        "status": "string"
+      },
+      "manhours": 37,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-airtelmoney-af-kyc-recheck",
+      "name": "AMA Periodic KYC Recheck API",
+      "domain": "payments",
+      "description": "Periodic KYC screening for active wallets (re\u2011KYC cycle management).",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/airtelmoney/kyc/recheck",
+      "url": "https://api.company.com/africa/airtelmoney/kyc/recheck",
+      "confluence": "https://confluence.company.com/display/AFR/AMA+KYC",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/ama-kyc-recheck-svc",
+      "tags": [
+        "mobile-money",
+        "kyc",
+        "compliance"
+      ],
+      "sample_input": "{\"wallet_id\": \"WAF-123\"}",
+      "sample_output": "{\"status\": \"scheduled\", \"due_on\": \"2025-06-01\"}",
+      "input": {
+        "wallet_id": "string, required"
+      },
+      "output": {
+        "status": "string",
+        "due_on": "ISO date"
+      },
+      "manhours": 26,
+      "api_efficiency": "high",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-kyc-af-face-match",
+      "name": "Africa Face Match API",
+      "domain": "identity",
+      "description": "Face match and selfie liveness tuned for African ID card variance and lighting conditions.",
+      "owner": "Manish Jain",
+      "team": "Data Science Team",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/kyc/face/match",
+      "url": "https://api.company.com/africa/kyc/face/match",
+      "confluence": "https://confluence.company.com/display/AFR/KYC+Biometrics",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/kyc-bio-svc",
+      "tags": [
+        "face",
+        "liveness",
+        "kyc"
+      ],
+      "sample_input": "{\"id_photo\": \"base64...\", \"selfie\": \"base64...\"}",
+      "sample_output": "{\"match\": true, \"liveness\": 0.88}",
+      "input": {
+        "id_photo": "base64, required",
+        "selfie": "base64, required"
+      },
+      "output": {
+        "match": "boolean",
+        "liveness": "number"
+      },
+      "manhours": 52,
+      "api_efficiency": "medium",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-airtelmoney-af-kyt",
+      "name": "AMA KYT Transaction Risk API",
+      "domain": "payments",
+      "description": "Know-Your-Transaction scoring for suspicious patterns in mobile money.",
+      "owner": "Manish Jain",
+      "team": "Rubik",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/airtelmoney/kyt/score",
+      "url": "https://api.company.com/africa/airtelmoney/kyt/score",
+      "confluence": "https://confluence.company.com/display/AFR/KYT",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/kyt-svc",
+      "tags": [
+        "kyt",
+        "risk",
+        "mobile-money"
+      ],
+      "sample_input": "{\"wallet_id\": \"WAF-123\", \"amount\": 900.00, \"merchant\": \"MER-AF-01\"}",
+      "sample_output": "{\"risk_score\": 72, \"flags\": [\"velocity\",\"geo_mismatch\"]}",
+      "input": {
+        "wallet_id": "string, required",
+        "amount": "number, required",
+        "merchant": "string, optional"
+      },
+      "output": {
+        "risk_score": "integer",
+        "flags": "array"
+      },
+      "manhours": 43,
+      "api_efficiency": "medium",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-africa-roaming-bundle",
+      "name": "Africa Roaming Bundle Purchase API",
+      "domain": "network",
+      "description": "Purchase intra-Africa roaming packs with fair-usage and partner network sync.",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/roaming/bundles/purchase",
+      "url": "https://api.company.com/africa/roaming/bundles/purchase",
+      "confluence": "https://confluence.company.com/display/AFR/Roaming",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/roaming-af-svc",
+      "tags": [
+        "roaming",
+        "bundles",
+        "africa"
+      ],
+      "sample_input": "{\"msisdn\": \"+2507xxxxxxx\", \"bundle_code\": \"AFROAM-7D\"}",
+      "sample_output": "{\"success\": true, \"valid_until\": \"2025-02-26T00:00:00Z\"}",
+      "input": {
+        "msisdn": "string, required",
+        "bundle_code": "string, required"
+      },
+      "output": {
+        "success": "boolean",
+        "valid_until": "ISO datetime"
+      },
+      "manhours": 25,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-dnd-africa",
+      "name": "DND Preferences (Africa) API",
+      "domain": "customer",
+      "description": "Set/Update DND preferences per regulator category for African markets.",
+      "owner": "Manish Jain",
+      "team": "Canvas",
+      "version": "1.0.0",
+      "method": "PUT",
+      "path": "/africa/v1/preferences/dnd",
+      "url": "https://api.company.com/africa/preferences/dnd",
+      "confluence": "https://confluence.company.com/display/AFR/DND",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/preferences-af-svc",
+      "tags": [
+        "dnd",
+        "consent",
+        "regulatory"
+      ],
+      "sample_input": "{\"msisdn\": \"+2335xxxxxxx\", \"categories\": [\"promotions\",\"surveys\"]}",
+      "sample_output": "{\"updated\": true, \"effective_at\": \"2025-02-20T00:00:00Z\"}",
+      "input": {
+        "msisdn": "string, required",
+        "categories": "array, required"
+      },
+      "output": {
+        "updated": "boolean",
+        "effective_at": "ISO datetime"
+      },
+      "manhours": 19,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-agent-kyc-onboard-africa",
+      "name": "Agent KYC Onboarding (Africa) API",
+      "domain": "partner",
+      "description": "Onboard Airtel Money agents/distributors with local KYC and AML screening.",
+      "owner": "Kartic Grover",
+      "team": "KYC",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/agents/onboard",
+      "url": "https://api.company.com/africa/agents/onboard",
+      "confluence": "https://confluence.company.com/display/AFR/Agents",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/agent-onboard-svc",
+      "tags": [
+        "agent",
+        "kyc",
+        "onboarding"
+      ],
+      "sample_input": "{\"legal_name\": \"Mobi Traders\", \"country\": \"TZ\", \"kyc_docs\": [\"CERT-REG\",\"TAX-ID\"]}",
+      "sample_output": "{\"agent_id\": \"AG-AF-1001\", \"status\": \"pending_verification\"}",
+      "input": {
+        "legal_name": "string, required",
+        "country": "string, required",
+        "kyc_docs": "array, required"
+      },
+      "output": {
+        "agent_id": "string",
+        "status": "string"
+      },
+      "manhours": 48,
+      "api_efficiency": "medium",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-airtelmoney-af-statement",
+      "name": "AMA Wallet Statement API",
+      "domain": "payments",
+      "description": "Wallet ledger and statement export for Airtel Money Africa.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/africa/v1/airtelmoney/wallet/{walletId}/statement",
+      "url": "https://api.company.com/africa/airtelmoney/wallet/statement",
+      "confluence": "https://confluence.company.com/display/AFR/AMA+Wallets",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/ama-statement-svc",
+      "tags": [
+        "wallet",
+        "statement",
+        "mobile-money"
+      ],
+      "sample_input": "{\"wallet_id\": \"WAF-123\", \"from\": \"2025-01-01\", \"to\": \"2025-02-19\"}",
+      "sample_output": "{\"entries\": [{\"date\": \"2025-02-18\", \"type\": \"debit\", \"amount\": 15.00, \"ccy\": \"KES\"}], \"closing_balance\": 850.00}",
+      "input": {
+        "wallet_id": "string, required",
+        "from": "ISO date, optional",
+        "to": "ISO date, optional"
+      },
+      "output": {
+        "entries": "array",
+        "closing_balance": "number"
+      },
+      "manhours": 29,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-kits-starterpack-activation",
+      "name": "Starter Pack Activation API",
+      "domain": "retail",
+      "description": "Activate starter packs with market logic (bonus, promo windows).",
+      "owner": "Kartic Grover",
+      "team": "Retailer",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/starterpacks/activate",
+      "url": "https://api.company.com/africa/starterpacks/activate",
+      "confluence": "https://confluence.company.com/display/AFR/Retail",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/starterpack-svc",
+      "tags": [
+        "starterpack",
+        "activation",
+        "retail"
+      ],
+      "sample_input": "{\"msisdn\": \"+2439xxxxxxx\", \"kit_code\": \"SP-KIN-2025\"}",
+      "sample_output": "{\"status\": \"activated\", \"bonus\": {\"data_mb\": 2000}}",
+      "input": {
+        "msisdn": "string, required",
+        "kit_code": "string, required"
+      },
+      "output": {
+        "status": "string",
+        "bonus": "object"
+      },
+      "manhours": 32,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-airtelmoney-af-merchant-settlement",
+      "name": "AMA Merchant Settlement API",
+      "domain": "payments",
+      "description": "Settle merchant collections to bank accounts with fees and taxes.",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/airtelmoney/merchant/settlement",
+      "url": "https://api.company.com/africa/airtelmoney/merchant/settlement",
+      "confluence": "https://confluence.company.com/display/AFR/AMA+Merchants",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/ama-merchant-svc",
+      "tags": [
+        "merchant",
+        "settlement",
+        "payments"
+      ],
+      "sample_input": "{\"merchant_id\": \"MER-AF-01\", \"amount\": 100000.00, \"currency\": \"NGN\", \"bank_account\": \"1234567890\"}",
+      "sample_output": "{\"settlement_id\": \"STL-001\", \"status\": \"queued\"}",
+      "input": {
+        "merchant_id": "string, required",
+        "amount": "number, required",
+        "currency": "string, required",
+        "bank_account": "string, required"
+      },
+      "output": {
+        "settlement_id": "string",
+        "status": "string"
+      },
+      "manhours": 41,
+      "api_efficiency": "medium",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-airtelmoney-af-chargeback-dispute",
+      "name": "AMA Chargeback & Dispute API",
+      "domain": "payments",
+      "description": "Log and manage disputes/chargebacks for mobile money transactions.",
+      "owner": "Manish Jain",
+      "team": "Rubik",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/airtelmoney/disputes",
+      "url": "https://api.company.com/africa/airtelmoney/disputes",
+      "confluence": "https://confluence.company.com/display/AFR/Disputes",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/ama-dispute-svc",
+      "tags": [
+        "disputes",
+        "chargeback",
+        "mobile-money"
+      ],
+      "sample_input": "{\"txn_id\": \"AMAF-001\", \"reason\": \"duplicate\"}",
+      "sample_output": "{\"case_id\": \"DSP-001\", \"status\": \"open\"}",
+      "input": {
+        "txn_id": "string, required",
+        "reason": "string, required"
+      },
+      "output": {
+        "case_id": "string",
+        "status": "string"
+      },
+      "manhours": 37,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-africa-fiber-feasibility",
+      "name": "Africa Fiber Feasibility API",
+      "domain": "network",
+      "description": "Check feasibility for home broadband in select African cities/FTTx clusters.",
+      "owner": "Manish Jain",
+      "team": "Stylus",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/africa/v1/fiber/feasibility",
+      "url": "https://api.company.com/africa/fiber/feasibility",
+      "confluence": "https://confluence.company.com/display/AFR/Fiber",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/fiber-feas-svc",
+      "tags": [
+        "fiber",
+        "feasibility",
+        "network"
+      ],
+      "sample_input": "{\"lat\": -1.29, \"lng\": 36.82}",
+      "sample_output": "{\"available\": true, \"distance_m\": 180}",
+      "input": {
+        "lat": "number, required",
+        "lng": "number, required"
+      },
+      "output": {
+        "available": "boolean",
+        "distance_m": "number"
+      },
+      "manhours": 28,
+      "api_efficiency": "high",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-africa-privacy-data-requests",
+      "name": "Africa Privacy Data Request API",
+      "domain": "customer",
+      "description": "Handle customer data access/erasure requests per local privacy laws (NDPR, Kenya DPA, etc.).",
+      "owner": "Manish Jain",
+      "team": "Fractal",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/privacy/requests",
+      "url": "https://api.company.com/africa/privacy/requests",
+      "confluence": "https://confluence.company.com/display/AFR/Privacy",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/privacy-req-svc",
+      "tags": [
+        "privacy",
+        "compliance",
+        "customer"
+      ],
+      "sample_input": "{\"customer_id\": \"CUST-AF-001\", \"type\": \"erasure\"}",
+      "sample_output": "{\"request_id\": \"PRV-001\", \"status\": \"received\"}",
+      "input": {
+        "customer_id": "string, required",
+        "type": "string, required"
+      },
+      "output": {
+        "request_id": "string",
+        "status": "string"
+      },
+      "manhours": 35,
+      "api_efficiency": "medium",
+      "readiness": "production"
+    },
+    {
+      "id": "api-airtelmoney-af-limits",
+      "name": "AMA Limits & Tier Rules API",
+      "domain": "payments",
+      "description": "Query limits for send, cash-in/out, bill pay by KYC tier and market.",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.0.0",
+      "method": "GET",
+      "path": "/africa/v1/airtelmoney/limits",
+      "url": "https://api.company.com/africa/airtelmoney/limits",
+      "confluence": "https://confluence.company.com/display/AFR/AMA+KYC",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/ama-limits-svc",
+      "tags": [
+        "limits",
+        "kyc",
+        "mobile-money"
+      ],
+      "sample_input": "{\"wallet_id\": \"WAF-123\"}",
+      "sample_output": "{\"daily\": 1000.00, \"monthly\": 5000.00, \"currency\": \"RWF\"}",
+      "input": {
+        "wallet_id": "string, required"
+      },
+      "output": {
+        "daily": "number",
+        "monthly": "number",
+        "currency": "string"
+      },
+      "manhours": 21,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-airtelmoney-af-fee-quote",
+      "name": "AMA Fee Quote API",
+      "domain": "payments",
+      "description": "Quote fees for transfers, cash-in/out, bill pay, and merchant payments.",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/airtelmoney/fees/quote",
+      "url": "https://api.company.com/africa/airtelmoney/fees/quote",
+      "confluence": "https://confluence.company.com/display/AFR/AMA+Fees",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/ama-fees-svc",
+      "tags": [
+        "fees",
+        "quote",
+        "mobile-money"
+      ],
+      "sample_input": "{\"market\": \"KE\", \"type\": \"cashout\", \"amount\": 500.00, \"currency\": \"KES\"}",
+      "sample_output": "{\"fee\": 10.00, \"total\": 510.00}",
+      "input": {
+        "market": "string, required",
+        "type": "string, required",
+        "amount": "number, required",
+        "currency": "string, required"
+      },
+      "output": {
+        "fee": "number",
+        "total": "number"
+      },
+      "manhours": 23,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-fraud-velocity-africa",
+      "name": "Africa Fraud Velocity API",
+      "domain": "identity",
+      "description": "Velocity checks across SIM swaps, device changes, and wallet activity in African clusters.",
+      "owner": "Manish Jain",
+      "team": "Rubik",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/fraud/velocity",
+      "url": "https://api.company.com/africa/fraud/velocity",
+      "confluence": "https://confluence.company.com/display/AFR/Fraud",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/afr-fraud-velocity-svc",
+      "tags": [
+        "fraud",
+        "velocity",
+        "risk"
+      ],
+      "sample_input": "{\"msisdn\": \"+23480xxxxxx\"}",
+      "sample_output": "{\"risk\": 0.81, \"signals\": [\"sim_swap_7d\",\"device_change_24h\"]}",
+      "input": {
+        "msisdn": "string, required"
+      },
+      "output": {
+        "risk": "number",
+        "signals": "array"
+      },
+      "manhours": 40,
+      "api_efficiency": "medium",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-care-complaints-africa",
+      "name": "Care Complaints (Africa) API",
+      "domain": "care",
+      "description": "Create and track care complaints with local category taxonomy and SLA.",
+      "owner": "Manish Jain",
+      "team": "Canvas",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/care/complaints",
+      "url": "https://api.company.com/africa/care/complaints",
+      "confluence": "https://confluence.company.com/display/AFR/Care",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/care-af-svc",
+      "tags": [
+        "care",
+        "complaints",
+        "sla"
+      ],
+      "sample_input": "{\"customer_id\": \"CUST-AF-001\", \"category\": \"airtelmoney\", \"description\": \"Cashout delayed\"}",
+      "sample_output": "{\"ticket_id\": \"AF-TKT-001\", \"status\": \"open\"}",
+      "input": {
+        "customer_id": "string, required",
+        "category": "string, required",
+        "description": "string, required"
+      },
+      "output": {
+        "ticket_id": "string",
+        "status": "string"
+      },
+      "manhours": 35,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-sales-lead-africa",
+      "name": "Sales Lead (Africa) API",
+      "domain": "sales",
+      "description": "Create, assign, and track sales leads for SIM, enterprise, and broadband Africa.",
+      "owner": "Kartic Grover",
+      "team": "Retailer",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/sales/leads",
+      "url": "https://api.company.com/africa/sales/leads",
+      "confluence": "https://confluence.company.com/display/AFR/Sales",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/sales-af-svc",
+      "tags": [
+        "sales",
+        "leads",
+        "distribution"
+      ],
+      "sample_input": "{\"customer_name\": \"A. Kamanzi\", \"lead_type\": \"postpaid\", \"market\": \"RW\"}",
+      "sample_output": "{\"lead_id\": \"LD-AF-001\", \"status\": \"assigned\"}",
+      "input": {
+        "customer_name": "string, required",
+        "lead_type": "string, required",
+        "market": "string, required"
+      },
+      "output": {
+        "lead_id": "string",
+        "status": "string"
+      },
+      "manhours": 30,
+      "api_efficiency": "high",
+      "readiness": "production"
+    },
+    {
+      "id": "api-offnet-airtime-buy",
+      "name": "Off-net Airtime/Data Purchase API",
+      "domain": "payments",
+      "description": "Allow Airtel Money users to buy airtime/data for other networks (where permitted).",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.0.0",
+      "method": "POST",
+      "path": "/africa/v1/topup/offnet",
+      "url": "https://api.company.com/africa/topup/offnet",
+      "confluence": "https://confluence.company.com/display/AFR/Topup",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/topup-af-svc",
+      "tags": [
+        "topup",
+        "offnet",
+        "mobile-money"
+      ],
+      "sample_input": "{\"wallet_id\": \"WAF-123\", \"dest_msisdn\": \"+2557xxxxxxx\", \"amount\": 3.00, \"currency\": \"USD\"}",
+      "sample_output": "{\"txn_id\": \"TOP-OF-001\", \"status\": \"success\"}",
+      "input": {
+        "wallet_id": "string, required",
+        "dest_msisdn": "string, required",
+        "amount": "number, required",
+        "currency": "string, required"
+      },
+      "output": {
+        "txn_id": "string",
+        "status": "string"
+      },
+      "manhours": 38,
+      "api_efficiency": "medium",
+      "readiness": "beta"
+    },
+    {
+      "id": "api-airtelmoney-af-wallet-block",
+      "name": "AMA Wallet Block/Unblock API",
+      "domain": "payments",
+      "description": "Temporarily block or unblock wallet upon risk or customer request.",
+      "owner": "Kartic Grover",
+      "team": "Airtel Money",
+      "version": "1.0.0",
+      "method": "PUT",
+      "path": "/africa/v1/airtelmoney/wallets/{walletId}/status",
+      "url": "https://api.company.com/africa/airtelmoney/wallets/status",
+      "confluence": "https://confluence.company.com/display/AFR/AMA+Wallets",
+      "bitbucket": "https://bitbucket.company.com/projects/AFR/repos/ama-wallet-svc",
+      "tags": [
+        "wallet",
+        "status",
+        "risk"
+      ],
+      "sample_input": "{\"wallet_id\": \"WAF-123\", \"action\": \"block\", \"reason\": \"suspected_fraud\"}",
+      "sample_output": "{\"status\": \"blocked\"}",
+      "input": {
+        "wallet_id": "string, required",
+        "action": "string, required",
+        "reason": "string, optional"
+      },
+      "output": {
+        "status": "string"
+      },
+      "manhours": 24,
+      "api_efficiency": "high",
+      "readiness": "production"
+    }
+  ]
+}
